@@ -5,26 +5,31 @@
     <item android:id="@+id/home"
         app:showAsAction="always"
         android:enabled="true"
+        android:icon="@drawable/home_icon"
         android:title="home"/>
 
     <item android:id="@+id/map"
         app:showAsAction="always"
         android:enabled="true"
+        android:icon="@drawable/map_icon"
         android:title="map"/>
 
     <item android:id="@+id/plan"
         app:showAsAction="always"
         android:enabled="true"
+        android:icon="@drawable/plan_icon"
         android:title="plan"/>
 
     <item android:id="@+id/ranking"
         app:showAsAction="always"
         android:enabled="true"
+        android:icon="@drawable/ranking_icon"
         android:title="ranking"/>
 
     <item android:id="@+id/diary"
         app:showAsAction="always"
         android:enabled="true"
+        android:icon="@drawable/diary_icon"
         android:title="diary"/>
 
 </menu>

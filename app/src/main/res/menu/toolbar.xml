@@ -5,12 +5,14 @@
     <item
         android:id="@+id/toolbar_auth"
         android:title="로그인"
+        android:icon="@drawable/login"
+        app:iconSize="10dp"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/toolbar_side"
-        android:icon="@android:drawable/ic_menu_month"
-        android:title="사이드바"
+        android:id="@+id/toolbar_nav"
+        android:title="네비게이션"
+        android:icon="@drawable/hamburger_icon"
         app:showAsAction="always" />
 
 </menu>
