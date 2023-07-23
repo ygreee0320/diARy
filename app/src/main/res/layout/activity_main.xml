@@ -46,7 +46,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
-        android:id="@+id/main_drawer"
+        android:id="@+id/nav_view"
         android:layout_width="300dp"
         android:layout_height="match_parent"
         android:background="#ffffff"
@@ -54,6 +54,5 @@
         android:fitsSystemWindows="true"
         android:gravity="center"
         android:layout_gravity="end"
-        app:menu="@menu/navigation_menu"/>
-
+        app:menu="@menu/navigation_menu" />
 </androidx.drawerlayout.widget.DrawerLayout>

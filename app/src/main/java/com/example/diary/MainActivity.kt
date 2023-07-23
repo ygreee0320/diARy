@@ -16,7 +16,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.navigation.NavigationView
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +25,11 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        //toolbar
         setSupportActionBar(binding.toolbar)
+
+        //navigator
+        binding.navView.setNavigationItemSelectedListener(this)
 
         //bottom navigator
         binding.bottomMenu.setOnItemSelectedListener {item ->
@@ -68,5 +72,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.menu_1 -> {}
+            R.id.menu_2 -> {}
+            R.id.menu_3 -> {}
+        }
+        return true
     }
 }
