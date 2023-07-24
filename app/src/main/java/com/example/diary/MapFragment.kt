@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebViewClient
+import com.example.diary.databinding.FragmentMapBinding
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -33,8 +35,16 @@ class MapFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map, container, false)
+        val binding = FragmentMapBinding.inflate(inflater, container,false)
+
+        binding.webview.apply {
+            webViewClient = WebViewClient()
+            settings.javaScriptEnabled = true
+        }
+
+        binding.webview.loadUrl("file:///android_asset/index.html") //webview에서 local file에 대한 호스팅
+
+        return binding.root
     }
 
     companion object {
