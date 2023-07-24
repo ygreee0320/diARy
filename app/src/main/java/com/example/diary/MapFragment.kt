@@ -40,9 +40,12 @@ class MapFragment : Fragment() {
         binding.webview.apply {
             webViewClient = WebViewClient()
             settings.javaScriptEnabled = true
+            settings.loadWithOverviewMode = true
+            settings.useWideViewPort = true
+            settings.setSupportZoom(false)
         }
 
-        binding.webview.loadUrl("file:///android_asset/index.html") //webview에서 local file에 대한 호스팅
+        binding.webview.loadUrl("https://diarymap.netlify.app") //임시 주소
 
         return binding.root
     }
