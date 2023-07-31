@@ -1,14 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="15dp"
     tools:context=".HomeFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:orientation="vertical" >
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/search_place_home"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="3dp"
+                android:layout_marginRight="5dp"
+                android:text="여행지 검색 |"
+                android:textColor="@color/primary"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/search_title_home"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="3dp"
+                android:layout_marginRight="5dp"
+                android:text="제목 검색 |"
+                android:textColor="#959595"
+                android:textSize="10dp" />
+
+            <TextView
+                android:id="@+id/search_writer_home"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="3dp"
+                android:text="글 작성자"
+                android:textColor="#959595"
+                android:textSize="10dp" />
+
+        </LinearLayout>
+
+        <!-- 검색바 테두리 -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#86AED8"
+            android:padding="2dp"
+            android:layout_alignParentTop="true" >
+
+            <!-- 검색바 (SearchView) -->
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/search_ranking"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:iconifiedByDefault="false"
+                android:queryBackground="@null"
+                android:queryHint="검색어를 입력하세요" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:text="추천 검색어  제주도  식도락  휴식"
+            android:textSize="10dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:text="핫토핏 - "
+            android:textColor="@color/black"
+            android:textSize="15dp" />
+        <TextView
+            android:id="@+id/topic_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="15dp" />
+
+    </LinearLayout>
+
+
+</LinearLayout>
