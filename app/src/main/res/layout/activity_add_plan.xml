@@ -104,7 +104,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="출발일 "
-                    android:textSize="13dp" />
+                    android:textSize="14dp" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
@@ -115,7 +115,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text=" 도착일"
-                    android:textSize="13dp" />
+                    android:textSize="14dp" />
 
             </LinearLayout>
 

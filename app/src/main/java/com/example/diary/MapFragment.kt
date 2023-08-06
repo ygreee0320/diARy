@@ -42,7 +42,7 @@ class MapFragment : Fragment() {
             settings.javaScriptEnabled = true
         }
 
-        binding.webview.loadUrl("file:///android_asset/index.html") //webview에서 local file에 대한 호스팅
+        binding.webview.loadUrl("https://diarymap.netlify.app") //임시 주소
 
         return binding.root
     }
