@@ -42,6 +42,7 @@ class MapFragment : Fragment() {
             settings.javaScriptEnabled = true
             settings.loadWithOverviewMode = true
             settings.useWideViewPort = true
+
             settings.setSupportZoom(false)
         }
 
