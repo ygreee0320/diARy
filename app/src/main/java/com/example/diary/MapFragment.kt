@@ -46,7 +46,7 @@ class MapFragment : Fragment() {
             settings.setSupportZoom(false)
         }
 
-        binding.webview.loadUrl("https://diarymap.netlify.app") //임시 주소
+        binding.webview.loadUrl("https://diarymap.netlify.app/map.html") //임시 주소
 
         return binding.root
     }
