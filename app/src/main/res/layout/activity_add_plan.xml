@@ -133,15 +133,19 @@
                 android:layout_marginBottom="5dp"
                 android:background="@android:color/darker_gray" />
 
-            <EditText
+            <com.aqoong.lib.hashtagedittextview.HashTagEditTextView
                 android:id="@+id/plan_hash_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/edittext_border"
-                android:hint="#해시태그를 추가하세요."
                 android:padding="5dp"
-                android:layout_marginBottom="5dp"
-                android:textSize="13dp" />
+                android:textSize="13dp"
+                android:hint="#해시태그를 추가하세요."
+                app:itemMaxLength="15"
+                app:itemMaxCount="5"
+                app:autoPoundSign="true"
+                app:itemMaxLengthOverMent="The tag is too long."
+                app:itemMaxCountOverMent="Too many tags." />
 
             <CheckBox
                 android:id="@+id/plan_lock_btn"
