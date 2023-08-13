@@ -33,18 +33,19 @@ class MapFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceStte: Bundle?
     ): View? {
         val binding = FragmentMapBinding.inflate(inflater, container,false)
 
         binding.webview.apply {
             webViewClient = WebViewClient()
-            settings.javaScriptEnabled = true
-            settings.loadWithOverviewMode = true
-            settings.useWideViewPort = true
-
+            settings.javaScriptEnabled = true //자바스크립트 허용
+            settings.loadWithOverviewMode = true //html의 컨텐츠가 웹뷰보다 클 경우 스크린 크기에 맞게 자동 조정
+            settings.useWideViewPort = true //html의 viewport 메타 태그 지원
             settings.setSupportZoom(false)
         }
+
+        binding.webview.addJavascriptInterface(WebAppInterface(requireContext()), "Android")
 
         binding.webview.loadUrl("https://diarymap.netlify.app/map.html") //임시 주소
 

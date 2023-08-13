@@ -17,12 +17,6 @@
         <activity
             android:name=".AddDiaryActivity"
             android:exported="false" />
-
-        <service
-            android:name=".ApiService"
-            android:enabled="true"
-            android:exported="true" />
-
         <activity
             android:name=".DetailPlanActivity"
             android:exported="false" />
