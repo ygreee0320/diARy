@@ -7,61 +7,53 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.getbase.floatingactionbutton.FloatingActionButton
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [PlanFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class PlanFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var planAdapter: PlanAdapter
+    private lateinit var recyclerView: RecyclerView // 리사이클러뷰 추가
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_plan, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //    searchView 클릭 시, 검색 활성화
-        val searchPlan = view.findViewById<SearchView>(R.id.search_plan)
+        recyclerView = view.findViewById(R.id.planRecyclerView) // 리사이클러뷰 초기화
 
+        val layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
+
+        planAdapter = PlanAdapter(emptyList()) // 초기에 빈 목록으로 어댑터 설정
+        recyclerView.adapter = planAdapter // 리사이클러뷰에 어댑터 설정
+
+        // Call the API to get actual plan data
+        ApiManager.getPlanData(
+            onSuccess = { apiResponse ->
+                val plans = apiResponse.plans
+                planAdapter.updateData(plans)
+            },
+            onError = { throwable ->
+                // Handle error
+            }
+        )
+
+        val searchPlan = view.findViewById<SearchView>(R.id.search_plan)
         searchPlan.setOnClickListener {
-            searchPlan.isIconified = false // SearchView에 포커스 요청
+            searchPlan.isIconified = false
         }
 
-        // 일정 불러오기(plan_call_in) 버튼 클릭 시, 랭킹 페이지로 이동
-        // 하단 메뉴바에는 플랜으로 그대로 표시됨
         val planCallInButton = view.findViewById<FloatingActionButton>(R.id.plan_call_in)
-
         planCallInButton.setOnClickListener {
             val rankingFragment = RankingFragment()
             changeFragment(rankingFragment)
         }
 
-        // 일정 새로 추가하기(plan_add_new) 버튼 클릭 시, DetailPlanActivity 로 이동
         val planAddNewButton = view.findViewById<FloatingActionButton>(R.id.plan_add_new)
-
         planAddNewButton.setOnClickListener {
             val intent = Intent(activity, AddPlanActivity::class.java)
             startActivity(intent)
@@ -73,25 +65,5 @@ class PlanFragment : Fragment() {
             ?.beginTransaction()
             ?.replace(R.id.fragment_container, fragment)
             ?.commit()
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PlanFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PlanFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
     }
 }
