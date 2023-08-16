@@ -1,7 +1,9 @@
 package com.example.diary
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
@@ -9,8 +11,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.diary.databinding.DiaryDetailPlaceRecyclerviewBinding
 
-class DiaryPlaceAdapter (private val itemList: List<DiaryPlaceModel>) :
+class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
     RecyclerView.Adapter<DiaryPlaceAdapter.ViewHolder>() {
+
+    companion object {
+        private const val ITEM_TYPE_NORMAL = 0
+        private const val ITEM_TYPE_MEMO = 1
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = DiaryDetailPlaceRecyclerviewBinding.inflate(
@@ -30,11 +37,28 @@ class DiaryPlaceAdapter (private val itemList: List<DiaryPlaceModel>) :
     inner class ViewHolder(private val binding: DiaryDetailPlaceRecyclerviewBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
+        init {
+            binding.diaryCardView.setOnClickListener {
+                val item = itemList[adapterPosition] // 클릭된 아이템
+                val intent = Intent(itemView.context, AddPlaceInDiaryActivity::class.java)
+                Log.d("어댑터", ""+adapterPosition)
+                intent.putExtra("itemPosition", adapterPosition) // position 전달
+                intent.putExtra("place", item.place)
+                intent.putExtra("content", item.content)
+                intent.putParcelableArrayListExtra("imageUris", item.imageUris)
+                //itemView.context.startActivity(intent)
+                AddDiaryActivity.addPlaceActivityResult.launch(intent)
+            }
+        }
+
         fun bind(item: DiaryPlaceModel) {
-            // 데이터를 레이아웃의 뷰에 바인딩합니다.
-            // binding.diaryDetailPlace.text = item.placeName
-            // binding.diaryDetailPlaceTime.text = item.placeTime
-            binding.placeContent.text = item.content
+            // 데이터를 레이아웃의 뷰에 바인딩
+            //Log.d(TAG, "Item content: ${item.content}")
+            if(item.place != null) {
+                binding.diaryDetailPlace.text = item.place
+            }
+
+            binding.placeContent.text = item.content ?: "클릭하여 여행지별 일기를 기록하세요."
 
             // 이미지 리사이클러뷰 초기화 및 어댑터 연결
             val imageRecyclerView = binding.recyclerView
@@ -45,4 +69,23 @@ class DiaryPlaceAdapter (private val itemList: List<DiaryPlaceModel>) :
             imageRecyclerView.adapter = imageAdapter
         }
     }
+
+    // 특정 아이템을 맨 마지막으로 이동시키는 함수
+    fun moveMemoItemToLast() {
+        val memoItem = itemList.find { it.place == "MEMO" }
+        memoItem?.let {
+            itemList.remove(it)
+            itemList.add(it)
+            notifyDataSetChanged()
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        if ("MEMO" == itemList[position].place) {
+            return ITEM_TYPE_MEMO
+        } else {
+            return ITEM_TYPE_NORMAL
+        }
+    }
+
 }

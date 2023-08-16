@@ -167,7 +167,7 @@
             <ImageView
                 android:id="@+id/diary_add_place_btn"
                 android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_height="29dp"
                 android:layout_marginRight="15dp"
                 android:src="@drawable/map_icon" />
 

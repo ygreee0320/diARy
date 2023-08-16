@@ -2,6 +2,7 @@ package com.example.diary
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,10 +11,18 @@ import androidx.appcompat.widget.SearchView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.getbase.floatingactionbutton.FloatingActionButton
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
 
 class PlanFragment : Fragment() {
     private lateinit var planAdapter: PlanAdapter
-    private lateinit var recyclerView: RecyclerView // 리사이클러뷰 추가
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -31,16 +40,7 @@ class PlanFragment : Fragment() {
         planAdapter = PlanAdapter(emptyList()) // 초기에 빈 목록으로 어댑터 설정
         recyclerView.adapter = planAdapter // 리사이클러뷰에 어댑터 설정
 
-        // Call the API to get actual plan data
-        ApiManager.getPlanData(
-            onSuccess = { apiResponse ->
-                val plans = apiResponse.plans
-                planAdapter.updateData(plans)
-            },
-            onError = { throwable ->
-                // Handle error
-            }
-        )
+        loadPlanList()
 
         val searchPlan = view.findViewById<SearchView>(R.id.search_plan)
         searchPlan.setOnClickListener {
@@ -58,6 +58,26 @@ class PlanFragment : Fragment() {
             val intent = Intent(activity, AddPlanActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    // 서버에서 내 플랜 리스트 불러오기
+    private fun loadPlanList() {
+        MyPlanListManager.getPlanListData(
+            onSuccess = { myPlanListResponse ->
+                val plan = myPlanListResponse.map { it.plan }
+                planAdapter.updateData(plan)
+            },
+            onError = { throwable ->
+                Log.e("서버 테스트3", "오류: $throwable")
+            }
+        )
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //플랜 리스트 업데이트
+        loadPlanList()
     }
 
     private fun changeFragment(fragment: Fragment) {

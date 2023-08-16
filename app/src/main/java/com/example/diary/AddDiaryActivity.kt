@@ -6,8 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.DatePicker
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -23,23 +25,11 @@ class AddDiaryActivity : AppCompatActivity() {
 
     private val diaryPlaceAdapter = DiaryPlaceAdapter(diaryPlaceList)
 
-    // AddPlaceInDiaryActivity를 시작하기 위한 요청 코드 정의
-    private val addPlaceActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data = result.data
-            val enteredText = data?.getStringExtra("enteredText")
-            val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
-
-            if (!enteredText.isNullOrEmpty() || imageUris != null) {
-                // DiaryPlaceModel 인스턴스를 생성하고 리스트에 추가
-                val newDiaryPlaceModel = DiaryPlaceModel(content = enteredText, imageUris = imageUris)
-                diaryPlaceList.add(newDiaryPlaceModel)
-
-                // 어댑터에 데이터 변경을 알림
-                diaryPlaceAdapter.notifyDataSetChanged()
-            }
-        }
+    companion object {
+        lateinit var addPlaceActivityResult: ActivityResultLauncher<Intent>
     }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +45,42 @@ class AddDiaryActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.title = ""
+
+        // AddPlaceInDiaryActivity를 시작하기 위한 요청 코드 정의
+        addPlaceActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val position = data?.getIntExtra("itemPosition", -1)
+                val enteredText = data?.getStringExtra("enteredText")
+                val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
+                Log.d("리사이클러뷰", ""+position)
+
+                if (position != null && position >= 0) {
+                    val item = diaryPlaceList[position]
+                    item.content = enteredText
+                    item.imageUris = imageUris
+                    diaryPlaceAdapter.notifyItemChanged(position)
+                } else {
+                    if (!enteredText.isNullOrEmpty() || imageUris != null) {
+                        // DiaryPlaceModel 인스턴스를 생성하고 리스트에 추가
+                        val newDiaryPlaceModel =
+                            DiaryPlaceModel(content = enteredText, imageUris = imageUris)
+                        diaryPlaceList.add(newDiaryPlaceModel)
+
+                        // 특정 아이템을 리스트의 맨 마지막으로 이동시키는 함수 호출
+                        diaryPlaceAdapter.moveMemoItemToLast()
+
+                        // 어댑터에 데이터 변경을 알림
+                        diaryPlaceAdapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        }
+
+        // "MEMO" 항목 추가
+        val initialMemo = DiaryPlaceModel(place = "MEMO", content = "클릭하여 메모를 작성하세요.")
+        diaryPlaceList.add(initialMemo)
+        diaryPlaceAdapter.notifyDataSetChanged()
 
         // 툴바 취소 버튼 클릭 시
         binding.diaryCancelBtn.setOnClickListener {
