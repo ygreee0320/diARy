@@ -131,5 +131,10 @@ class AddPlanMapActivity : AppCompatActivity() {
                 }
             })
         }
+
+        @JavascriptInterface
+        fun addPlaceIn() {
+            Log.d("mylog", "add successed")
+        }
     }
 }
