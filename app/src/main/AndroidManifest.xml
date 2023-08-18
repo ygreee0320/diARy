@@ -25,8 +25,12 @@
             android:exported="false"
             android:theme="@style/Theme.DiARy.NoActionBar" />
         <activity
+            android:name=".AddDiaryMapActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:exported="false" />
+        <activity
             android:name=".RoadMapActivity"
-            android:exported="false"/>
+            android:exported="false" />
         <activity
             android:name=".AddPlaceInDiaryActivity"
             android:exported="false"

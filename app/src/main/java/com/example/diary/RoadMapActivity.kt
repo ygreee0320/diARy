@@ -41,7 +41,7 @@ class RoadMapActivity : AppCompatActivity() {
         binding.webview.loadUrl("https://diarymap.netlify.app/roadmap.html") //임시 주소
     }
 
-    //뒤로가기 버튼
+    //toolbar 뒤로가기 버튼
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {
             finish()
@@ -57,7 +57,7 @@ class RoadMapActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun showToast(toast: String) {
-            Log.d("RoadMapInterface", toast)
+            Log.d("mylog", toast)
         }
 
         @JavascriptInterface

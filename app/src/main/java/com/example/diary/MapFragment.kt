@@ -65,7 +65,7 @@ class MapFragment : Fragment() {
 
         @JavascriptInterface
         fun showToast(toast: String) {
-            Log.d("MapInterface", toast)
+            Log.d("mylog", toast)
         }
 
         @JavascriptInterface
@@ -75,7 +75,7 @@ class MapFragment : Fragment() {
             this.x = x
             this.y = y
 
-            Log.d("WebAppInterface", "Save successed - ${this.title} / ${this.address} / ${this.x} / ${this.y}")
+            Log.d("mylog", "Save successed - ${this.title} / ${this.address} / ${this.x} / ${this.y}")
         }
 
         @JavascriptInterface

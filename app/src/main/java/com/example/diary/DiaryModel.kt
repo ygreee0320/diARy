@@ -43,4 +43,18 @@ data class DiaryData(
     val diaryLocationDto: List<DiaryLocationDto>
 )
 
+// 유저별 일기 목록
+data class MyDiary(
+    val diaryId: Int,
+    val travelDest: String,
+    val title: String,
+    val travelStart: String, //임시 스트링
+    val travelEnd: String,
+    val diaryLike: Int,
+    val comment: Int,
+    val createdAt: String,
+    val updatedAt: String,
+    val public: Boolean
+)
+
 

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>diary add spot</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+  <!-- flaticon -->
+  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-bold-rounded/css/uicons-bold-rounded.css'> <!-- cal icon -->
+  <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-solid-rounded/css/uicons-solid-rounded.css'> <!-- tel icon -->
+
+  <!-- kakao map api -->
+  <script
+    type="text/javascript"
+    src="//dapi.kakao.com/v2/maps/sdk.js?appkey=08e5a0f9ad6656a4e9d4a0afc5f90c36&libraries=services,clusterer,drawing"
+  ></script>
+
+  <!-- style sheet 적용 -->
+  <link rel="stylesheet" href="css/searchPlace.css">
+
+  <style>
+    body {
+        margin : 0;
+      }
+
+    #map {
+      width: 100vw;
+      height: 70vh;
+    }
+
+    #cal_btn {
+      width: 50px;
+      height: 50px;
+
+      position: absolute;
+      top: 20px;
+      left: 20px;
+
+      border: solid 0px white;
+      border-radius: 20px;
+      background-color: white;
+
+      font-size: 25px;
+
+      z-index: 1;
+    }
+
+    button:focus {
+      outline: none !important;
+      box-shadow: none !important;
+    }
+
+    #cancelBtn {
+      background-color: white;
+      color: #86AED8;
+    }
+
+    #cancelBtn:hover {
+      background-color: #86AED8;
+      color: white;
+    }
+
+    #addBtn {
+      background-color: #86AED8;
+      color: white;
+    }
+
+    #addBtn:hover {
+      background-color: white;
+      color: #86AED8;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <button id="cal_btn" onclick="Android.setTripDate();"><i class="fi fi-br-calendar-check"></i></button>
+
+  <div id="search_place">
+    <h6>검색결과(<span id="place_cnt">n</span>건)</h6>
+    <!-- carousel slider -->
+    <div id="carouselExampleIndicators" class="carousel slide">
+      <div class="carousel-inner">
+        <!-- <div class="carousel-item active">
+          <div class="row">
+            <div class ="col">
+              <img class="place_img" src="image/sample.png">
+              <p class="place_name">장소이름</p>
+            </div>
+          </div>
+        </div> -->
+      </div>
+
+      <div class="carousel-indicators">
+        <!-- <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button> -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    //변수 선언부
+    var markers = []
+
+    //지도 생성
+    var mapContainer = document.getElementById("map"), // 지도를 표시할 div
+        mapOption = {
+          center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+          level: 3, // 지도의 확대 레벨
+        };
+
+    var map = new kakao.maps.Map(mapContainer, mapOption);
+
+    //Custom Overlay
+    var customOverlay = new kakao.maps.CustomOverlay({
+      map: map,
+      yAnchor: 1,
+      zIndex: 1
+    });
+
+    //키워드 검색 요청 함수
+    var diaryAddSpot = {
+      searchPlaces: function(){
+        var keyword = Android.getSearchResult()
+        console.log("keyword: " + keyword);
+
+        //장소 검색 객체
+        var ps = new kakao.maps.services.Places();
+
+        ps.keywordSearch(keyword, placesSearchCB);
+      }
+    }
+
+    //키워드 검색 완료 시 호출되는 콜백 함수
+    function placesSearchCB(data, status, pagination) {
+      if (status === kakao.maps.services.Status.OK) {
+        displayMarker(data);
+        displaySlider(data);
+      }
+    }
+
+    //검색 결과 마커 표출 함수
+    function displayMarker(places) {
+      var bounds = new kakao.maps.LatLngBounds();
+
+      //지도에 표시된 마커 제거
+      removeMarker();
+
+      for (var i=0; i < places.length; i++) {
+        //마커 생성 및 표시
+        var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x),
+            marker = addMarker(placePosition, i);
+
+        //검색된 장소 위치를 기준으로 지도 범위 재설정
+        bounds.extend(placePosition);
+
+        (function(marker, place) {
+          kakao.maps.event.addListener(marker, 'click', function() {
+            displayCustomOverlay(map.getCenter(), place);
+          });
+        })(marker, places[i]);
+
+        map.setBounds(bounds);
+      }
+    }
+
+    //마커 생성 및 표시 함수
+    function addMarker(position, idx, title) {
+      var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_number_blue.png', // 마커 이미지 url
+          imageSize = new kakao.maps.Size(36, 37),  //마커 이미지의 크기
+          imgOptions =  {
+              spriteSize : new kakao.maps.Size(36, 691), //스프라이트 이미지의 크기
+              spriteOrigin : new kakao.maps.Point(0, (idx*46)+10), //스프라이트 이미지 중 사용할 영역의 좌상단 좌표
+              offset: new kakao.maps.Point(13, 37) //마커 좌표에 일치시킬 이미지 내에서의 좌표
+          },
+          markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imgOptions),
+          marker = new kakao.maps.Marker({
+              position: position, //마커의 위치
+              image: markerImage 
+          });
+
+      marker.setMap(map); //지도 위에 마커 표출
+      markers.push(marker);  //배열에 생성된 마커 추가
+
+      return marker;
+    }
+
+    //지도에 표시된 마커 제거 함수
+    function removeMarker() {
+      for ( var i = 0; i < markers.length; i++ ) {
+        markers[i].setMap(null);
+      }   
+      markers = [];
+    }
+
+    //Custom Overlay 호출 함수
+    function displayCustomOverlay(position, place) {
+      var title = place.place_name,
+          address = place.road_address_name,
+          tel = place.phone,
+          x = place.x,
+          y = place.y;
+
+      Android.setPlaceInfo(title, address, tel, x, y);
+
+      var content = '<div class="card" style="width: 70vw; padding: 10px; transform: translate(0, 50%);">\
+                      <div class="row" style="margin: 5px 0px;">\
+                        <div class="col col-8" style="padding: 0;">\
+                          <h6 id="place_name">' + title + '</h6>\
+                          <p id="place_address" style="margin: 0; font-size: 12px; color: gray;">' + address + '</p>\
+                          <p id="place_tel" style="margin: 0; font-size: 12px; color: gray;"><i class="fi fi-sr-phone-flip"></i> ' + tel + '</p>\
+                        </div>\
+                        <div class="col col-4" style="padding: 0; text-align: center;">\
+                          <img id="place_img" src="image/sample.png" style="width: 20vw; height: 15vw; object-fit: cover; object-position: center;">\
+                        </div>\
+                      </div>\
+                      <div class="row button-group" style="margin: 5px 0px;">\
+                        <div class="col" style="padding: 0px 5px;"><button id="cancelBtn" onclick="closeOverlay();" style="width: 100%; border: 1px solid #86AED8; border-radius: 5px; padding: 3px; font-size: 15px;">취소</button></div>\
+                        <div class="col" style="padding: 0px 5px;"><button id="addBtn" onclick="" style="width: 100%; border: 1px solid #86AED8; border-radius: 5px; padding: 3px; font-size: 15px;">추가하기</button></div>\
+                      </div>\
+                    </div>';
+
+      customOverlay.setContent(content);
+      customOverlay.setPosition(position);
+
+      customOverlay.setMap(map);
+    }
+
+    //custom Overlay close 함수
+    function closeOverlay() {
+      customOverlay.setMap(null); 
+    }
+
+    /////////////////////////////////////////////////////////////////
+    ///                   carousel slider 작성                    ///
+    ////////////////////////////////////////////////////////////////
+
+    //html 추가
+    function displaySlider(places) {
+      var i = 0, j = 3, btn = 0;
+      var items = document.querySelector('.carousel-inner');
+      var indicators = document.querySelector('.carousel-indicators');
+
+       while(true) {
+        var item = document.createElement('div');
+        item.className = 'carousel-item';
+
+        var row = document.createElement('div');
+        row.className = 'row';
+
+        var button = document.createElement('button');
+        button.type = 'button'
+        button.setAttribute('data-bs-target', '#carouselExampleIndicators');
+        button.setAttribute('data-bs-slide-to', btn);
+        button.setAttribute('aria-label', 'Slide ' + (btn+1));
+
+        items.appendChild(item);
+        item.appendChild(row);
+
+        indicators.appendChild(button);
+
+        btn += 1;
+
+        console.log("[" + i + "~" + j + "] item 생성");
+
+        for (i; i < j; i++) {
+          var col = document.createElement('div');
+          col.className = 'col';
+
+          var img = document.createElement('img');
+          img.className = 'place_img';
+          img.src = 'image/sample.png';
+
+          var p = document.createElement('p');
+          p.className = 'place_name';
+          p.textContent = places[i].place_name;
+
+          row.appendChild(col);
+          col.appendChild(img);
+          col.appendChild(p);
+        }
+
+        if(j === places.length) { break; }
+
+        j += 3;
+
+        if(j > places.length) { j = places.length; }
+      }
+
+      var active_item = document.querySelectorAll('.carousel-item')[0];
+      active_item.className += ' active';
+
+      var active_indicator = document.querySelectorAll('.carousel-indicators button')[0];
+      active_indicator.className = 'active';
+      active_indicator.setAttribute('aria-current', 'true');
+    }
+
+
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js" integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V" crossorigin="anonymous"></script>
+</body>
+</html>
