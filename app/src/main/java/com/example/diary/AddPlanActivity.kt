@@ -8,23 +8,15 @@ import android.widget.DatePicker
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.aqoong.lib.hashtagedittextview.HashTagEditTextView
+import com.example.diary.PlanManager.sendPlanToServer
 import com.example.diary.databinding.ActivityAddPlanBinding
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
 import retrofit2.http.POST
+import java.sql.Date
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 class AddPlanActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPlanBinding
-    private lateinit var travelStartDate: Date
-    private lateinit var travelEndDate: Date
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,11 +31,7 @@ class AddPlanActivity : AppCompatActivity() {
         binding.planDateStart.setOnClickListener {
             val datePickerDialog = DatePickerDialog(this, object: DatePickerDialog.OnDateSetListener{
                 override fun onDateSet(view: DatePicker?, year:Int, month: Int, dayOfMonth: Int) {
-                    //binding.planDateStart.text = "${year}-${month+1}-${dayOfMonth}"
-                    val calendar = Calendar.getInstance()
-                    calendar.set(year, month, dayOfMonth)
-                    travelStartDate = calendar.time
-                    binding.planDateStart.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+                    binding.planDateStart.text = "${year}-${month+1}-${dayOfMonth}"
                 }
             }, 2023, 9, 1)
             datePickerDialog.show()
@@ -54,11 +42,7 @@ class AddPlanActivity : AppCompatActivity() {
         binding.planDateEnd.setOnClickListener {
             val datePickerDialog = DatePickerDialog(this, object: DatePickerDialog.OnDateSetListener{
                 override fun onDateSet(view: DatePicker?, year:Int, month: Int, dayOfMonth: Int) {
-                    //binding.planDateEnd.text = "${year}-${month+1}-${dayOfMonth}"
-                    val calendar = Calendar.getInstance()
-                    calendar.set(year, month, dayOfMonth)
-                    travelEndDate = calendar.time
-                    binding.planDateEnd.text = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(calendar.time)
+                    binding.planDateEnd.text = "${year}-${month+1}-${dayOfMonth}"
                 }
             }, 2023, 9, 1)
             datePickerDialog.show()
@@ -74,65 +58,44 @@ class AddPlanActivity : AppCompatActivity() {
 
     }
 
-    // Retrofit 인스턴스
-    private val retrofit: Retrofit = Retrofit.Builder()
-        //.baseUrl("http://192.168.219.140:8080/")
-        .baseUrl("http://192.168.200.107:8080/") // 집ip (실제 서버 URL로 대체 필요)
-        .addConverterFactory(GsonConverterFactory.create(getGson()))
-        .build()
-
-    private fun getGson(): Gson {
-        return GsonBuilder()
-            .setDateFormat("yyyy-MM-dd") // Date 형식 지정
-            .create()
-    }
-
-    // Retrofit 서비스 인터페이스
-    private val planApi: PlanApi = retrofit.create(PlanApi::class.java)
-
-    // 서버로 plan 데이터 전송
-    private fun sendPlanToServer(planData: PlanData) {
-        planApi.sendPlan(planData).enqueue(object : Callback<Void> {
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                if (response.isSuccessful) {
-                    Log.d("서버 테스트", "성공")
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("서버 테스트1", "오류: $errorBody")
-                }
-            }
-
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.e("서버 테스트2", "오류: ${t.message}")
-            }
-        })
-    }
-
     // 입력된 데이터를 planData에 넣어서 전송 요청
     private fun savePlanToServer() {
         val travelDest = binding.planTitleEdit.text.toString()
         val content = binding.planSubtitleEdit.text.toString()
         val public = !binding.planLockBtn.isChecked
         val hashTagArray = binding.planHashEdit.getInsertTag() ?: emptyArray()
+        val travelStart = binding.planDateStart.text.toString()
+        val travelEnd = binding.planDateEnd.text.toString()
 
-        val locations: List<Location> = emptyList() // 여행지별 카드
+        val locations: List<Location> = emptyList() // 여행지별 카드, 지도 연결 후 추가 필요
         val tags: List<Tag> = hashTagArray.map { Tag(it) }
 
-//        val plan = Plan(title, content, travelStartDate, travelEndDate, public)
-//        val planData = PlanData(plan, locations, tags)
-//
-//        Log.d("서버 테스트", ""+planData)
-//        sendPlanToServer(planData)
-        // 날짜 초기화가 되었다면
-        if (::travelStartDate.isInitialized && ::travelEndDate.isInitialized) {
-            val plan = Plan(travelDest, content, travelStartDate, travelEndDate, public)
-            val planData = PlanData(plan, locations, tags)
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-            Log.d("서버 테스트", "" + planData)
-            sendPlanToServer(planData)
-        } else {
-            Log.e("서버 테스트", "여행 시작일과 종료일을 선택하세요.")
-        }
+        val travelStartDate: Date = try {
+            java.sql.Date(dateFormat.parse(travelStart).time)
+        } catch (e: Exception) { java.sql.Date(System.currentTimeMillis()) }
+
+        val travelEndDate: Date = try {
+            java.sql.Date(dateFormat.parse(travelEnd).time)
+        } catch (e: Exception) { java.sql.Date(System.currentTimeMillis()) }
+
+        val plan = Plan(travelDest, content, travelStartDate, travelEndDate, public)
+        val planData = PlanData(plan, locations, tags)
+
+        Log.d("서버 테스트", ""+planData)
+        sendPlanToServer(planData)
+
+//        // 날짜 초기화가 되었다면
+//        if (travelStartDate != null && travelEndDate != null) {
+//            val plan = Plan(travelDest, content, travelStartDate, travelEndDate, public)
+//            val planData = PlanData(plan, locations, tags)
+//
+//            Log.d("서버 테스트", "" + planData)
+//            sendPlanToServer(planData)
+//        } else {
+//            Log.e("서버 테스트", "여행 시작일과 종료일을 선택하세요.")
+//        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -146,10 +109,4 @@ class AddPlanActivity : AppCompatActivity() {
         }
     }
 
-}
-
-// Retrofit API 인터페이스
-interface PlanApi {
-    @POST("plan") // 서버 주소/plan 으로 POST
-    fun sendPlan(@Body planData: PlanData): Call<Void>
 }

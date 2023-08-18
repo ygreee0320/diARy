@@ -28,7 +28,6 @@ class MultiImageAdapter(private val mData: ArrayList<Uri>, private val mContext:
 
     // onBindViewHolder() - position에 해당하는 데이터를 뷰홀더의 아이템뷰에 표시.
     override fun onBindViewHolder(holder: MultiImageAdapter.ViewHolder, position: Int) {
-        //val actualPosition = mData.size - 1 - position // 순서 뒤집기
         val imageUri: Uri = mData[position]
         Glide.with(mContext)
             .load(imageUri)
@@ -39,4 +38,5 @@ class MultiImageAdapter(private val mData: ArrayList<Uri>, private val mContext:
     override fun getItemCount(): Int {
         return mData.size
     }
+
 }

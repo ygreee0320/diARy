@@ -7,13 +7,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 
 class DiaryFragment : Fragment() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    //private lateinit var diaryAdapter: DiaryAdapter
+    private lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -30,6 +30,14 @@ class DiaryFragment : Fragment() {
             val bottomSheetFragment = BottomAddDiaryFragment()
             bottomSheetFragment.show(parentFragmentManager, bottomSheetFragment.tag)
         }
+
+        recyclerView = view.findViewById(R.id.diaryRecyclerView) // 리사이클러뷰 초기화
+
+        val layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
+
+        //diaryAdapter = DiaryAdapter(emptyList()) // 초기에 빈 목록으로 어댑터 설정
+        //recyclerView.adapter = diaryAdapter // 리사이클러뷰에 어댑터 설정
     }
 
 }

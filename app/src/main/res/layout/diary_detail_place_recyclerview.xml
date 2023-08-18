@@ -43,12 +43,6 @@
                     android:text="날짜 출발시간 ~ 도착시간"
                     android:textSize="13dp" />
 
-                <ImageView
-                    android:id="@+id/diary_detail_place_remove_btn"
-                    android:layout_width="27dp"
-                    android:layout_height="27dp"
-                    android:src="@drawable/x_icon" />
-
             </LinearLayout>
 
             <TextView

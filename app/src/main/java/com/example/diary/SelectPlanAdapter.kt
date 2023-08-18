@@ -7,13 +7,14 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class PlanAdapter(private var plans: List<MyPlan>) : RecyclerView.Adapter<PlanAdapter.PlanViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlanViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.plan_recyclerview, parent, false)
-        return PlanViewHolder(view)
+class SelectPlanAdapter(private var plans: List<MyPlan>) : RecyclerView.Adapter<SelectPlanAdapter.SelectPlanViewHolder>() {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SelectPlanViewHolder {
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.select_plan_recyclerview, parent, false)
+        return SelectPlanViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: PlanViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SelectPlanViewHolder, position: Int) {
         val plan = plans[position]
         holder.bind(plan)
     }
@@ -28,7 +29,7 @@ class PlanAdapter(private var plans: List<MyPlan>) : RecyclerView.Adapter<PlanAd
         notifyDataSetChanged()
     }
 
-    inner class PlanViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class SelectPlanViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val titleTextView: TextView = itemView.findViewById(R.id.plan_title)
         private val periodTextView: TextView = itemView.findViewById(R.id.plan_period)
         private val planLikeView: TextView = itemView.findViewById(R.id.plan_like)
@@ -36,9 +37,10 @@ class PlanAdapter(private var plans: List<MyPlan>) : RecyclerView.Adapter<PlanAd
 
         init {
             itemView.setOnClickListener {
+                // 클릭된 플랜을 바탕으로 AddDiaryActivity 실행 (여행지 자동 표시 필요)
                 val clickedPlan = plans[adapterPosition]
                 val planId = clickedPlan.planId // 클릭된 플랜의 planId를 가져옴
-                val intent = Intent(itemView.context, PlanDetailActivity::class.java)
+                val intent = Intent(itemView.context, AddDiaryActivity::class.java)
                 intent.putExtra("planId", planId)
                 itemView.context.startActivity(intent)
             }

@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,7 +17,7 @@ import com.example.diary.databinding.ActivityAddPlaceInDiaryBinding
 
 class AddPlaceInDiaryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPlaceInDiaryBinding
-    private val uriList = ArrayList<Uri>()
+    private var uriList = ArrayList<Uri>()
     private lateinit var adapter: MultiImageAdapter
 
     // 여러 이미지 선택을 위한 ActivityResultLauncher
@@ -44,6 +45,30 @@ class AddPlaceInDiaryActivity : AppCompatActivity() {
         supportActionBar?.title = ""
         supportActionBar?.setDisplayHomeAsUpEnabled(true)  //툴바에 뒤로 가기 버튼 추가
 
+        val itemPosition = intent.getIntExtra("itemPosition", -1)
+        Log.d("여행지추가", ""+itemPosition)
+        val place = intent.getStringExtra("place")
+        var content = intent.getStringExtra("content")
+        uriList = intent.getParcelableArrayListExtra<Uri>("imageUris")?: ArrayList()
+
+        if (place == "MEMO") {
+            binding.placeImgAddBtn.visibility = View.GONE
+            binding.placeInDiaryTime.visibility = View.GONE
+        }
+
+        if (content == "클릭하여 여행지별 일기를 기록하세요." || content == "클릭하여 메모를 작성하세요.") {
+            content = null
+        }
+
+        // 여행지 정보를 텍스트뷰에 표시
+        binding.placeInDiaryTitle.setText(place)
+        binding.placeInDiaryContent.setText(content)
+
+        // 이미지 리사이클러뷰 초기화 및 어댑터 연결
+        binding.recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        val imageAdapter = MultiImageAdapter(uriList ?: ArrayList(), this)
+        binding.recyclerView.adapter = imageAdapter
+
         binding.placeImgAddBtn.setOnClickListener {
             // 이미지 선택을 위해 ActivityResultLauncher 실행
             val remainingImages = 10 - uriList.size
@@ -64,6 +89,8 @@ class AddPlaceInDiaryActivity : AppCompatActivity() {
 
             // 데이터를 이전 활동으로 전달하기 위한 인텐트 생성
             val intent = Intent()
+            //intent.putExtra("position", position)  // 수정 중인 아이템의 위치 정보 전달
+            intent.putExtra("itemPosition", itemPosition) // position 전달
             intent.putExtra("enteredText", enteredText)
             intent.putParcelableArrayListExtra("imageUris", uriList)
 

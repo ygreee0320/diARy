@@ -37,12 +37,14 @@ class BottomAddDiaryFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // 새로 작성하기 버튼 클릭 시
         val newDiaryButton = view.findViewById<LinearLayout>(R.id.diary_new_btn)
         newDiaryButton.setOnClickListener {
             val intent = Intent(activity, AddDiaryActivity::class.java)
             startActivity(intent)
         }
 
+        // 내 일정 불러오기 버튼 클릭 시
         val planSelectButton = view.findViewById<LinearLayout>(R.id.diary_from_plan_btn)
         planSelectButton.setOnClickListener {
             val selectPlanDialog = SelectPlanDialogFragment()
