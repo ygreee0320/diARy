@@ -25,6 +25,9 @@
             android:exported="false"
             android:theme="@style/Theme.DiARy.NoActionBar" />
         <activity
+            android:name=".RoadMapActivity"
+            android:exported="false"/>
+        <activity
             android:name=".AddPlaceInDiaryActivity"
             android:exported="false"
             android:parentActivityName=".AddDiaryActivity"

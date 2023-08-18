@@ -9,7 +9,7 @@ data class Plan(
     val content: String,
     val travelStart: Date,
     val travelEnd: Date,
-    val Public: Boolean
+    val public: Boolean
 )
 
 data class Location(

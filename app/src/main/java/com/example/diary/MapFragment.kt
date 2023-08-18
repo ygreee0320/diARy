@@ -1,11 +1,16 @@
 package com.example.diary
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
+import androidx.core.content.ContextCompat
 import com.example.diary.databinding.FragmentMapBinding
 
 // TODO: Rename parameter arguments, choose names that match
@@ -33,18 +38,63 @@ class MapFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceStte: Bundle?
     ): View? {
         val binding = FragmentMapBinding.inflate(inflater, container,false)
 
         binding.webview.apply {
             webViewClient = WebViewClient()
-            settings.javaScriptEnabled = true
+            settings.javaScriptEnabled = true //자바스크립트 허용
+            settings.loadWithOverviewMode = true //html의 컨텐츠가 웹뷰보다 클 경우 스크린 크기에 맞게 자동 조정
+            settings.useWideViewPort = true //html의 viewport 메타 태그 지원
+            settings.setSupportZoom(false)
         }
 
-        binding.webview.loadUrl("https://diarymap.netlify.app") //임시 주소
+        binding.webview.addJavascriptInterface(MapInterface(requireContext()), "Android")
+
+        binding.webview.loadUrl("https://diarymap.netlify.app/map.html") //임시 주소
 
         return binding.root
+    }
+
+    inner class MapInterface(val Context: Context) {
+        var title: String? = ""
+        var address: String? = ""
+        var x: String? = null
+        var y: String? = null
+
+        @JavascriptInterface
+        fun showToast(toast: String) {
+            Log.d("MapInterface", toast)
+        }
+
+        @JavascriptInterface
+        fun setPlaceInfo(title: String?, address: String?, x: String?, y: String?) {
+            this.title = title
+            this.address = address
+            this.x = x
+            this.y = y
+
+            Log.d("WebAppInterface", "Save successed - ${this.title} / ${this.address} / ${this.x} / ${this.y}")
+        }
+
+        @JavascriptInterface
+        fun getPlaceInfo(): String {
+            val info = title + " " + address + " " + x + " " + y
+            return info
+        }
+
+        @JavascriptInterface
+        fun moveToRoadMap() {
+            val intent = Intent(Context, RoadMapActivity::class.java)
+
+            intent.putExtra("title", title)
+            intent.putExtra("address", address)
+            intent.putExtra("x", x)
+            intent.putExtra("y", y)
+
+            startActivity(intent)
+        }
     }
 
     companion object {

@@ -9,7 +9,7 @@ data class DiaryDto(
     val public: Boolean,
     val travelStart: Date,
     val travelEnd: Date,
-    val user: UserId,
+    //val user: UserId,
     val travelDest: String,
     val memo: String,
     val tags: List<TagName>
@@ -28,13 +28,13 @@ data class DiaryLocationDto(
     val name: String,
     val address: String,
     val date: Date,
-    val timeStart: Date,
-    val timeEnd: Date,
+    val timeStart: Time,
+    val timeEnd: Time,
     val diaryLocationImageDtoList: List<DiaryLocationImageDto>
 )
 
 data class DiaryLocationImageDto(
-    val imageData: String
+    val imageData: String //수정 필요
 )
 
 // 일기 작성
