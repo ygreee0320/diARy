@@ -101,10 +101,11 @@ class AddDiaryActivity : AppCompatActivity() {
             viewModel.enteredHash = binding.diaryAddHash.text.toString()
             viewModel.enteredClosed = binding.diaryAddLockBtn.isChecked
 
-            val intent = Intent(this, AddPlaceInDiaryActivity::class.java)
-            //startActivity(intent)
+            //val intent = Intent(this, AddPlaceInDiaryActivity::class.java)
+            val intent = Intent(this, AddDiaryMapActivity::class.java)
+            startActivity(intent)
             //startActivityForResult(intent, ADD_PLACE_REQUEST_CODE)
-            addPlaceActivityResult.launch(intent)
+            //addPlaceActivityResult.launch(intent)
         }
 
         //메모 추가 버튼 클릭 시
