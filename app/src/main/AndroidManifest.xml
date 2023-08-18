@@ -15,15 +15,17 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-<<<<<<< HEAD
+            android:name=".AddPlanMapActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
             android:name=".AddDiaryMapActivity"
-            android:windowSoftInputMode="adjustPan"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".RoadMapActivity"
             android:exported="false" />
         <activity
-=======
             android:name=".LogInActivity"
             android:exported="false" />
         <activity
@@ -34,7 +36,6 @@
             android:exported="false"
             android:theme="@style/Theme.DiARy.NoActionBar" />
         <activity
->>>>>>> 250ab5bda2c8d73e7ab6b39c79d142950d859411
             android:name=".AddPlaceInDiaryActivity"
             android:exported="false"
             android:parentActivityName=".AddDiaryActivity"
@@ -43,15 +44,12 @@
             android:name=".AddDiaryActivity"
             android:exported="false"
             android:launchMode="singleTask" />
-<<<<<<< HEAD
-=======
 
         <service
             android:name=".MyPlanService"
             android:enabled="true"
             android:exported="true" />
 
->>>>>>> 250ab5bda2c8d73e7ab6b39c79d142950d859411
         <activity
             android:name=".AddPlanActivity"
             android:exported="false"

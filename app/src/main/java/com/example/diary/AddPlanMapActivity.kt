@@ -1,10 +1,5 @@
 package com.example.diary
 
-import android.app.Activity
-import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.app.ProgressDialog.show
-import android.app.TimePickerDialog
 import android.content.Context
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
@@ -15,23 +10,20 @@ import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
-import android.widget.DatePicker
 import android.widget.SearchView
-import android.widget.TimePicker
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import com.example.diary.databinding.ActivityAddDiaryMapBinding
-import java.time.LocalDateTime
+import com.example.diary.databinding.ActivityAddPlanMapBinding
 
 @RequiresApi(Build.VERSION_CODES.O)
-class AddDiaryMapActivity : AppCompatActivity() {
-    lateinit var binding: ActivityAddDiaryMapBinding
+class AddPlanMapActivity : AppCompatActivity() {
+    lateinit var binding: ActivityAddPlanMapBinding
     lateinit var keyword: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityAddDiaryMapBinding.inflate(layoutInflater)
+        binding = ActivityAddPlanMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         //toolbar
@@ -47,7 +39,7 @@ class AddDiaryMapActivity : AppCompatActivity() {
             settings.setSupportZoom(false)
         }
 
-        binding.webview.addJavascriptInterface(AddDiaryMapInterface(this), "Android")
+        binding.webview.addJavascriptInterface(AddPlanMapInterface(this), "Android")
 
         binding.webview.loadUrl("https://diarymap.netlify.app/AddSpot.html") //임시 주소
     }
@@ -86,8 +78,7 @@ class AddDiaryMapActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    inner class AddDiaryMapInterface(val Context: Context) {
+    inner class AddPlanMapInterface(val Context: Context) {
         //여행지 정보
         var title: String? = null
         var address: String? = null
@@ -128,7 +119,7 @@ class AddDiaryMapActivity : AppCompatActivity() {
         @RequiresApi(Build.VERSION_CODES.O)
         @JavascriptInterface
         fun setTripDate() {
-            val dialog = AddDiaryMapDialog(this@AddDiaryMapActivity)
+            val dialog = AddDiaryMapDialog(this@AddPlanMapActivity)
             dialog.myDialog(dateS, dateE, timeS, timeE)
 
             dialog.setOnClickedListener(object: AddDiaryMapDialog.ButtonClickListener {

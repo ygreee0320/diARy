@@ -205,12 +205,18 @@
 
       Android.setPlaceInfo(title, address, tel, x, y);
 
-      var content = '<div class="card" style="width: 70vw; padding: 10px; transform: translate(0, 50%);">\
+      title = title.replace(/(.{13})/g,"$1<br>");
+
+      if(tel !== "") {
+        tel = '<i class="fi fi-sr-phone-flip"></i> ' + tel;
+      }
+
+      var content = '<div class="card" style="width: 80vw; padding: 10px; transform: translate(0, 50%);">\
                       <div class="row" style="margin: 5px 0px;">\
                         <div class="col col-8" style="padding: 0;">\
                           <h6 id="place_name">' + title + '</h6>\
                           <p id="place_address" style="margin: 0; font-size: 12px; color: gray;">' + address + '</p>\
-                          <p id="place_tel" style="margin: 0; font-size: 12px; color: gray;"><i class="fi fi-sr-phone-flip"></i> ' + tel + '</p>\
+                          <p id="place_tel" style="margin: 0; font-size: 12px; color: gray;">' + tel + '</p>\
                         </div>\
                         <div class="col col-4" style="padding: 0; text-align: center;">\
                           <img id="place_img" src="image/sample.png" style="width: 20vw; height: 15vw; object-fit: cover; object-position: center;">\

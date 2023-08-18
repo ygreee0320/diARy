@@ -1,10 +1,13 @@
 package com.example.diary
 
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.DatePicker
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.aqoong.lib.hashtagedittextview.HashTagEditTextView
@@ -18,6 +21,7 @@ import java.util.Locale
 class AddPlanActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPlanBinding
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -54,6 +58,15 @@ class AddPlanActivity : AppCompatActivity() {
         binding.planSaveBtn.setOnClickListener {
             savePlanToServer()  // 서버로 데이터 전송
             finish() // 현재 액티비티 종료
+        }
+
+        //extension button
+        binding.placeAddNew.setOnClickListener {
+            val intent = Intent(this, AddPlanMapActivity::class.java)
+            startActivity(intent)
+            //requestLauncher.launch(intent) : 인텐트를 보내어 result로 데이터를 다시 받아옴
+            //->setResult(Activity.RESULT_OK, intent)
+            //->finish()
         }
 
     }
