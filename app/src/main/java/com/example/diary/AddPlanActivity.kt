@@ -4,12 +4,14 @@ import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.DatePicker
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -19,12 +21,15 @@ import com.example.diary.PlanManager.sendPlanToServer
 import com.example.diary.databinding.ActivityAddPlanBinding
 import retrofit2.http.POST
 import java.sql.Date
+import java.sql.Time
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class AddPlanActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPlanBinding
     private lateinit var viewModel: AddPlanViewModel
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     // 여행지 데이터를 저장할 리스트
     private val planPlaceList = mutableListOf<PlanDetailModel>()
@@ -34,6 +39,7 @@ class AddPlanActivity : AppCompatActivity() {
         lateinit var planInMapActivityResult: ActivityResultLauncher<Intent>
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -51,16 +57,24 @@ class AddPlanActivity : AppCompatActivity() {
 
         viewModel = ViewModelProvider(this).get(AddPlanViewModel::class.java)
 
-        // AddPlaceInPlanActivity(지도)를 시작하기 위한 요청 코드 정의(수정 필요)
+        // AddPlaceInPlanActivity(지도)를 시작하기 위한 요청 코드 정의 (이미지 추가 필요)
         planInMapActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data = result.data
                 val position = data?.getIntExtra("itemPosition", -1)
                 val enteredPlace = data?.getStringExtra("enteredPlace")
-                val enteredStart = data?.getStringExtra("enteredStart")
-                val enteredEnd = data?.getStringExtra("enteredEnd")
+                val enteredAddress = data?.getStringExtra("enteredAddress")
+                val enteredTel = data?.getStringExtra("enteredTel")
+                val enteredDate = data?.getStringExtra("enteredDateS")
+                val enteredStart = data?.getStringExtra("enteredTimeS")
+                val enteredEnd = data?.getStringExtra("enteredTimeE")
+
                 //val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
                 Log.d("리사이클러뷰", ""+position)
+
+                val placeDate: Date = try {
+                    java.sql.Date(dateFormat.parse(enteredDate).time)
+                } catch (e: Exception) { java.sql.Date(System.currentTimeMillis()) }
 
                 if (position != null && position >= 0) {
                     val item = planPlaceList[position]
@@ -71,7 +85,8 @@ class AddPlanActivity : AppCompatActivity() {
                     if (!enteredPlace.isNullOrEmpty()) {
                         // planDetailModel 인스턴스를 생성하고 리스트에 추가
                         val newPlanPlaceModel =
-                            PlanDetailModel(place = enteredPlace, placeStart = enteredStart, placeEnd = enteredEnd)
+                            PlanDetailModel(place = enteredPlace, address = enteredAddress, tel = enteredTel,
+                                placeDate = placeDate, placeStart = enteredStart, placeEnd = enteredEnd)
                         planPlaceList.add(newPlanPlaceModel)
 
                         // 어댑터에 데이터 변경을 알림
@@ -103,17 +118,28 @@ class AddPlanActivity : AppCompatActivity() {
             datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.primary))
         }
 
-        // 여행지 추가 버튼 클릭 시
-        binding.placeAddNew.setOnClickListener {
-            //지도로 연결
-            //val intent = Intent(this, AddPlaceInDiaryActivity::class.java)
-            //planInMapActivityResult.launch(intent)
-        }
-
         // 저장하기 버튼 클릭 시
         binding.planSaveBtn.setOnClickListener {
             savePlanToServer()  // 서버로 데이터 전송
             finish() // 현재 액티비티 종료
+        }
+
+        // 여행지 추가 버튼 클릭 시, 지도로 연결
+        binding.placeAddNew.setOnClickListener {
+            // 기존의 입력을 ViewModel에 저장
+            viewModel.enteredTitle = binding.planTitleEdit.text.toString()
+            viewModel.enteredSubTitle = binding.planSubtitleEdit.text.toString()
+            viewModel.enteredStart = binding.planDateStart.text.toString()
+            viewModel.enteredEnd = binding.planDateEnd.text.toString()
+            viewModel.enteredHash = binding.planHashEdit.text.toString()
+            viewModel.enteredClosed = binding.planLockBtn.isChecked
+
+            val intent = Intent(this, AddPlanMapActivity::class.java)
+            //startActivity(intent)
+            planInMapActivityResult.launch(intent) //지도로 이동
+            //requestLauncher.launch(intent) : 인텐트를 보내어 result로 데이터를 다시 받아옴
+            //->setResult(Activity.RESULT_OK, intent)
+            //->finish()
         }
 
     }
@@ -127,10 +153,23 @@ class AddPlanActivity : AppCompatActivity() {
         val travelStart = binding.planDateStart.text.toString()
         val travelEnd = binding.planDateEnd.text.toString()
 
-        val locations: List<Location> = emptyList() // 여행지별 카드, 지도 연결 후 추가 필요
+        val locations: List<Location> = planPlaceList.map { planDetail ->
+            val timeStartUtil: java.util.Date = timeFormat.parse(planDetail.placeStart)
+            val timeStartSql: Time = Time(timeStartUtil.time)
+
+            val timeEndUtil: java.util.Date = timeFormat.parse(planDetail.placeEnd)
+            val timeEndSql: Time = Time(timeEndUtil.time)
+            Location(
+                date = planDetail.placeDate,
+                timeStart = timeStartSql,
+                timeEnd = timeEndSql,
+                name = planDetail.place ?: "",
+                address = planDetail.address ?: ""
+            )
+        }
+
         val tags: List<Tag> = hashTagArray.map { Tag(it) }
 
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
         val travelStartDate: Date = try {
             java.sql.Date(dateFormat.parse(travelStart).time)

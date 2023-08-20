@@ -31,6 +31,7 @@ class AddDiaryActivity : AppCompatActivity() {
 
     companion object {
         lateinit var addPlaceActivityResult: ActivityResultLauncher<Intent>
+        lateinit var addContentActivityResult: ActivityResultLauncher<Intent>
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +50,7 @@ class AddDiaryActivity : AppCompatActivity() {
         supportActionBar?.title = ""
 
         // AddPlaceInDiaryActivity를 시작하기 위한 요청 코드 정의
-        addPlaceActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        addContentActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 val data = result.data
                 val position = data?.getIntExtra("itemPosition", -1)
@@ -76,6 +77,41 @@ class AddDiaryActivity : AppCompatActivity() {
                         diaryPlaceAdapter.notifyDataSetChanged()
                     }
                 }
+            }
+        }
+
+        // AddPlaceInDiaryActivity를 시작하기 위한 요청 코드 정의
+        addPlaceActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val data = result.data
+                val position = data?.getIntExtra("itemPosition", -1)
+                val enteredPlace = data?.getStringExtra("enteredPlace")
+
+                Log.d("리사이클러뷰", ""+position)
+
+                if (position != null && position >= 0) {
+                    val item = diaryPlaceList[position]
+                    item.place = enteredPlace
+                    diaryPlaceAdapter.notifyItemChanged(position)
+                } else {
+                    if (!enteredPlace.isNullOrEmpty()) {
+                        // DiaryPlaceModel 인스턴스를 생성하고 리스트에 추가
+                        val newDiaryPlaceModel =
+                            DiaryPlaceModel(place = enteredPlace)
+                        diaryPlaceList.add(newDiaryPlaceModel)
+
+                        // 특정 아이템을 리스트의 맨 마지막으로 이동시키는 함수 호출
+                        diaryPlaceAdapter.moveMemoItemToLast()
+
+                        // 어댑터에 데이터 변경을 알림
+                        diaryPlaceAdapter.notifyDataSetChanged()
+                    }
+                }
+
+                val intent2 = Intent(this, AddPlaceInDiaryActivity::class.java)
+                intent.putExtra("itemPosition", position) // position 전달
+                intent.putExtra("enteredPlace", title)
+                addContentActivityResult.launch(intent2)
             }
         }
 
@@ -130,10 +166,13 @@ class AddDiaryActivity : AppCompatActivity() {
             viewModel.enteredClosed = binding.diaryAddLockBtn.isChecked
 
             //val intent = Intent(this, AddPlaceInDiaryActivity::class.java)
-            val intent = Intent(this, AddDiaryMapActivity::class.java)
-            startActivity(intent)
+            val intent1 = Intent(this, AddDiaryMapActivity::class.java)
+            addPlaceActivityResult.launch(intent1)
+            //startActivity(intent)
             //startActivityForResult(intent, ADD_PLACE_REQUEST_CODE)
             //addPlaceActivityResult.launch(intent)
+
+
         }
 
         //메모 추가 버튼 클릭 시

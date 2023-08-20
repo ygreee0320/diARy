@@ -1,10 +1,6 @@
 package com.example.diary
 
 import android.app.Activity
-import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.app.ProgressDialog.show
-import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -16,23 +12,20 @@ import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
-import android.widget.DatePicker
 import android.widget.SearchView
-import android.widget.TimePicker
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import com.example.diary.databinding.ActivityAddDiaryMapBinding
-import java.time.LocalDateTime
+import com.example.diary.databinding.ActivityAddPlanMapBinding
 
 @RequiresApi(Build.VERSION_CODES.O)
-class AddDiaryMapActivity : AppCompatActivity() {
-    lateinit var binding: ActivityAddDiaryMapBinding
+class AddPlanMapActivity : AppCompatActivity() {
+    lateinit var binding: ActivityAddPlanMapBinding
     lateinit var keyword: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityAddDiaryMapBinding.inflate(layoutInflater)
+        binding = ActivityAddPlanMapBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         //toolbar
@@ -48,7 +41,7 @@ class AddDiaryMapActivity : AppCompatActivity() {
             settings.setSupportZoom(false)
         }
 
-        binding.webview.addJavascriptInterface(AddDiaryMapInterface(this), "Android")
+        binding.webview.addJavascriptInterface(AddPlanMapInterface(this), "Android")
 
         binding.webview.loadUrl("https://diarymap.netlify.app/AddSpot.html") //임시 주소
     }
@@ -87,8 +80,7 @@ class AddDiaryMapActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    inner class AddDiaryMapInterface(val Context: Context) {
+    inner class AddPlanMapInterface(val Context: Context) {
         //여행지 정보
         var title: String? = null
         var address: String? = null
@@ -131,31 +123,37 @@ class AddDiaryMapActivity : AppCompatActivity() {
         @RequiresApi(Build.VERSION_CODES.O)
         @JavascriptInterface
         fun setTripDate() {
-            val dialog = AddDiaryMapDialog(this@AddDiaryMapActivity)
+            val dialog = AddDiaryMapDialog(this@AddPlanMapActivity)
             dialog.myDialog(dateS, dateE, timeS, timeE)
 
             dialog.setOnClickedListener(object: AddDiaryMapDialog.ButtonClickListener {
                 override fun onClicked(dateS_d: Array<Int>, dateE_d: Array<Int>, timeS_d: Array<Int>, timeE_d: Array<Int>) {
-                    dateS = dateS_d
+                    dateS = dateS_d //날짜
                     dateE = dateE_d
-                    timeS = timeS_d
-                    timeE = timeE_d
+                    timeS = timeS_d //출발 시간
+                    timeE = timeE_d //도착 시간
                 }
             })
         }
 
         @JavascriptInterface
         fun addPlaceIn() {
-            Log.d("mylog", "add successed")
+
+            Log.d("mylog", "add successed" + title + address + tel + dateS  + timeS + timeE)
+
+            val placeDate = "${dateS?.get(0)}-${dateS?.get(1)}-${dateS?.get(2)}"
+            val placeStart = "${timeS?.get(0)}:${timeS?.get(1)}"
+            val placeEnd = "${timeE?.get(0)}:${timeE?.get(1)}"
 
             // 데이터를 이전 활동으로 전달하기 위한 인텐트 생성
             val intent = Intent()
             intent.putExtra("itemPosition", itemPosition) // position 전달
-            intent.putExtra("enteredPlace", title)
-            intent.putExtra("enteredDate", dateS)
-            intent.putExtra("enteredStart", timeS)
-            intent.putExtra("enteredEnd", timeE)
-
+            intent.putExtra("enteredPlace", this.title)
+            intent.putExtra("enteredAddress", this.address)
+            intent.putExtra("enteredTel", this.tel)
+            intent.putExtra("enteredDateS", placeDate)
+            intent.putExtra("enteredTimeS", placeStart)
+            intent.putExtra("enteredTimeE", placeEnd)
 
             // 결과를 설정하고 현재 활동 종료
             setResult(Activity.RESULT_OK, intent)

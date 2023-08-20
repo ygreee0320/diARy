@@ -30,4 +30,10 @@ class PlanDetailAdapter(private val itemList: MutableList<PlanDetailModel>): Rec
         //이미지 불러오기 추가 필요
 
     }
+
+    fun updateData(newItems: List<PlanDetailModel>) {
+        itemList.clear()
+        itemList.addAll(newItems)
+        notifyDataSetChanged()
+    }
 }
