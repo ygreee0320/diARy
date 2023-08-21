@@ -62,7 +62,7 @@ class AddDiaryActivity : AppCompatActivity() {
                 val placeTimeS = data?.getStringExtra("timeStart")
                 val placeTimeE = data?.getStringExtra("timeEnd")
                 val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
-                Log.d("리사이클러뷰", ""+position)
+                Log.d("리사이클러뷰", ""+position + enteredText + place + placeDate + placeTimeS + placeTimeE)
 
                 if (position != null && position >= 0) {
                     val item = diaryPlaceList[position]
@@ -205,8 +205,6 @@ class AddDiaryActivity : AppCompatActivity() {
             //startActivity(intent)
             //startActivityForResult(intent, ADD_PLACE_REQUEST_CODE)
             //addPlaceActivityResult.launch(intent)
-
-
         }
 
         //메모 추가 버튼 클릭 시
@@ -316,11 +314,11 @@ class AddDiaryActivity : AppCompatActivity() {
             if (!place.isNullOrEmpty()) {
                 val diaryLocation = DiaryLocationDto(
                     content = content,
-                    name = "여행지",
-                    address = "", // 주소 추가 필요
-                    date = placeDate,  //여행지 날짜 추가 필요
-                    timeStart = placeTimeStart, // 시작 시간 추가 필요
-                    timeEnd = placeTimeEnd, // 종료 시간 추가 필요
+                    name = place,
+                    address = "", // 주소 추가 필요 (or X,Y 좌표)
+                    date = placeDate,
+                    timeStart = placeTimeStart,
+                    timeEnd = placeTimeEnd,
                     diaryLocationImageDtoList = listOf() // 이미지 리스트 추가 필요
                 )
                 diaryLocations.add(diaryLocation)

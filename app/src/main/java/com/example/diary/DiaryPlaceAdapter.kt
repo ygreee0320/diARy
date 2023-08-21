@@ -39,16 +39,14 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
 
         init {
             binding.diaryCardView.setOnClickListener {
-
-
                 val item = itemList[adapterPosition] // 클릭된 아이템
                 val intent = Intent(itemView.context, AddPlaceInDiaryActivity::class.java)
                 Log.d("어댑터", ""+adapterPosition)
                 intent.putExtra("itemPosition", adapterPosition) // position 전달
                 intent.putExtra("place", item.place)
                 intent.putExtra("date", item.placeDate)
-                intent.putExtra("timeS", item.placeTimeS)
-                intent.putExtra("timeE", item.placeTimeE)
+                intent.putExtra("timeStart", item.placeTimeS)
+                intent.putExtra("timeEnd", item.placeTimeE)
                 intent.putExtra("content", item.content)
                 intent.putParcelableArrayListExtra("imageUris", item.imageUris)
                 //itemView.context.startActivity(intent)
