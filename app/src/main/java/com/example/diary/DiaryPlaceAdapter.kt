@@ -63,8 +63,7 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
             if(item.place != null) {
                 binding.diaryDetailPlace.text = item.place
                 binding.diaryPlaceDate.text = item.placeDate
-                binding.diaryPlaceStartTime.text = item.placeTimeS
-                binding.diaryPlaceEndTime.text = item.placeTimeE
+                binding.diaryPlaceTime.text = "${item.placeTimeS} ~ ${item.placeTimeE}"
             }
 
             binding.placeContent.text = item.content ?: "클릭하여 여행지별 일기를 기록하세요."

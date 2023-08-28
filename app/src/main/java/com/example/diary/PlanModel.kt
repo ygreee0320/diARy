@@ -90,6 +90,7 @@ data class TagDetail(
 )
 
 data class PlanDetailResponse(
+    val user: User,
     val plan: PlanDetail,
     val locations: List<LocationDetail>,
     val tags: List<TagDetail>

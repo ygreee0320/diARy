@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class DiaryAdapter(private var diaries: List<MyDiary>) : RecyclerView.Adapter<DiaryAdapter.DiaryViewHolder>()  {
+class DiaryAdapter(private var diaries: List<DiaryDtoMyList>) : RecyclerView.Adapter<DiaryAdapter.DiaryViewHolder>()  {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DiaryViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.diary_recyclerview, parent, false)
         return DiaryViewHolder(view)
@@ -23,7 +23,7 @@ class DiaryAdapter(private var diaries: List<MyDiary>) : RecyclerView.Adapter<Di
     }
 
     // 데이터 업데이트 메서드 추가
-    fun updateData(newDiaries: List<MyDiary>) {
+    fun updateData(newDiaries: List<DiaryDtoMyList>) {
         diaries = newDiaries
         notifyDataSetChanged()
     }
@@ -45,7 +45,7 @@ class DiaryAdapter(private var diaries: List<MyDiary>) : RecyclerView.Adapter<Di
             }
         }
 
-        fun bind(diary: MyDiary) {
+        fun bind(diary: DiaryDtoMyList) {
             titleTextView.text = diary.title
             placeTextView.text = diary.travelDest
             periodTextView.text = "${diary.travelStart} ~ ${diary.travelEnd}"
@@ -54,8 +54,8 @@ class DiaryAdapter(private var diaries: List<MyDiary>) : RecyclerView.Adapter<Di
             if (diary.public == false) {
                 diaryLikeView.text = "비공개"
             } else {
-                diaryLikeView.text = "${diary.diaryLike}" //일기 좋아요 수 (수정 필요)
-                commentView.text = "${diary.comment}"
+                //diaryLikeView.text = "${diary.likes}" //일기 좋아요 수 (수정 필요)
+                //commentView.text = "${diary.comment}" //댓글 숫자로 가져오기 수정 필요
             }
         }
     }

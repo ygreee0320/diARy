@@ -27,3 +27,18 @@ interface DiaryService {
     @POST("diary")
     fun sendDiary(@Body diaryData: DiaryData): Call<Void>
 }
+
+interface MyDiaryService {
+    @GET("user/1/diary")
+    fun getDiaryData(): Call<List<MyDiaryList>>
+}
+
+interface DiaryDetailService {
+    @GET("diary/{diaryId}")
+    fun getDiaryData(@Path("diaryId") diaryId: Int): Call<DiaryDetailResponse>
+}
+
+interface DeleteDiaryService {
+    @DELETE("diary/{diaryId}")
+    fun deleteDiaryData(@Path("diaryId") diaryId: Int): Call<Void>
+}

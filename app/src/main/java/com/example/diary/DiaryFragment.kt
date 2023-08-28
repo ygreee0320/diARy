@@ -17,7 +17,7 @@ class DiaryFragment : Fragment() {
     private lateinit var recyclerView: RecyclerView
 
     // 여행지 데이터를 저장할 리스트
-    private val diaryList = mutableListOf<MyDiary>()
+    //private val diaryList = mutableListOf<MyDiary>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -43,24 +43,45 @@ class DiaryFragment : Fragment() {
         diaryAdapter = DiaryAdapter(emptyList()) // 초기에 빈 목록으로 어댑터 설정
         recyclerView.adapter = diaryAdapter // 리사이클러뷰에 어댑터 설정
 
+        loadDiaryList()
+
         // "MEMO" 항목 추가
-        val diary1 = MyDiary(diaryId = 1, travelDest = "제주도",  title = "제주도 여행~!", travelStart = "2023-08-18", travelEnd = "2023-08-20",
-        diaryLike = 5, comment = 4, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-        val diary2 = MyDiary(diaryId = 2, travelDest = "부산",  title = "부산 해운대 & 광안리", travelStart = "2023-09-05", travelEnd = "2023-09-08",
-            diaryLike = 15, comment = 10, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-        val diary3 = MyDiary(diaryId = 3, travelDest = "강릉",  title = "강릉 바다", travelStart = "2023-05-20", travelEnd = "2023-05-21",
-            diaryLike = 2, comment = 0, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-        val diary4 = MyDiary(diaryId = 4, travelDest = "일본",  title = "즐거웠던 일본 여행", travelStart = "2023-09-09", travelEnd = "2023-09-12",
-            diaryLike = 25, comment = 5, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-        val diary5 = MyDiary(diaryId = 5, travelDest = "서울",  title = "서울 구경", travelStart = "2023-11-01", travelEnd = "2023-11-03",
-            diaryLike = 2, comment = 5, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-        diaryList.add(diary1)
-        diaryList.add(diary2)
-        diaryList.add(diary3)
-        diaryList.add(diary4)
-        diaryList.add(diary5)
-        diaryAdapter.updateData(diaryList)
+//        val diary1 = MyDiary(diaryId = 1, travelDest = "제주도",  title = "제주도 여행~!", travelStart = "2023-08-18", travelEnd = "2023-08-20",
+//        diaryLike = 5, comment = 4, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
+//        val diary2 = MyDiary(diaryId = 2, travelDest = "부산",  title = "부산 해운대 & 광안리", travelStart = "2023-09-05", travelEnd = "2023-09-08",
+//            diaryLike = 15, comment = 10, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
+//        val diary3 = MyDiary(diaryId = 3, travelDest = "강릉",  title = "강릉 바다", travelStart = "2023-05-20", travelEnd = "2023-05-21",
+//            diaryLike = 2, comment = 0, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
+//        val diary4 = MyDiary(diaryId = 4, travelDest = "일본",  title = "즐거웠던 일본 여행", travelStart = "2023-09-09", travelEnd = "2023-09-12",
+//            diaryLike = 25, comment = 5, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
+//        val diary5 = MyDiary(diaryId = 5, travelDest = "서울",  title = "서울 구경", travelStart = "2023-11-01", travelEnd = "2023-11-03",
+//            diaryLike = 2, comment = 5, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
+//        diaryList.add(diary1)
+//        diaryList.add(diary2)
+//        diaryList.add(diary3)
+//        diaryList.add(diary4)
+//        diaryList.add(diary5)
+//        diaryAdapter.updateData(diaryList)
     }
 
+    // 서버에서 내 플랜 리스트 불러오기
+    private fun loadDiaryList() {
+        MyDiaryListManager.getDiaryListData(
+            onSuccess = { myDiaryList ->
+                val diary = myDiaryList.map { it.diaryDto }
+                diaryAdapter.updateData(diary)
+            },
+            onError = { throwable ->
+                Log.e("서버 테스트3", "오류: $throwable")
+            }
+        )
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        //다이어리 리스트 업데이트
+        loadDiaryList()
+    }
 
 }
