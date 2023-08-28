@@ -325,12 +325,9 @@ class AddDiaryActivity : AppCompatActivity() {
             }
         }
 
-        val diaryLocationDto = diaryLocations
-        val diaryData = DiaryData(diaryDto,diaryLocationDto)
+        val diaryData = DiaryData(diaryDto,diaryLocations)
 
         Log.d("서버 테스트", ""+diaryData)
         DiaryManager.sendDiaryToServer(diaryData)
     }
-
-
 }

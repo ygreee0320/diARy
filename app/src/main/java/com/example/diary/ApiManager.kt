@@ -123,3 +123,29 @@ object DiaryManager {
         })
     }
 }
+
+object MyDiaryListManager {
+    fun getDiaryListData(onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().myPlanService
+        val call = apiService.getPlanData()
+
+        call.enqueue(object : Callback<List<MyPlanListResponse>> {
+            override fun onResponse(call: Call<List<MyPlanListResponse>>, response: Response<List<MyPlanListResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<MyPlanListResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+}
