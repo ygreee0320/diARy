@@ -3,6 +3,16 @@ package com.example.diary
 import retrofit2.Call
 import retrofit2.http.*
 
+interface LogInService {
+    @POST("login")
+    fun sendLogInRequest(@Body loginData: LogInData): Call<Void>
+}
+
+interface JoinService {
+    @POST("auth/join")
+    fun sendJoinRequest(@Body joinData: JoinData): Call<Void>
+}
+
 interface PlanService {
     @POST("plan") // 서버 주소/plan 으로 POST
     fun sendPlan(@Body planData: PlanData): Call<Void>
