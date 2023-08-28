@@ -196,3 +196,47 @@ object DeleteDiaryManager {
         })
     }
 }
+
+
+object DiaryLikeCreateManager {
+    fun sendDiaryLikeToServer(diaryId: Int) {
+        val apiService = MyApplication().creatediaryLikeService
+        val call = apiService.createDiaryLikeData(diaryId)
+
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("서버 테스트", "등록-성공")
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("서버 테스트1", "오류: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("서버 테스트2", "오류: ${t.message}")
+            }
+        })
+    }
+
+    fun deleteDiaryLikeFromServer(diaryId: Int) {
+        val apiService = MyApplication().deleteDiaryLikeService
+        val call = apiService.deleteDiaryLikeData(diaryId)
+
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("서버 테스트", "취소-성공")
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("서버 테스트1", "오류: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("서버 테스트2", "오류: ${t.message}")
+            }
+        })
+    }
+
+}

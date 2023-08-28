@@ -42,3 +42,13 @@ interface DeleteDiaryService {
     @DELETE("diary/{diaryId}")
     fun deleteDiaryData(@Path("diaryId") diaryId: Int): Call<Void>
 }
+
+interface CreateDiaryLikeService {
+    @POST("diary/{diaryId}/diary-like")
+    fun createDiaryLikeData(@Path("diaryId") diaryId: Int): Call<Void>
+}
+
+interface DeleteDiaryLikeService {
+    @DELETE("diary/{diaryId}/diary-like")
+    fun deleteDiaryLikeData(@Path("diaryId") diaryId: Int): Call<Void>
+}

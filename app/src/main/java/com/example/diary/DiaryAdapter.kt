@@ -54,8 +54,8 @@ class DiaryAdapter(private var diaries: List<DiaryDtoMyList>) : RecyclerView.Ada
             if (diary.public == false) {
                 diaryLikeView.text = "비공개"
             } else {
-                //diaryLikeView.text = "${diary.likes}" //일기 좋아요 수 (수정 필요)
-                //commentView.text = "${diary.comment}" //댓글 숫자로 가져오기 수정 필요
+                diaryLikeView.text = "${diary.likes.size}" //일기 좋아요 수 (수정 필요)
+                commentView.text = "${diary.comments.size}" //댓글 숫자로 가져오기 수정 필요
             }
         }
     }
