@@ -49,9 +49,11 @@ class DiaryDetailActivity : AppCompatActivity() {
             DiaryDetailManager.getDiaryDetailData(
                 diaryId,
                 onSuccess = { diaryDetail ->
-                    // 플랜 상세 정보를 UI에 적용하는 작업
+                    // 다이어리 상세 정보를 UI에 적용하는 작업
                     binding.diaryDetailTitle.text = diaryDetail.diaryDto.title
                     binding.diaryDetailSubtitle.text = diaryDetail.diaryDto.travelDest
+                    binding.diaryDetailWriter.text = diaryDetail.userDto.username
+                    // 작성일 추가 필요
                     binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()
                     if (diaryDetail.diaryDto.likes.contains(diaryLike)) {
                         isLiked = true

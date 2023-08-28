@@ -254,7 +254,7 @@ class AddDiaryActivity : AppCompatActivity() {
         return false
     }
 
-    private fun saveDiaryToServer() {
+    private fun saveDiaryToServer() { // 일기 서버에 추가
         val travelDest = binding.diaryAddDest.text.toString()
         val content = binding.diaryAddTitle.text.toString()
         val public = !binding.diaryAddLockBtn.isChecked
@@ -327,7 +327,14 @@ class AddDiaryActivity : AppCompatActivity() {
 
         val diaryData = DiaryData(diaryDto,diaryLocations)
 
+        // 저장된 토큰 읽어오기
+        val sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
+        val authToken = sharedPreferences.getString("auth_token", null)
+
         Log.d("서버 테스트", ""+diaryData)
-        DiaryManager.sendDiaryToServer(diaryData)
+        if (authToken != null) {
+            DiaryManager.sendDiaryToServer(diaryData, authToken)
+        }
+
     }
 }

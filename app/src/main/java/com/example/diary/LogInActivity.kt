@@ -1,10 +1,12 @@
 package com.example.diary
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import androidx.core.content.ContentProviderCompat.requireContext
 import com.example.diary.databinding.ActivityLogInBinding
 
 class LogInActivity : AppCompatActivity() {
@@ -28,8 +30,8 @@ class LogInActivity : AppCompatActivity() {
 
                 Log.d("서버 테스트", ""+loginData)
                 LogInManager.sendLogInToServer(loginData) { authToken ->
-                    saveAuthToken(authToken)
-                    moveToHomeScreen() // 토큰 저장 후에 홈 화면으로 이동
+                    saveAuthToken(authToken, email, "username") //유저네임 수정 필요
+                    moveToHomeScreen() // 토큰 저장 후 홈 화면으로 이동
                 }
             }
             finish()
@@ -52,10 +54,17 @@ class LogInActivity : AppCompatActivity() {
     }
 
     // 토큰을 저장하는 메서드
-    private fun saveAuthToken(token: String) {
-        // 여기에 토큰 저장 로직을 추가
+    private fun saveAuthToken(token: String, email: String, username: String) {
         // SharedPreferences, ViewModel 등을 활용하여 저장 가능
         Log.d("로그인 토큰 테스트", ""+token)
+
+        // 토큰 저장
+        val sharedPreferences = this.getSharedPreferences("my_token", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("auth_token", token)
+        editor.putString("user_email", email)
+        editor.putString("username", username)
+        editor.apply()
     }
 
     // 홈 화면으로 이동하는 메서드

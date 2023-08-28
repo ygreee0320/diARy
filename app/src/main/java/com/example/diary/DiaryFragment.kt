@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,19 +11,18 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-
+import com.example.diary.databinding.FragmentDiaryBinding
 
 class DiaryFragment : Fragment() {
     private lateinit var diaryAdapter: DiaryAdapter
     private lateinit var recyclerView: RecyclerView
-
-    // 여행지 데이터를 저장할 리스트
-    //private val diaryList = mutableListOf<MyDiary>()
+    private lateinit var binding: FragmentDiaryBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_diary, container, false)
+        binding = FragmentDiaryBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,37 +45,32 @@ class DiaryFragment : Fragment() {
 
         loadDiaryList()
 
-        // "MEMO" 항목 추가
-//        val diary1 = MyDiary(diaryId = 1, travelDest = "제주도",  title = "제주도 여행~!", travelStart = "2023-08-18", travelEnd = "2023-08-20",
-//        diaryLike = 5, comment = 4, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-//        val diary2 = MyDiary(diaryId = 2, travelDest = "부산",  title = "부산 해운대 & 광안리", travelStart = "2023-09-05", travelEnd = "2023-09-08",
-//            diaryLike = 15, comment = 10, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-//        val diary3 = MyDiary(diaryId = 3, travelDest = "강릉",  title = "강릉 바다", travelStart = "2023-05-20", travelEnd = "2023-05-21",
-//            diaryLike = 2, comment = 0, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-//        val diary4 = MyDiary(diaryId = 4, travelDest = "일본",  title = "즐거웠던 일본 여행", travelStart = "2023-09-09", travelEnd = "2023-09-12",
-//            diaryLike = 25, comment = 5, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-//        val diary5 = MyDiary(diaryId = 5, travelDest = "서울",  title = "서울 구경", travelStart = "2023-11-01", travelEnd = "2023-11-03",
-//            diaryLike = 2, comment = 5, createdAt = "2023-08-18", updatedAt = "2023-08-18", public = true)
-//        diaryList.add(diary1)
-//        diaryList.add(diary2)
-//        diaryList.add(diary3)
-//        diaryList.add(diary4)
-//        diaryList.add(diary5)
-//        diaryAdapter.updateData(diaryList)
     }
 
-    // 서버에서 내 플랜 리스트 불러오기
+    // 서버에서 내 다이어리 리스트 불러오기
     private fun loadDiaryList() {
-        MyDiaryListManager.getDiaryListData(
-            onSuccess = { myDiaryList ->
-                val diary = myDiaryList.map { it.diaryDto }
-                Log.d("좋아요 테스트", ""+diary)
-                diaryAdapter.updateData(diary)
-            },
-            onError = { throwable ->
-                Log.e("서버 테스트3", "오류: $throwable")
-            }
-        )
+        val sharedPreferences = requireContext().getSharedPreferences("my_token", Context.MODE_PRIVATE)
+        val authToken = sharedPreferences.getString("auth_token", null)
+
+        Log.d("내 다이어리 리스트 토큰", ""+authToken)
+
+        if (authToken != null) {
+            MyDiaryListManager.getDiaryListData(
+                authToken,
+                onSuccess = { myDiaryList ->
+                    val diary = myDiaryList.map { it.diaryDto }
+                    Log.d("내 일기 목록 테스트", ""+diary)
+                    diaryAdapter.updateData(diary)
+
+                    // username 값을 추출하여 텍스트 뷰에 적용
+                    val username = myDiaryList.firstOrNull()?.userDto?.username ?: "username"
+                    binding.diaryUserName.text = username
+                },
+                onError = { throwable ->
+                    Log.e("서버 테스트3", "오류: $throwable")
+                }
+            )
+        }
     }
 
     override fun onResume() {

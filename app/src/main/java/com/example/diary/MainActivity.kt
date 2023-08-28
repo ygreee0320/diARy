@@ -1,10 +1,13 @@
 package com.example.diary
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.text.TextUtils.replace
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -18,12 +21,18 @@ import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityMainBinding
+    lateinit var sharedPreferences: SharedPreferences //토큰을 위한 sharedPreferences
+    private var authToken: String? = null    //로그인 토큰 저장
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // 저장된 토큰 읽어오기
+        sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
+        authToken = sharedPreferences.getString("auth_token", null)
 
         //toolbar
         setSupportActionBar(binding.toolbar)
@@ -71,9 +80,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             return true
         }
 
+        // 툴바의 로그인/마이페이지 버튼 클릭 시
         if (item.itemId == R.id.toolbar_auth) {
-            val intent = Intent(this, LogInActivity::class.java)
-            startActivity(intent)
+            if (authToken != null) {
+                Log.d("MainActivity", "Auth Token: $authToken")
+
+                val myPageFragment = MyPageFragment() // MyPageFragment 인스턴스 생성
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, myPageFragment)
+                    .addToBackStack(null) // 뒤로 가기 버튼으로 이전 프래그먼트로 돌아갈 수 있도록 스택에 추가
+                    .commit()
+            } else {
+                val intent = Intent(this, LogInActivity::class.java)
+                startActivity(intent)
+            }
         }
 
         return super.onOptionsItemSelected(item)

@@ -150,10 +150,11 @@ object DeletePlanManager {
     }
 }
 
+// 일기 추가
 object DiaryManager {
-    fun sendDiaryToServer(diaryData: DiaryData) {
+    fun sendDiaryToServer(diaryData: DiaryData, authToken: String) {
         val apiService = MyApplication().diaryService
-        val call = apiService.sendDiary(diaryData)
+        val call = apiService.sendDiary(diaryData, "Bearer $authToken")
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
@@ -171,10 +172,11 @@ object DiaryManager {
     }
 }
 
+// 유저별 일기 목록 불러오기
 object MyDiaryListManager {
-    fun getDiaryListData(onSuccess: (List<MyDiaryList>) -> Unit, onError: (Throwable) -> Unit) {
+    fun getDiaryListData(authToken: String, onSuccess: (List<MyDiaryList>) -> Unit, onError: (Throwable) -> Unit) {
         val apiService = MyApplication().myDiaryService
-        val call = apiService.getDiaryData()
+        val call = apiService.getDiaryData(authToken)
 
         call.enqueue(object : Callback<List<MyDiaryList>> {
             override fun onResponse(call: Call<List<MyDiaryList>>, response: Response<List<MyDiaryList>>) {

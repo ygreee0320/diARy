@@ -35,12 +35,15 @@ interface DeletePlanService {
 
 interface DiaryService {
     @POST("diary")
-    fun sendDiary(@Body diaryData: DiaryData): Call<Void>
+    fun sendDiary(
+        @Body diaryData: DiaryData,
+        @Header("Authorization") authToken: String
+    ): Call<Void>
 }
 
 interface MyDiaryService {
-    @GET("user/1/diary")
-    fun getDiaryData(): Call<List<MyDiaryList>>
+    @GET("user/diary")
+    fun getDiaryData(@Header("Authorization") authToken: String): Call<List<MyDiaryList>>
 }
 
 interface DiaryDetailService {
