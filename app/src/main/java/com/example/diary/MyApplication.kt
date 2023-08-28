@@ -38,6 +38,9 @@ class MyApplication {
 
     val creatediaryLikeService = retrofit.create(CreateDiaryLikeService::class.java)
     val deleteDiaryLikeService = retrofit.create(DeleteDiaryLikeService::class.java)
+
+    val loginService = retrofit.create(LogInService::class.java)
+    val joinService = retrofit.create(JoinService::class.java)
 }
 
 class TimeSerializer(private val timeFormat: SimpleDateFormat) : JsonSerializer<Time> {

@@ -69,6 +69,7 @@ class DiaryFragment : Fragment() {
         MyDiaryListManager.getDiaryListData(
             onSuccess = { myDiaryList ->
                 val diary = myDiaryList.map { it.diaryDto }
+                Log.d("좋아요 테스트", ""+diary)
                 diaryAdapter.updateData(diary)
             },
             onError = { throwable ->

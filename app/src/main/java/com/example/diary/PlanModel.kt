@@ -95,3 +95,19 @@ data class PlanDetailResponse(
     val locations: List<LocationDetail>,
     val tags: List<TagDetail>
 )
+
+// 회원가입 요청 서버에 전달(저장)
+data class JoinData(
+    val email: String,
+    val password: String,
+    val username: String
+)
+
+// 로그인 요청 서버에 전달(저장) -> 토큰 전달받음
+data class LogInData(
+    val email: String,
+    val password: String
+)
+
+//로그인 요청 시 받는 토큰
+data class AuthTokenResponse(val authorization: String)

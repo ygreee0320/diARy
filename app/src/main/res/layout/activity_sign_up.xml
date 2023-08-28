@@ -42,7 +42,17 @@
             android:layout_marginBottom="20dp"
             android:padding="5dp"
             android:textSize="18dp"
-            android:hint="아이디" />
+            android:hint="이메일" />
+
+        <EditText
+            android:id="@+id/username"
+            android:background="@drawable/login_border"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginBottom="20dp"
+            android:padding="5dp"
+            android:textSize="18dp"
+            android:hint="별명" />
 
         <EditText
             android:id="@+id/password"
@@ -55,28 +65,13 @@
             android:hint="비밀번호" />
 
         <android.widget.Button
-            android:id="@+id/log_in_btn"
+            android:id="@+id/sign_up_btn"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:background="@drawable/button_style"
             android:textColor="@android:color/white"
             android:textSize="20dp"
-            android:text="로그인" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="25dp"
-            android:background="@android:color/darker_gray" />
-
-        <TextView
-            android:id="@+id/join_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_marginTop="10dp"
-            android:text="회원가입"
-            android:textSize="16dp"/>
+            android:text="회원가입" />
 
     </LinearLayout>
 

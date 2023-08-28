@@ -7,6 +7,54 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+object LogInManager {
+    fun sendLogInToServer(loginData: LogInData, onSuccess: (String) -> Unit) {
+        val apiService = MyApplication().loginService
+        val call = apiService.sendLogInRequest(loginData)
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    val authToken = response.headers()["Authorization"]
+                    if (authToken != null) {
+                        // 토큰을 onSuccess 콜백으로 전달
+                        onSuccess(authToken)
+                    } else {
+                        Log.e("서버 테스트", "토큰이 없습니다.")
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("서버 테스트1", "오류: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("서버 테스트2", "오류: ${t.message}")
+            }
+        })
+    }
+}
+
+object JoinManager {
+    fun sendJoinToServer(joinData: JoinData) {
+        val apiService = MyApplication().joinService
+        val call = apiService.sendJoinRequest(joinData)
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("서버 테스트", "성공")
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("서버 테스트1", "오류: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("서버 테스트2", "오류: ${t.message}")
+            }
+        })
+    }
+}
+
 object PlanManager {
     fun sendPlanToServer(planData: PlanData) {
         val apiService = MyApplication().planService
