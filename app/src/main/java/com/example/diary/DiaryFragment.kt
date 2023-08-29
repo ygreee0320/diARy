@@ -29,8 +29,7 @@ class DiaryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //일기 작성 버튼 클릭 시, bottomSheet 출력
-        val addDiaryButton = view.findViewById<ImageView>(R.id.diary_add_btn)
-        addDiaryButton.setOnClickListener {
+        binding.diaryAddBtn.setOnClickListener {
             val bottomSheetFragment = BottomAddDiaryFragment()
             bottomSheetFragment.show(parentFragmentManager, bottomSheetFragment.tag)
         }

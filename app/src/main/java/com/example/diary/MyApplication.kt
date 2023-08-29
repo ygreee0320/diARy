@@ -39,6 +39,9 @@ class MyApplication {
     val creatediaryLikeService = retrofit.create(CreateDiaryLikeService::class.java)
     val deleteDiaryLikeService = retrofit.create(DeleteDiaryLikeService::class.java)
 
+    val commentService = retrofit.create(CommentService::class.java)
+    val commentListService = retrofit.create(CommentListService::class.java)
+
     val loginService = retrofit.create(LogInService::class.java)
     val joinService = retrofit.create(JoinService::class.java)
 }

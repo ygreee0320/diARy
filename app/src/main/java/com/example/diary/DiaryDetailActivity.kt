@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +9,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.diary.databinding.ActivityDiaryDetailBinding
@@ -24,10 +26,9 @@ class DiaryDetailActivity : AppCompatActivity() {
     private val diaryDetailAdapter = DiaryDetailAdapter(diaryPlaceList)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        var isLiked:Boolean = false// 초기에는 좋아요가 되지 않은 상태로 설정
+        var isLiked:Boolean = false // 초기에는 좋아요가 되지 않은 상태로 설정
 
         //임시 유저
-
 
         super.onCreate(savedInstanceState)
         binding = ActivityDiaryDetailBinding.inflate(layoutInflater)
@@ -54,7 +55,9 @@ class DiaryDetailActivity : AppCompatActivity() {
                     binding.diaryDetailSubtitle.text = diaryDetail.diaryDto.travelDest
                     binding.diaryDetailWriter.text = diaryDetail.userDto.username
                     // 작성일 추가 필요
+                    binding.diaryDetailComment.text = "댓글 ${diaryDetail.diaryDto.comments.size}개 >"
                     binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()
+
                     if (diaryDetail.diaryDto.likes.contains(diaryLike)) {
                         isLiked = true
                         Log.d("초반에 있음", ""+isLiked)
@@ -64,7 +67,6 @@ class DiaryDetailActivity : AppCompatActivity() {
                         Log.d("초반에 없음", ""+isLiked)
                         binding.diaryDetailLikeImg.text = "♡ "
                     }
-
 
                     val tagNames = diaryDetail.diaryDto.tags.joinToString(" ") { "#${it.name}" }
                     binding.diaryDetailHash.text = tagNames
@@ -110,29 +112,16 @@ class DiaryDetailActivity : AppCompatActivity() {
             )
         }
 
-
         val diarylikeButton = findViewById<TextView>(R.id.diary_detail_like_img)
-        //isLiked를 정의해야 함
-
-
-
-
-
-
-        diarylikeButton.setOnClickListener {
-
+        diarylikeButton.setOnClickListener { // 좋아요 버튼 클릭 시
                     isLiked = !isLiked // 토글 형식으로 상태 변경
-                    if (isLiked) {
+                    if (isLiked) {  //좋아요 추가 시
                         DiaryLikeCreateManager.sendDiaryLikeToServer(diaryId)
                         diarylikeButton.text = "♥ "
 
-                        // 좋아요 버튼이 눌렸을 때의 동작 구현
-                        // 예: 서버에 좋아요 요청 보내기 등
-                    } else {
+                    } else {  //좋아요 해제 시
                         DiaryLikeCreateManager.deleteDiaryLikeFromServer(diaryId)
                         diarylikeButton.text = "♡ "
-                        // 좋아요 버튼이 해제되었을 때의 동작 구현
-                        // 예: 서버에 좋아요 취소 요청 보내기 등
                     }
             DiaryDetailManager.getDiaryDetailData(
                 diaryId,
@@ -142,6 +131,14 @@ class DiaryDetailActivity : AppCompatActivity() {
                 }
             )
         }
+
+        val diaryCommentButton = findViewById<LinearLayout>(R.id.diary_detail_comment_btn)
+        diaryCommentButton.setOnClickListener { //댓글 버튼 클릭 시,  CommentActivity로 이동
+            val bottomSheetFragment = CommentFragment()
+            bottomSheetFragment.setDiaryId(diaryId) // diaryId를 Fragment에 전달
+            bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
+        }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -161,7 +158,7 @@ class DiaryDetailActivity : AppCompatActivity() {
             }
             R.id.remove_menu -> { //삭제하기 버튼 클릭 시
                 DeleteDiaryManager.deleteDataFromServer(diaryId)
-                finish() // 현재 액티비티 종료
+                finish() // 현재 일기 삭제 후, 액티비티 종료
                 return true
             }
             else -> return super.onOptionsItemSelected(item)

@@ -55,6 +55,13 @@ data class CommentList(
     val comment: Comment, //답글, 리스트 형식이라 수정 필요
 )
 
+data class ReplyList(
+    val commentId: Int,
+    val diaryId: Int,
+    val content: String,
+    val userId: Int
+)
+
 data class LikesList(
     val diaryId: Int,
     val userId: Int,
@@ -87,8 +94,22 @@ data class MyDiaryList(
     val diaryLocationDtoList: List<DiaryLocationDtoList>
 )
 
+// 일기 상세 불러오기
 data class DiaryDetailResponse(
     val userDto: User,
     val diaryDto: DiaryDtoMyList,
     val diaryLocationDtoList: List<DiaryLocationDtoList>,
+)
+
+// 댓글 작성
+data class CommentData(
+    val content: String
+)
+
+// 일기 별 댓글 조회
+data class CommentListResponse(
+    val diaryId: Int,
+    val content: String,
+    val userId: Int,
+    val replyDtos: List<ReplyList>
 )

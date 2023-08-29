@@ -36,6 +36,8 @@ class PlanDetailActivity : AppCompatActivity() {
 
         planId = intent.getIntExtra("planId", -1)
 
+        //val planLike =
+
         if (planId != -1) {
             // 플랜 아이디를 통해 서버에 데이터 요청
             PlanDetailManager.getPlanDetailData(

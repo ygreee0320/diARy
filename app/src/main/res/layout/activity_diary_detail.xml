@@ -151,19 +151,27 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
 
-            <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="2dp"
-                android:src="@drawable/comment_icon" />
-
-            <TextView
-                android:id="@+id/diary_detail_comment"
+            <LinearLayout
+                android:id="@+id/diary_detail_comment_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="댓글 0개 >"
-                android:textSize="15dp" />
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="2dp"
+                    android:src="@drawable/comment_icon" />
+
+                <TextView
+                    android:id="@+id/diary_detail_comment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="댓글 0개 >"
+                    android:textSize="15dp" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/diary_detail_like_img"
