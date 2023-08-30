@@ -1,6 +1,7 @@
 package com.example.diary
 
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,7 +55,15 @@ class PlanAdapter(private var plans: List<MyPlan>) : RecyclerView.Adapter<PlanAd
                 planLikeView.text = "비공개"
             } else {
                 planLikeImeView.visibility = View.VISIBLE
-                planLikeView.text = "1" //일정 좋아요 수 (수정 필요)
+
+                PlanLikeListManager.getPlanLikeListData(plan.planId,
+                    onSuccess = { planLike ->
+                        planLikeView.text = "${planLike.size}"
+                    },
+                    onError = { throwable ->
+                        Log.e("서버 테스트3", "오류: $throwable")
+                    }
+                )
             }
         }
     }

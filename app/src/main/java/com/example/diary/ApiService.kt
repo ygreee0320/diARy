@@ -19,13 +19,28 @@ interface PlanService {
 }
 
 interface MyPlanService {
-    @GET("user/1/plan")
-    fun getPlanData(): Call<List<MyPlanListResponse>>
+    @GET("user/plan")
+    fun getPlanData(@Header("Authorization") authToken: String): Call<List<MyPlanListResponse>>
 }
 
 interface PlanDetailService {
     @GET("plan/{planId}")
     fun getPlanData(@Path("planId") planId: Int): Call<PlanDetailResponse>
+}
+
+interface PlanLikeListService {
+    @GET("plan/{planId}/plan-like")
+    fun getPlanLikeData(@Path("planId") planId: Int): Call<List<PlanLikeList>>
+}
+
+interface PlanLikeService {
+    @POST("plan/{planId}/plan-like")
+    fun sendPlanLike(@Path("planId") planId: Int, @Header("Authorization") authToken: String): Call<Void>
+}
+
+interface DeletePlanLikeService {
+    @DELETE("plan/{planId}/plan-like")
+    fun deletePlanLike(@Path("planId") planId: Int, @Header("Authorization") authToken: String): Call<Void>
 }
 
 interface DeletePlanService {

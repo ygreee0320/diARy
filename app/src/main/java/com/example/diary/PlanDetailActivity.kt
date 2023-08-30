@@ -1,19 +1,24 @@
 package com.example.diary
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.diary.databinding.ActivityAddPlanBinding
 import com.example.diary.databinding.ActivityPlanDetailBinding
+import com.google.android.material.color.utilities.MaterialDynamicColors.onError
 import java.text.SimpleDateFormat
 import java.util.*
 
 class PlanDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityPlanDetailBinding
     private var planId = -1 //현재 플랜ID를 담는 변수
+    private var planLikeCount: Int ?= 0 // 현재 플랜의 좋아요 수
+    private var isLiked:Boolean = false // 초기에는 좋아요가 되지 않은 상태로 설정
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     // 여행지 데이터를 저장할 리스트
@@ -36,7 +41,10 @@ class PlanDetailActivity : AppCompatActivity() {
 
         planId = intent.getIntExtra("planId", -1)
 
-        //val planLike =
+        // 저장된 토큰 읽어오기
+        val sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
+        val authToken = sharedPreferences.getString("auth_token", null)
+        val userId = sharedPreferences.getInt("userId", -1)
 
         if (planId != -1) {
             // 플랜 아이디를 통해 서버에 데이터 요청
@@ -46,6 +54,7 @@ class PlanDetailActivity : AppCompatActivity() {
                     // 플랜 상세 정보를 UI에 적용하는 작업
                     binding.planDetailTitle.text = planDetail.plan.travelDest
                     binding.planDetailSubtitle.text = planDetail.plan.content
+                    binding.planDetailWriter.text = planDetail.user.username
 
                     val tagNames = planDetail.tags.joinToString(" ") { "#${it.name}" }
                     binding.planDetailHash.text = tagNames
@@ -56,6 +65,20 @@ class PlanDetailActivity : AppCompatActivity() {
                     val formattedEndDate = dateFormatter.format(planDetail.plan.travelEnd)
 
                     binding.planDetailMyDate.text = "$formattedStartDate ~ $formattedEndDate"
+
+                    planLikeCount = planDetail.likes.size  //좋아요 수 저장
+                    binding.planDetailLike.text = "$planLikeCount"
+
+                    isLiked = planDetail.likes.any { it.userId == userId }
+
+                    Log.d("기존 좋아요", "" + isLiked)
+
+                    // 좋아요 상태에 따라 UI 업데이트
+                    if (isLiked) { //로그인 한 유저가 좋아요를 누른 상태라면
+                        binding.planDetailLikeImg.text = "♥ "
+                    } else { //로그인 한 유저가 좋아요를 누른 상태가 아니라면
+                        binding.planDetailLikeImg.text = "♡ "
+                    }
 
                     val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
                         val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
@@ -79,8 +102,69 @@ class PlanDetailActivity : AppCompatActivity() {
                     Log.e("서버 테스트3", "오류: $throwable")
                 }
             )
+//
+//            PlanLikeListManager.getPlanLikeListData( //좋아요 목록 불러오기
+//                planId,
+//                onSuccess = { planLike ->
+//                    planLikeCount = planLike.size //좋아요 수 저장
+//                    binding.planDetailLike.text = "$planLikeCount"
+//
+//                    isLiked = planLike.any { it.user?.username == username }
+//
+//                    // 좋아요 상태에 따라 UI 업데이트
+//                    updateLikeUI()
+//                },
+//                onError = { throwable ->
+//                    Log.e("서버 테스트3", "오류: $throwable")
+//                }
+//            )
         }
 
+        binding.planDetailLikeBtn.setOnClickListener { // 좋아요 버튼 클릭 시
+            if (authToken != null) {
+                    isLiked = !isLiked // 토글 형식으로 상태 변경
+                    if (isLiked) { //좋아요 요청
+                        PlanLikeManager.sendPlanLikeToServer(planId, authToken)
+                        binding.planDetailLikeImg.text = "♥ "
+                    } else { //좋아요 해제
+                        PlanLikeManager.deletePlanLikeFromServer(planId, authToken)
+                        binding.planDetailLikeImg.text = "♡ "
+                    }
+
+                PlanDetailManager.getPlanDetailData(
+                    planId,
+                    onSuccess = { planDetail ->
+                        planLikeCount = planDetail.likes.size  //좋아요 수 저장
+                        binding.planDetailLike.text = "$planLikeCount"
+                        Log.d("좋아요 수", ""+planLikeCount)
+                    },
+                    onError = { throwable ->
+                        Log.e("서버 테스트3", "오류: $throwable")
+                    }
+                )
+
+//
+//                PlanLikeListManager.getPlanLikeListData( //좋아요 목록 불러오기
+//                    planId,
+//                    onSuccess = { planLike ->
+//                        planLikeCount = planLike.size //좋아요 수 저장
+//                        binding.planDetailLike.text = "$planLikeCount"
+//                        Log.d("좋아요 수", ""+planLikeCount)
+//                    },
+//                    onError = { throwable ->
+//                        Log.e("서버 테스트3", "오류: $throwable")
+//                    }
+//                )
+            } else { }
+        }
+    }
+
+    private fun updateLikeUI() {
+        if (isLiked) { //로그인 한 유저가 좋아요를 누른 상태라면
+            binding.planDetailLikeImg.text = "♥ "
+        } else { //로그인 한 유저가 좋아요를 누른 상태가 아니라면
+            binding.planDetailLikeImg.text = "♡ "
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

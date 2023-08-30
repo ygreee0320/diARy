@@ -54,7 +54,7 @@ class DiaryDetailActivity : AppCompatActivity() {
                     binding.diaryDetailTitle.text = diaryDetail.diaryDto.title
                     binding.diaryDetailSubtitle.text = diaryDetail.diaryDto.travelDest
                     binding.diaryDetailWriter.text = diaryDetail.userDto.username
-                    // 작성일 추가 필요
+                    binding.diaryDetailCreateDate.text = "${diaryDetail.diaryDto.createdAt}"
                     binding.diaryDetailComment.text = "댓글 ${diaryDetail.diaryDto.comments.size}개 >"
                     binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()
 

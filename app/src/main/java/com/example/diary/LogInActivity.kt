@@ -7,10 +7,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import androidx.core.content.ContentProviderCompat.requireContext
+import com.auth0.android.jwt.JWT
 import com.example.diary.databinding.ActivityLogInBinding
 
 class LogInActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLogInBinding
+    private var userId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,7 +32,14 @@ class LogInActivity : AppCompatActivity() {
 
                 Log.d("서버 테스트", ""+loginData)
                 LogInManager.sendLogInToServer(loginData) { authToken ->
-                    saveAuthToken(authToken, email, "username") //유저네임 수정 필요
+                    val jwtToken = authToken
+                    val jwt = JWT(jwtToken)
+
+                    val username = jwt.subject
+                    val useremail = jwt.getClaim("email").asString()
+                    userId = jwt.getClaim("id")?.asInt() ?: -1
+
+                    saveAuthToken(authToken, useremail ?: "", userId) //유저네임 수정 필요
                     moveToHomeScreen() // 토큰 저장 후 홈 화면으로 이동
                 }
             }
@@ -54,8 +63,7 @@ class LogInActivity : AppCompatActivity() {
     }
 
     // 토큰을 저장하는 메서드
-    private fun saveAuthToken(token: String, email: String, username: String) {
-        // SharedPreferences, ViewModel 등을 활용하여 저장 가능
+    private fun saveAuthToken(token: String, email: String, userId: Int) {
         Log.d("로그인 토큰 테스트", ""+token)
 
         // 토큰 저장
@@ -63,7 +71,7 @@ class LogInActivity : AppCompatActivity() {
         val editor = sharedPreferences.edit()
         editor.putString("auth_token", token)
         editor.putString("user_email", email)
-        editor.putString("username", username)
+        editor.putInt("userId", userId)
         editor.apply()
     }
 

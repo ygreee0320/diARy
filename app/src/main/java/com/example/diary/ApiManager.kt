@@ -77,9 +77,9 @@ object PlanManager {
 }
 
 object MyPlanListManager {
-    fun getPlanListData(onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
+    fun getPlanListData(authToken: String, onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
         val apiService = MyApplication().myPlanService
-        val call = apiService.getPlanData()
+        val call = apiService.getPlanData(authToken)
 
         call.enqueue(object : Callback<List<MyPlanListResponse>> {
             override fun onResponse(call: Call<List<MyPlanListResponse>>, response: Response<List<MyPlanListResponse>>) {
@@ -97,6 +97,72 @@ object MyPlanListManager {
 
             override fun onFailure(call: Call<List<MyPlanListResponse>>, t: Throwable) {
                 onError(t)
+            }
+        })
+    }
+}
+
+object PlanLikeListManager {
+    fun getPlanLikeListData(planId: Int, onSuccess: (List<PlanLikeList>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().planLikeListService
+        val call = apiService.getPlanLikeData(planId)
+
+        call.enqueue(object : Callback<List<PlanLikeList>> {
+            override fun onResponse(call: Call<List<PlanLikeList>>, response: Response<List<PlanLikeList>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<PlanLikeList>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+}
+
+object PlanLikeManager {
+    fun sendPlanLikeToServer(planId: Int, authToken: String) {
+        val apiService = MyApplication().planLikeService
+        val call = apiService.sendPlanLike(planId,"Bearer $authToken")
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("서버 테스트", "성공")
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("서버 테스트1", "오류: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("서버 테스트2", "오류: ${t.message}")
+            }
+        })
+    }
+
+    fun deletePlanLikeFromServer(planId: Int, authToken: String) {
+        val apiService = MyApplication().deletePlanLikeService
+        val call = apiService.deletePlanLike(planId, "Bearer $authToken")
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("서버 테스트", "취소-성공")
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("서버 테스트1", "오류: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("서버 테스트2", "오류: ${t.message}")
             }
         })
     }

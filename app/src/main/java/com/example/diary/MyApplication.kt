@@ -3,6 +3,7 @@ package com.example.diary
 import com.google.gson.*
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.create
 import java.lang.reflect.Type
 import java.sql.Time
 import java.text.SimpleDateFormat
@@ -10,7 +11,7 @@ import java.util.*
 
 class MyApplication {
     val retrofit = Retrofit.Builder()
-        .baseUrl("http:/192.168.200.105:8080/") // 서버 임시 URL(로컬)
+        .baseUrl("http:/192.168.0.14:8080/") // 서버 임시 URL(로컬)
         .addConverterFactory(GsonConverterFactory.create(getGson()))
         .build()
 
@@ -30,6 +31,10 @@ class MyApplication {
     val myPlanService = retrofit.create(MyPlanService::class.java)
     val planDetailService = retrofit.create(PlanDetailService::class.java)
     val deletePlanService = retrofit.create(DeletePlanService::class.java)
+
+    val planLikeListService = retrofit.create(PlanLikeListService::class.java)
+    val planLikeService = retrofit.create(PlanLikeService::class.java)
+    val deletePlanLikeService = retrofit.create(DeletePlanLikeService::class.java)
 
     val diaryService = retrofit.create(DiaryService::class.java)
     val myDiaryService = retrofit.create(MyDiaryService::class.java)

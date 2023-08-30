@@ -89,11 +89,22 @@ data class TagDetail(
     val name: String
 )
 
+data class PlanLikesList(
+    val planId: Int,
+    val userId: Int
+)
+
 data class PlanDetailResponse(
     val user: User,
     val plan: PlanDetail,
     val locations: List<LocationDetail>,
-    val tags: List<TagDetail>
+    val tags: List<TagDetail>,
+    val likes: List<PlanLikesList>
+)
+
+// 일정 좋아요 한 유저 목록
+data class PlanLikeList(
+    val user: User
 )
 
 // 회원가입 요청 서버에 전달(저장)

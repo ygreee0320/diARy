@@ -23,6 +23,8 @@ data class DiaryDtoMyList(
     val satisfaction: Int,
     val travelStart: Date,
     val travelEnd: Date,
+    val createdAt: Date,
+    val updatedAt: Date,
     val tags: List<TagName>,
     val likes: List<LikesList>,
     val comments: List<CommentList>,
@@ -110,6 +112,8 @@ data class CommentData(
 data class CommentListResponse(
     val diaryId: Int,
     val content: String,
-    val userId: Int,
-    val replyDtos: List<ReplyList>
+    val createdAt: Date,
+    val updatedAt: Date,
+    val replyDtos: List<ReplyList>,
+    val userDto: User
 )
