@@ -357,9 +357,10 @@ object DiaryLikeCreateManager {
 }
 
 object CommentManager {
-    fun sendCommentToServer(diaryId: Int, commentData: CommentData) {
+    fun sendCommentToServer(authToken: String, diaryId: Int, commentData: CommentData) {
         val apiService = MyApplication().commentService
-        val call = apiService.sendComment(diaryId, commentData)
+        val call = apiService.sendComment("Bearer $authToken", diaryId, commentData);
+        //val call = apiService.sendComment(diaryId, commentData)
 
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {

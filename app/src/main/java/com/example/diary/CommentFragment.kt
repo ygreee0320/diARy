@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -48,12 +49,17 @@ class CommentFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val sharedPreferences = requireContext().getSharedPreferences("my_token", Context.MODE_PRIVATE)
+        val authToken = sharedPreferences.getString("auth_token", null)
+
 
         //댓글 전송하기 클릭 시
         binding.commentBtn.setOnClickListener {
             val commentText = binding.commentText.text.toString() //댓글 텍스트
             val commentData = CommentData(commentText)
-            CommentManager.sendCommentToServer(diaryId, commentData)
+            if (authToken != null) {
+                CommentManager.sendCommentToServer(authToken, diaryId, commentData)
+            }
 
             binding.commentText.text.clear() // 댓글 전송 후 텍스트 초기화
 

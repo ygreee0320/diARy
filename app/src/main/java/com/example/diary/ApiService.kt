@@ -81,13 +81,15 @@ interface DeleteDiaryLikeService {
     fun deleteDiaryLikeData(@Path("diaryId") diaryId: Int): Call<Void>
 }
 
-interface CommentService { // 일기 댓글 작성
+interface CommentService {
+    // 일기 댓글 작성
     @POST("diary/{diaryId}/comment")
     fun sendComment(
+        @Header("Authorization") authToken: String,
         @Path("diaryId") diaryId: Int,
-        @Body commentData: CommentData): Call<Void>
+        @Body commentData: CommentData
+    ): Call<Void>
 }
-
 interface CommentListService { // 일기 댓글 조회
     @GET("diary/{diaryId}/comment")
     fun getCommentListData(@Path("diaryId") diaryId: Int): Call<List<CommentListResponse>>
