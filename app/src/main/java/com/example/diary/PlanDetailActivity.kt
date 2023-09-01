@@ -224,7 +224,6 @@ class PlanDetailActivity : AppCompatActivity() {
                 // 수정하는 것임을 알림
                 intent.putExtra("new_plan", 0)
                 intent.putExtra("plan_id", planId)
-                //startActivity(intent)
                 planModActivityResult.launch(intent)
                 return true
             }
