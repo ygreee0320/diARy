@@ -119,6 +119,3 @@ data class LogInData(
     val email: String,
     val password: String
 )
-
-//로그인 요청 시 받는 토큰
-data class AuthTokenResponse(val authorization: String)

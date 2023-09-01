@@ -55,10 +55,55 @@ object JoinManager {
     }
 }
 
+object MyPageManager {
+    fun getMyData(authToken: String, onSuccess: (User) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().myPageService
+        val call = apiService.getMyData(authToken)
+
+        call.enqueue(object : Callback<User> {
+            override fun onResponse(call: Call<User>, response: Response<User>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<User>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+}
+
 object PlanManager {
-    fun sendPlanToServer(planData: PlanData) {
+    fun sendPlanToServer(planData: PlanData, authToken: String) { // 일정 새로 추가
         val apiService = MyApplication().planService
-        val call = apiService.sendPlan(planData)
+        val call = apiService.sendPlan(planData, authToken)
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("서버 테스트", "성공")
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("서버 테스트1", "오류: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("서버 테스트2", "오류: ${t.message}")
+            }
+        })
+    }
+
+    fun sendModPlanToServer(planId: Int, planData: PlanData, authToken: String) { // 일정 수정
+        val apiService = MyApplication().modPlanService
+        val call = apiService.sendModPlan(planId, planData, authToken)
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
@@ -128,41 +173,47 @@ object PlanLikeListManager {
     }
 }
 
-object PlanLikeManager {
-    fun sendPlanLikeToServer(planId: Int, authToken: String) {
+object PlanLikeManager { //좋아요 등록 & 취소
+    fun sendPlanLikeToServer(planId: Int, authToken: String, callback: (Boolean) -> Unit) {
         val apiService = MyApplication().planLikeService
-        val call = apiService.sendPlanLike(planId,"Bearer $authToken")
+        val call = apiService.sendPlanLike(planId, authToken)
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Log.d("서버 테스트", "성공")
+                    callback(true) // 성공 시 true 전달
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("서버 테스트1", "오류: $errorBody")
+                    callback(false) // 실패 시 false 전달
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.e("서버 테스트2", "오류: ${t.message}")
+                callback(false) // 실패 시 false 전달
             }
         })
     }
 
-    fun deletePlanLikeFromServer(planId: Int, authToken: String) {
+    fun deletePlanLikeFromServer(planId: Int, authToken: String, callback: (Boolean) -> Unit) {
         val apiService = MyApplication().deletePlanLikeService
-        val call = apiService.deletePlanLike(planId, "Bearer $authToken")
+        val call = apiService.deletePlanLike(planId, authToken)
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Log.d("서버 테스트", "취소-성공")
+                    callback(true) // 성공 시 true 전달
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("서버 테스트1", "오류: $errorBody")
+                    callback(false) // 실패 시 false 전달
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.e("서버 테스트2", "오류: ${t.message}")
+                callback(false) // 실패 시 false 전달
             }
         })
     }
@@ -220,7 +271,7 @@ object DeletePlanManager {
 object DiaryManager {
     fun sendDiaryToServer(diaryData: DiaryData, authToken: String) {
         val apiService = MyApplication().diaryService
-        val call = apiService.sendDiary(diaryData, "Bearer $authToken")
+        val call = apiService.sendDiary(diaryData, authToken)
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
@@ -314,65 +365,74 @@ object DeleteDiaryManager {
 }
 
 
-object DiaryLikeCreateManager {
-    fun sendDiaryLikeToServer(diaryId: Int) {
+object DiaryLikeManager { // 일기 좋아요 & 취소
+    fun sendDiaryLikeToServer(diaryId: Int, authToken: String, callback: (Boolean) -> Unit) {
         val apiService = MyApplication().creatediaryLikeService
-        val call = apiService.createDiaryLikeData(diaryId)
+        val call = apiService.createDiaryLikeData(diaryId, authToken)
 
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Log.d("서버 테스트", "등록-성공")
+                    callback(true) // 성공 시 true 전달
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("서버 테스트1", "오류: $errorBody")
+                    callback(true) // 성공 시 true 전달
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.e("서버 테스트2", "오류: ${t.message}")
+                callback(false)
             }
         })
     }
 
-    fun deleteDiaryLikeFromServer(diaryId: Int) {
+    fun deleteDiaryLikeFromServer(diaryId: Int, authToken: String, callback: (Boolean) -> Unit) {
         val apiService = MyApplication().deleteDiaryLikeService
-        val call = apiService.deleteDiaryLikeData(diaryId)
+        val call = apiService.deleteDiaryLikeData(diaryId, authToken)
 
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Log.d("서버 테스트", "취소-성공")
+                    callback(true) // 성공 시 true 전달
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("서버 테스트1", "오류: $errorBody")
+                    callback(true) // 성공 시 true 전달
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.e("서버 테스트2", "오류: ${t.message}")
+                callback(false)
             }
         })
     }
 }
 
 object CommentManager {
-    fun sendCommentToServer(diaryId: Int, commentData: CommentData) {
+    fun sendCommentToServer(diaryId: Int, authToken: String, commentData: CommentData, callback: (Boolean) -> Unit) {
         val apiService = MyApplication().commentService
-        val call = apiService.sendComment(diaryId, commentData)
+        val call = apiService.sendComment(diaryId, authToken, commentData)
 
         call.enqueue(object : Callback<Void> {
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Log.d("서버 테스트", "등록-성공")
+                    callback(true) // 성공 시 true 전달
                 } else {
                     val errorBody = response.errorBody()?.string()
                     Log.e("서버 테스트1", "오류: $errorBody")
+                    callback(true) // 성공 시 true 전달
                 }
             }
 
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.e("서버 테스트2", "오류: ${t.message}")
+                callback(false)
             }
         })
     }

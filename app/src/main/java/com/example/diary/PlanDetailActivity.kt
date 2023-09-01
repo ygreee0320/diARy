@@ -1,14 +1,17 @@
 package com.example.diary
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.diary.databinding.ActivityAddPlanBinding
 import com.example.diary.databinding.ActivityPlanDetailBinding
 import com.google.android.material.color.utilities.MaterialDynamicColors.onError
 import java.text.SimpleDateFormat
@@ -24,6 +27,10 @@ class PlanDetailActivity : AppCompatActivity() {
     // 여행지 데이터를 저장할 리스트
     private val planPlaceList = mutableListOf<PlanDetailModel>()
     private val planDetailAdapter = PlanDetailAdapter(planPlaceList)
+
+    companion object {
+        lateinit var planModActivityResult: ActivityResultLauncher<Intent>
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +78,7 @@ class PlanDetailActivity : AppCompatActivity() {
 
                     isLiked = planDetail.likes.any { it.userId == userId }
 
+                    Log.d("기존 유저아이디", "" + userId)
                     Log.d("기존 좋아요", "" + isLiked)
 
                     // 좋아요 상태에 따라 UI 업데이트
@@ -102,60 +110,93 @@ class PlanDetailActivity : AppCompatActivity() {
                     Log.e("서버 테스트3", "오류: $throwable")
                 }
             )
-//
-//            PlanLikeListManager.getPlanLikeListData( //좋아요 목록 불러오기
-//                planId,
-//                onSuccess = { planLike ->
-//                    planLikeCount = planLike.size //좋아요 수 저장
-//                    binding.planDetailLike.text = "$planLikeCount"
-//
-//                    isLiked = planLike.any { it.user?.username == username }
-//
-//                    // 좋아요 상태에 따라 UI 업데이트
-//                    updateLikeUI()
-//                },
-//                onError = { throwable ->
-//                    Log.e("서버 테스트3", "오류: $throwable")
-//                }
-//            )
         }
 
         binding.planDetailLikeBtn.setOnClickListener { // 좋아요 버튼 클릭 시
             if (authToken != null) {
-                    isLiked = !isLiked // 토글 형식으로 상태 변경
-                    if (isLiked) { //좋아요 요청
-                        PlanLikeManager.sendPlanLikeToServer(planId, authToken)
-                        binding.planDetailLikeImg.text = "♥ "
-                    } else { //좋아요 해제
-                        PlanLikeManager.deletePlanLikeFromServer(planId, authToken)
-                        binding.planDetailLikeImg.text = "♡ "
+                isLiked = !isLiked // 토글 형식으로 상태 변경
+                if (isLiked) { //좋아요 요청
+                    PlanLikeManager.sendPlanLikeToServer(planId, authToken) { isSuccess ->
+                        if (isSuccess) {
+                            updateLikeUI() // 좋아요 상태 UI 업데이트
+                            // 플랜 상세 정보 다시 가져오기 -> 좋아요 수 업데이트
+                            PlanDetailManager.getPlanDetailData(
+                                planId,
+                                onSuccess = { planDetail ->
+                                    planLikeCount = planDetail.likes.size
+                                    binding.planDetailLike.text = "$planLikeCount"
+                                },
+                                onError = { throwable ->
+                                    Log.e("서버 테스트3", "오류: $throwable")
+                                }
+                            )
+                        }
                     }
+                } else { //좋아요 해제
+                    PlanLikeManager.deletePlanLikeFromServer(planId, authToken) { isSuccess ->
+                        if (isSuccess) {
+                            updateLikeUI() // 좋아요 상태 UI 업데이트
+                            // 플랜 상세 정보 다시 가져오기 -> 좋아요 수 업데이트
+                            PlanDetailManager.getPlanDetailData(
+                                planId,
+                                onSuccess = { planDetail ->
+                                    planLikeCount = planDetail.likes.size
+                                    binding.planDetailLike.text = "$planLikeCount"
+                                },
+                                onError = { throwable ->
+                                    Log.e("서버 테스트3", "오류: $throwable")
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
+        planModActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // 수정 후 넘어왔을 때 보여줄 내용 추가
                 PlanDetailManager.getPlanDetailData(
                     planId,
                     onSuccess = { planDetail ->
+                        // 플랜 상세 정보를 UI에 적용하는 작업
+                        binding.planDetailTitle.text = planDetail.plan.travelDest
+                        binding.planDetailSubtitle.text = planDetail.plan.content
+                        binding.planDetailWriter.text = planDetail.user.username
+
+                        val tagNames = planDetail.tags.joinToString(" ") { "#${it.name}" }
+                        binding.planDetailHash.text = tagNames
+
+                        // 만약 작성한 유저와 현재 유저가 같다면, 수정하기/삭제하기 등등
+                        val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        val formattedStartDate = dateFormatter.format(planDetail.plan.travelStart)
+                        val formattedEndDate = dateFormatter.format(planDetail.plan.travelEnd)
+
+                        binding.planDetailMyDate.text = "$formattedStartDate ~ $formattedEndDate"
+
                         planLikeCount = planDetail.likes.size  //좋아요 수 저장
                         binding.planDetailLike.text = "$planLikeCount"
-                        Log.d("좋아요 수", ""+planLikeCount)
+
+                        val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
+                            val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
+                            val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+
+                            PlanDetailModel(
+                                place = locationDetail.name,
+                                address = locationDetail.address,
+                                placeDate = locationDetail.date,
+                                placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                            )
+                        }
+
+                        planDetailAdapter.updateData(planDetailModels)
                     },
                     onError = { throwable ->
                         Log.e("서버 테스트3", "오류: $throwable")
                     }
                 )
-
-//
-//                PlanLikeListManager.getPlanLikeListData( //좋아요 목록 불러오기
-//                    planId,
-//                    onSuccess = { planLike ->
-//                        planLikeCount = planLike.size //좋아요 수 저장
-//                        binding.planDetailLike.text = "$planLikeCount"
-//                        Log.d("좋아요 수", ""+planLikeCount)
-//                    },
-//                    onError = { throwable ->
-//                        Log.e("서버 테스트3", "오류: $throwable")
-//                    }
-//                )
-            } else { }
+            }
         }
     }
 
@@ -179,7 +220,12 @@ class PlanDetailActivity : AppCompatActivity() {
                 return true
             }
             R.id.mod_menu -> { //수정하기 버튼 클릭 시
-
+                val intent = Intent(this, AddPlanActivity::class.java)
+                // 수정하는 것임을 알림
+                intent.putExtra("new_plan", 0)
+                intent.putExtra("plan_id", planId)
+                //startActivity(intent)
+                planModActivityResult.launch(intent)
                 return true
             }
             R.id.remove_menu -> { //삭제하기 버튼 클릭 시

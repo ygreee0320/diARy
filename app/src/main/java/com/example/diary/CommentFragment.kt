@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -16,23 +17,12 @@ class CommentFragment : BottomSheetDialogFragment() {
     private lateinit var binding: FragmentCommentBinding
     private lateinit var commentAdapter: CommentAdapter
     private lateinit var recyclerView: RecyclerView
+    private var authToken: String ?= ""
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCommentBinding.inflate(inflater, container, false)
-
-        diaryId = arguments?.getInt("diaryId", -1) ?: -1
-
-        recyclerView = binding.commentRecyclerView
-
-        val layoutManager = LinearLayoutManager(requireContext())
-        binding.commentRecyclerView.layoutManager = layoutManager
-
-        commentAdapter = CommentAdapter(emptyList()) // 초기에 빈 목록으로 어댑터 설정
-        recyclerView.adapter = commentAdapter // 리사이클러뷰에 어댑터 설정
-
-        loadCommentList()
 
         // BottomSheet 높이/스타일 설정
         dialog?.setOnShowListener {
@@ -49,15 +39,36 @@ class CommentFragment : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        diaryId = arguments?.getInt("diaryId", -1) ?: -1
+
+        recyclerView = binding.commentRecyclerView
+
+        val layoutManager = LinearLayoutManager(requireContext())
+        binding.commentRecyclerView.layoutManager = layoutManager
+
+        commentAdapter = CommentAdapter(emptyList()) // 초기에 빈 목록으로 어댑터 설정
+        recyclerView.adapter = commentAdapter // 리사이클러뷰에 어댑터 설정
+
+        loadCommentList() // 댓글 목록 불러오기
+
+        // 저장된 토큰 읽어오기
+        val sharedPreferences = requireContext().getSharedPreferences("my_token", Context.MODE_PRIVATE)
+        authToken = sharedPreferences.getString("auth_token", null)
+        val userId = sharedPreferences.getInt("userId", -1)
+
         //댓글 전송하기 클릭 시
         binding.commentBtn.setOnClickListener {
             val commentText = binding.commentText.text.toString() //댓글 텍스트
             val commentData = CommentData(commentText)
-            CommentManager.sendCommentToServer(diaryId, commentData)
+            if (authToken != null) {
+                CommentManager.sendCommentToServer(diaryId, authToken!!, commentData) { isSuccess ->
+                    if (isSuccess) {
+                        binding.commentText.text.clear() // 댓글 전송 후 텍스트 초기화
 
-            binding.commentText.text.clear() // 댓글 전송 후 텍스트 초기화
-
-            loadCommentList()
+                        loadCommentList() // 댓글 리스트 업데이트
+                    }
+                }
+            }
         }
     }
 
@@ -70,8 +81,7 @@ class CommentFragment : BottomSheetDialogFragment() {
     override fun onResume() {
         super.onResume()
 
-        //댓글 리스트 업데이트
-        loadCommentList()
+        loadCommentList() // 댓글 리스트 업데이트
     }
 
     // 서버에서 댓글 리스트 불러오기
@@ -87,5 +97,4 @@ class CommentFragment : BottomSheetDialogFragment() {
             }
         )
     }
-
 }

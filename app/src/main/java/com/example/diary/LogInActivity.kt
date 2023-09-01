@@ -32,15 +32,16 @@ class LogInActivity : AppCompatActivity() {
 
                 Log.d("서버 테스트", ""+loginData)
                 LogInManager.sendLogInToServer(loginData) { authToken ->
-                    val jwtToken = authToken
-                    val jwt = JWT(jwtToken)
+                    val tokenOnly = authToken?.substringAfter("Bearer ")
 
-                    val username = jwt.subject
-                    val useremail = jwt.getClaim("email").asString()
-                    userId = jwt.getClaim("id")?.asInt() ?: -1
+                    if (tokenOnly != null) {
+                        val jwt = JWT(tokenOnly)
+                        val useremail = jwt.getClaim("email").asString()
+                        userId = jwt.getClaim("id")?.asInt() ?: -1
 
-                    saveAuthToken(authToken, useremail ?: "", userId) //유저네임 수정 필요
-                    moveToHomeScreen() // 토큰 저장 후 홈 화면으로 이동
+                        saveAuthToken(authToken, useremail ?: "", userId) //유저네임 수정 필요
+                        moveToHomeScreen() // 토큰 저장 후 홈 화면으로 이동
+                    }
                 }
             }
             finish()

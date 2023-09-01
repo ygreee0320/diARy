@@ -14,6 +14,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import com.auth0.android.jwt.JWT
 import com.example.diary.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.internal.NavigationMenuItemView
@@ -33,6 +34,25 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // 저장된 토큰 읽어오기
         sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
         authToken = sharedPreferences.getString("auth_token", null)
+
+        // "Bearer" 문자열 제거한 토큰 값 추출
+        val tokenOnly = authToken?.substringAfter("Bearer ")
+
+        Log.d("메인액티비티", ""+authToken)
+
+        // 토큰을 이용하여 유저 정보 저장
+        if (tokenOnly != null) {
+            val jwt = JWT(tokenOnly)
+            val userId = jwt.getClaim("id")?.asInt() ?: -1
+            val userEmail = jwt.getClaim("email")?.asString() ?: ""
+
+            // userId를 SharedPreferences에 저장
+            val editor = sharedPreferences.edit()
+            editor.putInt("userId", userId)
+            editor.putString("userEmail", userEmail)
+            editor.apply()
+            Log.d("메인액티비티2", ""+ tokenOnly + userId + userEmail)
+        }
 
         //toolbar
         setSupportActionBar(binding.toolbar)

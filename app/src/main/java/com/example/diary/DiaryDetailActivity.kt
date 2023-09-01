@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -43,8 +44,12 @@ class DiaryDetailActivity : AppCompatActivity() {
             adapter = diaryDetailAdapter
         }
 
+        // 저장된 토큰 읽어오기
+        val sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
+        val authToken = sharedPreferences.getString("auth_token", null)
+        val userId = sharedPreferences.getInt("userId", -1)
+
         diaryId = intent.getIntExtra("diaryId", -1)
-        val diaryLike: LikesList = LikesList(diaryId = diaryId, userId = 1)
         if (diaryId != -1) {
             // 다이어리 아이디를 통해 서버에 데이터 요청
             DiaryDetailManager.getDiaryDetailData(
@@ -58,13 +63,12 @@ class DiaryDetailActivity : AppCompatActivity() {
                     binding.diaryDetailComment.text = "댓글 ${diaryDetail.diaryDto.comments.size}개 >"
                     binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()
 
-                    if (diaryDetail.diaryDto.likes.contains(diaryLike)) {
-                        isLiked = true
-                        Log.d("초반에 있음", ""+isLiked)
+                    isLiked = diaryDetail.diaryDto.likes.any { it.userId == userId }
+
+                    // 좋아요 상태에 따라 UI 업데이트
+                    if (isLiked) { //로그인 한 유저가 좋아요를 누른 상태라면
                         binding.diaryDetailLikeImg.text = "♥ "
-                    }
-                    else {
-                        Log.d("초반에 없음", ""+isLiked)
+                    } else {
                         binding.diaryDetailLikeImg.text = "♡ "
                     }
 
@@ -112,28 +116,44 @@ class DiaryDetailActivity : AppCompatActivity() {
             )
         }
 
-        val diarylikeButton = findViewById<TextView>(R.id.diary_detail_like_img)
-        diarylikeButton.setOnClickListener { // 좋아요 버튼 클릭 시
-                    isLiked = !isLiked // 토글 형식으로 상태 변경
-                    if (isLiked) {  //좋아요 추가 시
-                        DiaryLikeCreateManager.sendDiaryLikeToServer(diaryId)
-                        diarylikeButton.text = "♥ "
-
-                    } else {  //좋아요 해제 시
-                        DiaryLikeCreateManager.deleteDiaryLikeFromServer(diaryId)
-                        diarylikeButton.text = "♡ "
+        binding.diaryDetailLikeBtn.setOnClickListener { // 좋아요 버튼 클릭 시
+            if (authToken != null) {
+                isLiked = !isLiked // 토글 형식으로 상태 변경
+                if (isLiked) { //좋아요 추가 시
+                    DiaryLikeManager.sendDiaryLikeToServer(diaryId, authToken) { isSuccess ->
+                        if (isSuccess) {
+                            binding.diaryDetailLikeImg.text = "♥ "
+                            // 일기 상세 정보 다시 가져오기 -> 좋아요 수 업데이트
+                            DiaryDetailManager.getDiaryDetailData(
+                                diaryId,
+                                onSuccess = { diaryDetail ->
+                                    binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()},
+                                onError = { throwable ->
+                                    Log.e("서버 테스트3", "오류: $throwable")
+                                }
+                            )
+                        }
                     }
-            DiaryDetailManager.getDiaryDetailData(
-                diaryId,
-                onSuccess = { diaryDetail -> binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()},
-                onError = { throwable ->
-                    Log.e("서버 테스트3", "오류: $throwable")
+                } else { //좋아요 해제 시
+                    DiaryLikeManager.deleteDiaryLikeFromServer(diaryId, authToken) { isSuccess ->
+                        if (isSuccess) {
+                            binding.diaryDetailLikeImg.text = "♡ "
+                            // 일기 상세 정보 다시 가져오기 -> 좋아요 수 업데이트
+                            DiaryDetailManager.getDiaryDetailData(
+                                diaryId,
+                                onSuccess = { diaryDetail ->
+                                    binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()},
+                                onError = { throwable ->
+                                    Log.e("서버 테스트3", "오류: $throwable")
+                                }
+                            )
+                        }
+                    }
                 }
-            )
+            }
         }
 
-        val diaryCommentButton = findViewById<LinearLayout>(R.id.diary_detail_comment_btn)
-        diaryCommentButton.setOnClickListener { //댓글 버튼 클릭 시,  CommentActivity로 이동
+        binding.diaryDetailCommentBtn.setOnClickListener { //댓글 버튼 클릭 시,  CommentActivity로 이동
             val bottomSheetFragment = CommentFragment()
             bottomSheetFragment.setDiaryId(diaryId) // diaryId를 Fragment에 전달
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)

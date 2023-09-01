@@ -27,6 +27,7 @@ data class DiaryDtoMyList(
     val updatedAt: Date,
     val tags: List<TagName>,
     val likes: List<LikesList>,
+    val likesCount: Int,
     val comments: List<CommentList>,
     val public: Boolean,
 )

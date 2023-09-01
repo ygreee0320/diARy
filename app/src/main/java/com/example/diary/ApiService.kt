@@ -13,9 +13,20 @@ interface JoinService {
     fun sendJoinRequest(@Body joinData: JoinData): Call<Void>
 }
 
-interface PlanService {
+interface MyPageService {
+    @GET("user/mypage")
+    fun getMyData(@Header("Authorization") authToken: String): Call<User>
+}
+
+interface PlanService { // 플랜 작성
     @POST("plan") // 서버 주소/plan 으로 POST
-    fun sendPlan(@Body planData: PlanData): Call<Void>
+    fun sendPlan(@Body planData: PlanData, @Header("Authorization") authToken: String): Call<Void>
+}
+
+interface ModPlanService { // 플랜 수정
+    @PATCH("plan/{planId}") // 서버 주소/plan 으로 POST
+    fun sendModPlan(@Path("planId") planId: Int, @Body planData: PlanData,
+                    @Header("Authorization") authToken: String): Call<Void>
 }
 
 interface MyPlanService {
@@ -51,8 +62,7 @@ interface DeletePlanService {
 interface DiaryService {
     @POST("diary")
     fun sendDiary(
-        @Body diaryData: DiaryData,
-        @Header("Authorization") authToken: String
+        @Body diaryData: DiaryData, @Header("Authorization") authToken: String
     ): Call<Void>
 }
 
@@ -73,18 +83,19 @@ interface DeleteDiaryService {
 
 interface CreateDiaryLikeService {
     @POST("diary/{diaryId}/diary-like")
-    fun createDiaryLikeData(@Path("diaryId") diaryId: Int): Call<Void>
+    fun createDiaryLikeData(@Path("diaryId") diaryId: Int, @Header("Authorization") authToken: String): Call<Void>
 }
 
 interface DeleteDiaryLikeService {
     @DELETE("diary/{diaryId}/diary-like")
-    fun deleteDiaryLikeData(@Path("diaryId") diaryId: Int): Call<Void>
+    fun deleteDiaryLikeData(@Path("diaryId") diaryId: Int, @Header("Authorization") authToken: String): Call<Void>
 }
 
 interface CommentService { // 일기 댓글 작성
     @POST("diary/{diaryId}/comment")
     fun sendComment(
         @Path("diaryId") diaryId: Int,
+        @Header("Authorization") authToken: String,
         @Body commentData: CommentData): Call<Void>
 }
 

@@ -57,6 +57,8 @@ class PlanFragment : Fragment(){
         val planAddNewButton = view.findViewById<FloatingActionButton>(R.id.plan_add_new)
         planAddNewButton.setOnClickListener {
             val intent = Intent(activity, AddPlanActivity::class.java)
+            // 새로 작성하는 것임을 알림
+            intent.putExtra("new_plan", 1)
             startActivity(intent)
         }
     }
