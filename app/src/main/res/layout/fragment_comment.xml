@@ -56,7 +56,7 @@
             android:layout_height="30dp"
             android:gravity="center"
             android:layout_gravity="end"
-            android:background="@drawable/button_style"
+            android:background="@drawable/stroke_button"
             android:textColor="@android:color/white"
             android:text="전송" />
 

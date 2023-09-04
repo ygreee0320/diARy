@@ -58,10 +58,11 @@ class MapFragment : Fragment() {
     }
 
     inner class MapInterface(val Context: Context) {
-        var title: String? = ""
-        var address: String? = ""
-        var x: String? = null
-        var y: String? = null
+        var placeInfo: MutableMap<String, String?> = mutableMapOf()
+//        var title: String? = ""
+//        var address: String? = ""
+//        var x: String? = null
+//        var y: String? = null
 
         @JavascriptInterface
         fun showToast(toast: String) {
@@ -69,32 +70,48 @@ class MapFragment : Fragment() {
         }
 
         @JavascriptInterface
-        fun setPlaceInfo(title: String?, address: String?, x: String?, y: String?) {
-            this.title = title
-            this.address = address
-            this.x = x
-            this.y = y
+        fun showCustomOverlay() {
+//            val dialog = MapDialog(requireContext())
 
-            Log.d("mylog", "Save successed - ${this.title} / ${this.address} / ${this.x} / ${this.y}")
+            val search_img = ApiSearchImg()
+            val img = search_img.searchImg(placeInfo.getValue("title")!!)
+            placeInfo.put("imgURL", img)
+
+//            dialog.myDialog(placeInfo)
+
+            val dialog = MapDialog(requireContext(), placeInfo)
+            dialog.show()
         }
 
         @JavascriptInterface
-        fun getPlaceInfo(): String {
-            val info = title + " " + address + " " + x + " " + y
-            return info
+        fun setPlaceInfo(title: String?, address: String?, x: String?, y: String?, panoId: String?) {
+            placeInfo.putAll(
+                mapOf(
+                    "title" to title,
+                    "address" to address,
+                    "x" to x,
+                    "y" to y,
+                    "panoId" to panoId
+                ))
+            Log.d("mylog", "placeInfo - ${placeInfo}")
+//            this.title = title
+//            this.address = address
+//            this.x = x
+//            this.y = y
+//            Log.d("mylog", "Save successed - ${this.title} / ${this.address} / ${this.x} / ${this.y}")
         }
 
-        @JavascriptInterface
-        fun moveToRoadMap() {
-            val intent = Intent(Context, RoadMapActivity::class.java)
-
-            intent.putExtra("title", title)
-            intent.putExtra("address", address)
-            intent.putExtra("x", x)
-            intent.putExtra("y", y)
-
-            startActivity(intent)
-        }
+//        @JavascriptInterface
+//        fun moveToRoadMap() {
+//            val intent = Intent(Context, RoadMapActivity::class.java)
+//
+//            intent.putExtra("title", title)
+//            intent.putExtra("address", address)
+//            intent.putExtra("x", x)
+//            intent.putExtra("y", y)
+//
+//            startActivity(intent)
+//        }
     }
 
     companion object {

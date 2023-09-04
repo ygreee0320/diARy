@@ -11,7 +11,7 @@ import java.util.*
 
 class MyApplication {
     val retrofit = Retrofit.Builder()
-        .baseUrl("http:/192.168.200.107:8080/") // 서버 임시 URL(로컬)
+        .baseUrl("http:/192.168.75.47:8080/") // 서버 임시 URL(로컬)
         .addConverterFactory(GsonConverterFactory.create(getGson()))
         .build()
 
@@ -39,6 +39,7 @@ class MyApplication {
 
     val diaryService = retrofit.create(DiaryService::class.java)
     val myDiaryService = retrofit.create(MyDiaryService::class.java)
+    val mapDiaryService = retrofit.create(MapDiaryService::class.java)
     val diaryDetailService = retrofit.create(DiaryDetailService::class.java)
     val deleteDiaryService = retrofit.create(DeleteDiaryService::class.java)
 

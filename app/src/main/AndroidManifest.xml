@@ -14,9 +14,7 @@
         android:theme="@style/Theme.DiARy"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".CommentActivity"
-            android:exported="false" />
+
         <activity
             android:name=".SignUpActivity"
             android:exported="false" />
@@ -73,7 +71,8 @@
             android:theme="@style/Theme.DiARy.NoActionBar" />
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

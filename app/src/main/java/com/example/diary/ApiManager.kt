@@ -289,6 +289,34 @@ object DiaryManager {
     }
 }
 
+//장소별 일기 목록 불러오기
+object MapDiaryListManager {
+    fun getDiaryListData(address: String, onSuccess: (List<MapDiaryList>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().mapDiaryService
+        val call = apiService.getDiaryData(address)
+
+        call.enqueue(object : Callback<List<MapDiaryList>> {
+            override fun onResponse(call: Call<List<MapDiaryList>>, response: Response<List<MapDiaryList>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    }?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<MapDiaryList>>, t: Throwable) {
+                onError(t)
+            }
+
+        })
+    }
+}
+
 // 유저별 일기 목록 불러오기
 object MyDiaryListManager {
     fun getDiaryListData(authToken: String, onSuccess: (List<MyDiaryList>) -> Unit, onError: (Throwable) -> Unit) {

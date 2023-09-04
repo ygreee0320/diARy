@@ -84,10 +84,24 @@ data class DiaryLocationImageDto( //수정 필요
     val imageData: String
 )
 
+data class DiaryDtoList (
+    val diaryId: Int,
+    val diaryLocationDto: DiaryLocationDto,
+    val travelStart: Date,
+    val travelEnd: Date,
+    val userdto: User
+)
+
 // 일기 작성
 data class DiaryData(
     val diaryDto: DiaryDto,
     val diaryLocationDtoList: List<DiaryLocationDto>
+)
+
+// 장소별 일기 목록
+data class MapDiaryList(
+    val address: String,
+    val diaryDtoList: DiaryDtoList
 )
 
 // 유저별 일기 목록
