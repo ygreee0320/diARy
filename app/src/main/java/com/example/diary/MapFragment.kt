@@ -57,7 +57,7 @@ class MapFragment : Fragment() {
         return binding.root
     }
 
-    inner class MapInterface(val Context: Context) {
+    inner class MapInterface(val context: Context) {
         var placeInfo: MutableMap<String, String?> = mutableMapOf()
 //        var title: String? = ""
 //        var address: String? = ""
@@ -79,8 +79,21 @@ class MapFragment : Fragment() {
 
 //            dialog.myDialog(placeInfo)
 
-            val dialog = MapDialog(requireContext(), placeInfo)
+            val dialog = MapDialog(context, placeInfo)
             dialog.show()
+
+            dialog.setOnClickedListener(object: MapDialog.ButtonClickListener {
+                override fun onClicked(placeInfo: MutableMap<String, String?>) {
+                    val intent = Intent(context, RoadMapActivity::class.java)
+
+                    intent.putExtra("title", placeInfo.getValue("title"))
+                    intent.putExtra("address", placeInfo.getValue("address"))
+                    intent.putExtra("x", placeInfo.getValue("x"))
+                    intent.putExtra("y", placeInfo.getValue("y"))
+
+                    startActivity(intent)
+                }
+            })
         }
 
         @JavascriptInterface
@@ -103,7 +116,7 @@ class MapFragment : Fragment() {
 
 //        @JavascriptInterface
 //        fun moveToRoadMap() {
-//            val intent = Intent(Context, RoadMapActivity::class.java)
+//            val intent = Intent(context, RoadMapActivity::class.java)
 //
 //            intent.putExtra("title", title)
 //            intent.putExtra("address", address)

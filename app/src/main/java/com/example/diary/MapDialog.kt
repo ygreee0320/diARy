@@ -2,6 +2,7 @@ package com.example.diary
 
 import android.app.Dialog
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.Visibility
@@ -10,6 +11,7 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,11 +24,21 @@ import java.net.URL
 import java.util.concurrent.Executors
 
 class MapDialog(context: Context, placeInfo: MutableMap<String, String?>): Dialog(context){
+    lateinit var onClickListener: ButtonClickListener
+
     lateinit var binding: MapDialogBinding
     lateinit var recyclerView: RecyclerView
     lateinit var adapter: MapDiaryAdapter
 
-    var placeInfo = placeInfo
+    val placeInfo = placeInfo
+
+    interface ButtonClickListener {
+        fun onClicked(placeInfo: MutableMap<String, String?>)
+    }
+
+    fun setOnClickedListener(listener: ButtonClickListener) {
+        onClickListener = listener
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +71,12 @@ class MapDialog(context: Context, placeInfo: MutableMap<String, String?>): Dialo
 
         //장소 이름
         binding.place.text = placeInfo.getValue("title")
+
+        //로드맵 이동
+        binding.roadmapBtn.setOnClickListener {
+            onClickListener.onClicked(placeInfo)
+            dismiss()
+        }
 
         //Dialog 닫기
         binding.closeBtn.setOnClickListener {
