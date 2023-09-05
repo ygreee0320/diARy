@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,7 +51,6 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
                 intent.putExtra("content", item.content)
                 intent.putExtra("address", item.address)
                 intent.putParcelableArrayListExtra("imageUris", item.imageUris)
-                //itemView.context.startActivity(intent)
 
                 Log.d("mylog", "여행지 정보 in 지도" + adapterPosition + item.place + item.placeDate
                         + item.placeTimeS +item.placeTimeE)
@@ -63,8 +63,14 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
             //Log.d(TAG, "Item content: ${item.content}")
             if(item.place != null) {
                 binding.diaryDetailPlace.text = item.place
-                binding.diaryPlaceDate.text = item.placeDate
-                binding.diaryPlaceTime.text = "${item.placeTimeS} ~ ${item.placeTimeE}"
+
+                if (item.place == "MEMO") {
+                    binding.diaryPlaceDate.visibility = View.GONE
+                    binding.diaryPlaceTime.visibility = View.GONE
+                } else {
+                    binding.diaryPlaceDate.text = item.placeDate
+                    binding.diaryPlaceTime.text = "${item.placeTimeS} ~ ${item.placeTimeE}"
+                }
             }
 
             binding.placeContent.text = item.content ?: "클릭하여 여행지별 일기를 기록하세요."

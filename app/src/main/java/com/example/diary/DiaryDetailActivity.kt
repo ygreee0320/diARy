@@ -82,8 +82,12 @@ class DiaryDetailActivity : AppCompatActivity() {
 
                     binding.diaryDetailDate.text = "$formattedStartDate ~ $formattedEndDate"
 
-                    val planDetailModels: List<DiaryDetailModel> =
-                        diaryDetail.diaryLocationDtoList.map { locationDetail ->
+                    // 여행지 리스트 (비어있으면 emptyList)
+                    // planDetailModels 초기화
+                    val diaryDetailModels: MutableList<DiaryDetailModel> = mutableListOf()
+
+                    if (diaryDetail.diaryLocationDtoList != null && diaryDetail.diaryLocationDtoList.isNotEmpty()) {
+                        diaryDetailModels.addAll(diaryDetail.diaryLocationDtoList.map { locationDetail ->
                             val formattedStartTime = SimpleDateFormat(
                                 "HH:mm",
                                 Locale.getDefault()
@@ -103,9 +107,27 @@ class DiaryDetailActivity : AppCompatActivity() {
                                 placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
                                 placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
                             )
-                        }
+                        })
+                    }
 
-                    diaryDetailAdapter.updateData(planDetailModels)
+                    diaryDetail.diaryDto?.memo?.let { memo ->
+                        if (memo.isNotEmpty()) {
+                            diaryDetailModels.add(
+                                DiaryDetailModel(
+                                    diaryLocationId = -1,
+                                    diaryId = diaryDetail.diaryDto.diaryId,
+                                    place = "MEMO",
+                                    content = memo
+                                )
+                            )
+                        }
+                    }
+
+
+                    // planDetailModels가 비어 있지 않으면 업데이트
+                    if (diaryDetailModels.isNotEmpty()) {
+                        diaryDetailAdapter.updateData(diaryDetailModels)
+                    }
 
                     //같지 않다면, 수정/삭제 gone, 정보레이아웃 visible 필요
 

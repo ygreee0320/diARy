@@ -244,8 +244,6 @@ class AddDiaryActivity : AppCompatActivity() {
         val travelStart = binding.diaryAddStart.text.toString()
         val travelEnd = binding.diaryAddEnd.text.toString()
 
-        //val memo = "메모" //메모, 수정 필요
-
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
@@ -266,7 +264,13 @@ class AddDiaryActivity : AppCompatActivity() {
 
         // "MEMO" 항목을 처리할 수 있도록 따로 처리 코드 추가
         val memoItem = diaryPlaceList.find { it.place == "MEMO" }
-        val memo = memoItem?.content ?: "" // "MEMO" 의 content를 저장
+        lateinit var memo :String
+
+        if (memoItem?.content == "클릭하여 메모를 작성하세요.") {
+            memo = ""
+        } else {
+            memo = memoItem?.content ?: ""
+        }
 
         val diaryDto = DiaryDto(
             content, travelDest, memo, travelStartDate, travelEndDate, tags, public
@@ -274,11 +278,17 @@ class AddDiaryActivity : AppCompatActivity() {
 
         val diaryLocations = mutableListOf<DiaryLocationDto>()
 
-        for (item in diaryPlaceList) {
+        for (item in filteredDiaryPlaceList) {
             val place = item.place ?: "여행지"
-            val content = item.content ?: "일기"
+            lateinit var content :String
             val imageUris = item.imageUris
             val address = item.address ?: ""
+
+            if (item.content == "클릭하여 여행지별 일기를 기록하세요.") {
+                content = ""
+            } else {
+                content = item.content ?: ""
+            }
 
             val placeDate: Date = try {
                 java.sql.Date(dateFormat.parse(item.placeDate).time)

@@ -1,6 +1,7 @@
 package com.example.diary
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.diary.databinding.DiaryDetailPlaceRecyclerviewBinding
@@ -23,9 +24,15 @@ class DiaryDetailAdapter (private val itemList: MutableList<DiaryDetailModel>): 
 
         holder.binding.run {
             diaryDetailPlace.text = data.place
-            diaryPlaceDate.text = "${data.placeDate}"
-            diaryPlaceTime.text = "${data.placeStart} ~ ${data.placeEnd}"
             placeContent.text = data.content
+
+            if (data.place == "MEMO") {
+                diaryPlaceDate.visibility = View.GONE
+                diaryPlaceTime.visibility = View.GONE
+            } else {
+                diaryPlaceDate.text = "${data.placeDate}"
+                diaryPlaceTime.text = "${data.placeStart} ~ ${data.placeEnd}"
+            }
         }
 
         //이미지 불러오기 추가 필요
@@ -33,8 +40,10 @@ class DiaryDetailAdapter (private val itemList: MutableList<DiaryDetailModel>): 
     }
 
     fun updateData(newItems: List<DiaryDetailModel>) {
-        itemList.clear()
-        itemList.addAll(newItems)
-        notifyDataSetChanged()
+        if (newItems.isNotEmpty()) { // 리스트가 비어있지 않은 경우에만 업데이트
+            itemList.clear()
+            itemList.addAll(newItems)
+            notifyDataSetChanged()
+        }
     }
 }
