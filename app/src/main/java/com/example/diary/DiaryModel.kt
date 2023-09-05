@@ -6,13 +6,12 @@ import java.sql.Time
 
 data class DiaryDto(
     val title: String,
-    val satisfaction: Int,
-    val public: Boolean,
-    val travelStart: Date,
-    val travelEnd: Date,
     val travelDest: String,
     val memo: String,
-    val tags: List<TagName>
+    val travelStart: Date,
+    val travelEnd: Date,
+    val tags: List<TagName>,
+    val public: Boolean,
 )
 
 data class DiaryDtoMyList(

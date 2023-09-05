@@ -233,27 +233,6 @@ class AddDiaryActivity : AppCompatActivity() {
         binding.diaryAddLockBtn.isChecked = viewModel.enteredClosed
     }
 
-    // 이미 열려 있는 활동 확인하는 함수
-    private fun isActivityOpen(activityClass: Class<*>): Boolean {
-        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val runningActivities = activityManager.runningAppProcesses
-        if (runningActivities != null) {
-            for (processInfo in runningActivities) {
-                if (processInfo.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND) {
-                    try {
-                        val activityName = processInfo.pkgList[0]
-                        if (activityName == activityClass.canonicalName) {
-                            return true
-                        }
-                    } catch (e: Exception) {
-                        // 예외 처리
-                    }
-                }
-            }
-        }
-        return false
-    }
-
     private fun saveDiaryToServer() { // 일기 서버에 추가
         val travelDest = binding.diaryAddDest.text.toString()
         val content = binding.diaryAddTitle.text.toString()
@@ -263,9 +242,7 @@ class AddDiaryActivity : AppCompatActivity() {
         val travelStart = binding.diaryAddStart.text.toString()
         val travelEnd = binding.diaryAddEnd.text.toString()
 
-        val satisfaction = 4 // 만족도, 수정 필요
-        val userId = 1 //작성자 유저아이디, 수정 필요
-        val memo = "메모" //메모, 수정 필요
+        //val memo = "메모" //메모, 수정 필요
 
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
@@ -282,8 +259,15 @@ class AddDiaryActivity : AppCompatActivity() {
             java.sql.Date(System.currentTimeMillis())
         }
 
+        // 여행지 목록에 "MEMO" 제외
+        val filteredDiaryPlaceList = diaryPlaceList.filter { it.place != "MEMO" }
+
+        // "MEMO" 항목을 처리할 수 있도록 따로 처리 코드 추가
+        val memoItem = diaryPlaceList.find { it.place == "MEMO" }
+        val memo = memoItem?.content ?: "" // "MEMO" 의 content를 저장
+
         val diaryDto = DiaryDto(
-            content, satisfaction, public, travelStartDate, travelEndDate, travelDest, memo, tags
+            content, travelDest, memo, travelStartDate, travelEndDate, tags, public
         )
 
         val diaryLocations = mutableListOf<DiaryLocationDto>()
