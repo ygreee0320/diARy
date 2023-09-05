@@ -10,5 +10,6 @@ data class DiaryPlaceModel(
     var imageUris: ArrayList<Uri>? = null,
     var placeDate: String? = "", //우선 문자열로 (추후 Date, Time)
     var placeTimeS: String? = "",
-    var placeTimeE: String? = ""
+    var placeTimeE: String? = "",
+    var address: String? = ""
 )

@@ -51,7 +51,7 @@
                     android:layout_height="25dp"
                     android:layout_marginLeft="5dp"
                     android:gravity="center"
-                    android:background="@drawable/button_style"
+                    android:background="@drawable/stroke_button"
                     android:textColor="@android:color/white"
                     android:textSize="14dp"
                     android:text="저장하기" />

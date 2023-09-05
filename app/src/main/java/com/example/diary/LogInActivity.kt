@@ -34,6 +34,8 @@ class LogInActivity : AppCompatActivity() {
                 LogInManager.sendLogInToServer(loginData) { authToken ->
                     val tokenOnly = authToken?.substringAfter("Bearer ")
 
+                    Log.d("서버 테스트", "authToken: ${authToken}")
+
                     if (tokenOnly != null) {
                         val jwt = JWT(tokenOnly)
                         val useremail = jwt.getClaim("email").asString()

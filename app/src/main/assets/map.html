@@ -55,12 +55,12 @@
 
     var map = new kakao.maps.Map(mapContainer, mapOption);
 
-    //Custom Overlay
-    var customOverlay = new kakao.maps.CustomOverlay({
-      map: map,
-      yAnchor: 1,
-      zIndex: 1
-    });
+//    //Custom Overlay
+//    var customOverlay = new kakao.maps.CustomOverlay({
+//      map: map,
+//      yAnchor: 1,
+//      zIndex: 1
+//    });
 
     //키워드 검색 요청 함수
     function searchPlaces() {
@@ -142,92 +142,98 @@
           x = place.x,
           y = place.y;
 
-      Android.setPlaceInfo(title, address, x, y);
+//      var imgURL = Android.searchImage(title);
+//      console.log("imgURL: " + imgURL)
 
       //로드뷰 존재 여부 확인
       var coordinate = new kakao.maps.LatLng(Number(y), Number(x));
 
       var roadviewClient = new kakao.maps.RoadviewClient();
       roadviewClient.getNearestPanoId(coordinate, 50, function(panoId) {
-        var content = '';
-
+        if(panoId != null) {
+          Android.setPlaceInfo(title, address, x, y, panoId.toString());
+        } else {
+          Android.setPlaceInfo(title, address, x, y, null);
+        }
+        Android.showCustomOverlay();
         console.log("panoId: " + panoId);
 
-        if(panoId === null) {
-          title = title.replace(/(.{13})/g,"$1<br>");
-          content = '<div class="card">\
-                      <div class="card-img-top">\
-                        <button class="btn-close" onclick="closeOverlay();" type="button" aria-label="Close"></button>\
-                        <img id="place_img" src="image/sample.png">\
-                      </div>\
-                      <div class="card-body">\
-                        <div class="row">\
-                          <div class="col"><h6 id="place_name">' + title + '</h6></div>\
-                        </div>\
-                        <!-- carousel slider -->\
-                        <div id="map_diary">\
-                          <div class="wrapper">\
-                            <div class="items">\
-                              <div class="item">\
-                                <img id="user_img" src="image/sample.png">\
-                                <p id="user_name">작성자</p>\
-                                <p id="content">\
-                                  Some quick example text to build on the card title and make up the bulk of the card\'s content.\
-                                </p>\
-                                <p id="date">여행기간: 2022.07.10~2022.07.12</p>\
-                              </div>\
-                            </div>\
-                          </div>\
-                        </div>\
-                        <div id="review_box">\
-                          <h6>방문자 리뷰 <span id="cnt">403</span></h6>\
-                        </div>\
-                      </div>\
-                    </div>'
-        }
-        else {
-          title = title.replace(/(.{10})/g,"$1<br>");
-          content = '<div class="card">\
-                      <div class="card-img-top">\
-                        <button class="btn-close" onclick="closeOverlay();" type="button" aria-label="Close"></button>\
-                        <img id="place_img" src="image/sample.png">\
-                      </div>\
-                      <div class="card-body">\
-                        <div class="row">\
-                          <div class="col-8"><h6 id="place_name">' + title + '</h6></div>\
-                          <div class="col-4">\
-                            <button id="load_map" onclick="Android.moveToRoadMap();" class="btn btn-outline-dark">\
-                              <i class="fi fi-sr-marker"></i>\
-                              거리뷰\
-                            </button>\
-                          </div>\
-                        </div>\
-                        <!-- carousel slider -->\
-                        <div id="map_diary">\
-                          <div class="wrapper">\
-                            <div class="items">\
-                              <div class="item">\
-                                <img id="user_img" src="image/sample.png">\
-                                <p id="user_name">작성자</p>\
-                                <p id="content">\
-                                  Some quick example text to build on the card title and make up the bulk of the card\'s content.\
-                                </p>\
-                                <p id="date">여행기간: 2022.07.10~2022.07.12</p>\
-                              </div>\
-                            </div>\
-                          </div>\
-                        </div>\
-                        <div id="review_box">\
-                          <h6>방문자 리뷰 <span id="cnt">403</span></h6>\
-                        </div>\
-                      </div>\
-                    </div>'
-        }
+//        var content = '';
+//        if(panoId === null) {
+//          title = title.replace(/(.{13})/g,"$1<br>");
+//          content = '<div class="card">\
+//                      <div class="card-img-top">\
+//                        <button class="btn-close" onclick="closeOverlay();" type="button" aria-label="Close"></button>\
+//                        <img id="place_img" src="' + imgURL + '">\
+//                      </div>\
+//                      <div class="card-body">\
+//                        <div class="row">\
+//                          <div class="col"><h6 id="place_name">' + title + '</h6></div>\
+//                        </div>\
+//                       <!-- carousel slider -->\
+//                        <div id="map_diary">\
+//                          <div class="wrapper">\
+//                            <div class="items">\
+//                              <div class="item">\
+//                                <img id="user_img" src="image/sample.png">\
+//                                <p id="user_name">작성자</p>\
+//                                <p id="content">\
+//                                  Some quick example text to build on the card title and make up the bulk of the card\'s content.\
+//                                </p>\
+//                                <p id="date">여행기간: 2022.07.10~2022.07.12</p>\
+//                              </div>\
+//                           </div>\
+//                          </div>\
+//                        </div>\
+//                        <div id="review_box">\
+//                          <h6>방문자 리뷰 <span id="cnt">403</span></h6>\
+//                        </div>\
+//                      </div>\
+//                    </div>'
+//        }
+//        else {
+//         title = title.replace(/(.{10})/g,"$1<br>");
+//          content = '<div class="card">\
+//                      <div class="card-img-top">\
+//                        <button class="btn-close" onclick="closeOverlay();" type="button" aria-label="Close"></button>\
+//                        <img id="place_img" src="' + imgURL + '">\
+//                      </div>\
+//                      <div class="card-body">\
+//                        <div class="row">\
+//                          <div class="col-8"><h6 id="place_name">' + title + '</h6></div>\
+//                          <div class="col-4">\
+//                            <button id="load_map" onclick="Android.moveToRoadMap();" class="btn btn-outline-dark">\
+//                              <i class="fi fi-sr-marker"></i>\
+//                              거리뷰\
+//                            </button>\
+//                         </div>\
+//                      </div>\
+//                        <!-- carousel slider -->\
+//                        <div id="map_diary">\
+//                          <div class="wrapper">\
+//                            <div class="items">\
+//                              <div class="item">\
+//                               <img id="user_img" src="image/sample.png">\
+//                                <p id="user_name">작성자</p>\
+//                                <p id="content">\
+//                                  Some quick example text to build on the card title and make up the bulk of the card\'s content.\
+//                                </p>\
+//                               <p id="date">여행기간: 2022.07.10~2022.07.12</p>\
+//                              </div>\
+//                            </div>\
+//                          </div>\
+//                        </div>\
+//                        <div id="review_box">\
+//                          <h6>방문자 리뷰 <span id="cnt">403</span></h6>\
+//                        </div>\
+//                      </div>\
+//                    </div>'
+//        }
 
-        customOverlay.setContent(content);
-        customOverlay.setPosition(position);
+//        customOverlay.setContent(content);
+//        customOverlay.setPosition(position);
 
-        customOverlay.setMap(map);
+//        customOverlay.setMap(map);
       });
     }
 

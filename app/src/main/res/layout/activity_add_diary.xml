@@ -35,7 +35,7 @@
             android:layout_marginRight="18dp"
             android:gravity="center"
             android:layout_gravity="end"
-            android:background="@drawable/button_style"
+            android:background="@drawable/stroke_button"
             android:textColor="@android:color/white"
             android:textSize="15dp"
             android:text="완료" />

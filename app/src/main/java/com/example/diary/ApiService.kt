@@ -66,6 +66,11 @@ interface DiaryService {
     ): Call<Void>
 }
 
+interface MapDiaryService {
+    @GET("map/{address}")
+    fun getDiaryData(@Path("address") address: String): Call<List<DiaryDtoList>>
+}
+
 interface MyDiaryService {
     @GET("user/diary")
     fun getDiaryData(@Header("Authorization") authToken: String): Call<List<MyDiaryList>>
