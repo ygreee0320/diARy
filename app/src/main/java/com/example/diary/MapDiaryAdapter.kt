@@ -31,7 +31,7 @@ class MapDiaryAdapter(var datas: List<DiaryDtoList>?): RecyclerView.Adapter<MapD
 
         fun bind(diary: DiaryDtoList) {
             //userImg...
-            userName.text = diary.userdto.username
+            userName.text = diary.userDto.username
             content.text = diary.diaryLocationDto.content
             date.text = "여행기간: " + diary.travelStart.toString() + "~" + diary.travelEnd.toString()
         }

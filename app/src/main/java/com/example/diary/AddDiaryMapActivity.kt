@@ -159,8 +159,12 @@ class AddDiaryMapActivity : AppCompatActivity() {
             intent.putExtra("enteredDate", placeDate)
             intent.putExtra("enteredStart", placeStart)
             intent.putExtra("enteredEnd", placeEnd)
+            intent.putExtra("enteredAddress", address)
+            intent.putExtra("enteredX", x)
+            intent.putExtra("enteredY", y)
 
-            Log.d("mylog", "여행지 정보 in 지도" + itemPosition + title + placeDate + placeStart +placeEnd)
+            Log.d("mylog", "여행지 정보 in 지도" + itemPosition + title
+                    + placeDate + placeStart +placeEnd + address + x + y)
 
             // 결과를 설정하고 현재 활동 종료
             setResult(Activity.RESULT_OK, intent)

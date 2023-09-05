@@ -291,12 +291,12 @@ object DiaryManager {
 
 //장소별 일기 목록 불러오기
 object MapDiaryListManager {
-    fun getDiaryListData(address: String, onSuccess: (List<MapDiaryList>) -> Unit, onError: (Throwable) -> Unit) {
+    fun getDiaryListData(address: String, onSuccess: (List<DiaryDtoList>) -> Unit, onError: (Throwable) -> Unit) {
         val apiService = MyApplication().mapDiaryService
         val call = apiService.getDiaryData(address)
 
-        call.enqueue(object : Callback<List<MapDiaryList>> {
-            override fun onResponse(call: Call<List<MapDiaryList>>, response: Response<List<MapDiaryList>>) {
+        call.enqueue(object : Callback<List<DiaryDtoList>> {
+            override fun onResponse(call: Call<List<DiaryDtoList>>, response: Response<List<DiaryDtoList>>) {
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     apiResponse?.let {
@@ -309,7 +309,7 @@ object MapDiaryListManager {
                 }
             }
 
-            override fun onFailure(call: Call<List<MapDiaryList>>, t: Throwable) {
+            override fun onFailure(call: Call<List<DiaryDtoList>>, t: Throwable) {
                 onError(t)
             }
 

@@ -48,6 +48,7 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
                 intent.putExtra("timeStart", item.placeTimeS)
                 intent.putExtra("timeEnd", item.placeTimeE)
                 intent.putExtra("content", item.content)
+                intent.putExtra("address", item.address)
                 intent.putParcelableArrayListExtra("imageUris", item.imageUris)
                 //itemView.context.startActivity(intent)
 

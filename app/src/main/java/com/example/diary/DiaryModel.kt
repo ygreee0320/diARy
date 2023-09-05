@@ -6,13 +6,12 @@ import java.sql.Time
 
 data class DiaryDto(
     val title: String,
-    val satisfaction: Int,
-    val public: Boolean,
-    val travelStart: Date,
-    val travelEnd: Date,
     val travelDest: String,
     val memo: String,
-    val tags: List<TagName>
+    val travelStart: Date,
+    val travelEnd: Date,
+    val tags: List<TagName>,
+    val public: Boolean,
 )
 
 data class DiaryDtoMyList(
@@ -84,24 +83,32 @@ data class DiaryLocationImageDto( //수정 필요
     val imageData: String
 )
 
-data class DiaryDtoList (
+data class DiaryLocationMapDto(
+    val diaryLocationId: Int,
     val diaryId: Int,
-    val diaryLocationDto: DiaryLocationDto,
+    val date: Date,
+    val timeStart: Time,
+    val timeEnd: Time,
+    val content: String,
+    val name: String,
+    val address: String,
+    val diaryLocationImageDtoList: List<DiaryLocationImageDto>
+)
+
+// 장소별 일기 목록 (지도)
+data class DiaryDtoList (
+    val satisfaction: Int,
+    val diaryId: Int,
+    val diaryLocationDto: DiaryLocationMapDto,
     val travelStart: Date,
     val travelEnd: Date,
-    val userdto: User
+    val userDto: User
 )
 
 // 일기 작성
 data class DiaryData(
     val diaryDto: DiaryDto,
     val diaryLocationDtoList: List<DiaryLocationDto>
-)
-
-// 장소별 일기 목록
-data class MapDiaryList(
-    val address: String,
-    val diaryDtoList: DiaryDtoList
 )
 
 // 유저별 일기 목록

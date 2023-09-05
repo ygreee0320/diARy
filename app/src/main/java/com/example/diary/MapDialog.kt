@@ -110,7 +110,7 @@ class MapDialog(context: Context, placeInfo: MutableMap<String, String?>): Dialo
             MapDiaryListManager.getDiaryListData(
                 address,
                 onSuccess = { mapDiaryList ->
-                    val diary = mapDiaryList.map { it.diaryDtoList }
+                    val diary = mapDiaryList.map { it }
                     Log.d("mylog", "주소별 일기 조회 테스트 - ${diary}")
                     adapter.updateData(diary)
                 },

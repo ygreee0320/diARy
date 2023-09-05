@@ -67,8 +67,8 @@ interface DiaryService {
 }
 
 interface MapDiaryService {
-    @GET("ar-map")
-    fun getDiaryData(@Path("address") address: String): Call<List<MapDiaryList>>
+    @GET("map/{address}")
+    fun getDiaryData(@Path("address") address: String): Call<List<DiaryDtoList>>
 }
 
 interface MyDiaryService {
