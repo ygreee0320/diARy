@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,8 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.diary.databinding.ActivityDiaryDetailBinding
 import com.google.android.material.color.utilities.MaterialDynamicColors.onError
@@ -25,6 +28,10 @@ class DiaryDetailActivity : AppCompatActivity() {
     // 여행지 데이터를 저장할 리스트
     private val diaryPlaceList = mutableListOf<DiaryDetailModel>()
     private val diaryDetailAdapter = DiaryDetailAdapter(diaryPlaceList)
+
+    companion object {
+        lateinit var diaryModActivityResult: ActivityResultLauncher<Intent>
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         var isLiked:Boolean = false // 초기에는 좋아요가 되지 않은 상태로 설정
@@ -50,6 +57,7 @@ class DiaryDetailActivity : AppCompatActivity() {
         val userId = sharedPreferences.getInt("userId", -1)
 
         diaryId = intent.getIntExtra("diaryId", -1)
+
         if (diaryId != -1) {
             // 다이어리 아이디를 통해 서버에 데이터 요청
             DiaryDetailManager.getDiaryDetailData(
@@ -177,6 +185,80 @@ class DiaryDetailActivity : AppCompatActivity() {
             }
         }
 
+        diaryModActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // 수정 후 넘어왔을 때 보여줄 내용 추가
+                DiaryDetailManager.getDiaryDetailData(
+                    diaryId,
+                    onSuccess = { diaryDetailResponse ->
+                        binding.diaryDetailTitle.text = diaryDetailResponse.diaryDto.title
+                        binding.diaryDetailSubtitle.text = diaryDetailResponse.diaryDto.travelDest
+                        binding.diaryDetailWriter.text = diaryDetailResponse.userDto.username
+                        binding.diaryDetailCreateDate.text =
+                            "${diaryDetailResponse.diaryDto.createdAt}"
+                        binding.diaryDetailComment.text =
+                            "댓글 ${diaryDetailResponse.diaryDto.comments.size}개 >"
+                        binding.diaryDetailLike.text =
+                            diaryDetailResponse.diaryDto.likes.size.toString()
+
+                        val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        val formattedStartDate =
+                            dateFormatter.format(diaryDetailResponse.diaryDto.travelStart)
+                        val formattedEndDate =
+                            dateFormatter.format(diaryDetailResponse.diaryDto.travelEnd)
+
+                        binding.diaryDetailDate.text = "$formattedStartDate ~ $formattedEndDate"
+
+                        val diaryDetailModels: MutableList<DiaryDetailModel> = mutableListOf()
+                        if (diaryDetailResponse.diaryLocationDtoList != null && diaryDetailResponse.diaryLocationDtoList.isNotEmpty()) {
+                            diaryDetailModels.addAll(diaryDetailResponse.diaryLocationDtoList.map { locationDetail ->
+                                val formattedStartTime = SimpleDateFormat(
+                                    "HH:mm",
+                                    Locale.getDefault()
+                                ).format(locationDetail.timeStart)
+                                val formattedEndTime = SimpleDateFormat(
+                                    "HH:mm",
+                                    Locale.getDefault()
+                                ).format(locationDetail.timeEnd)
+
+                                DiaryDetailModel(
+                                    diaryLocationId = locationDetail.diaryLocationId,
+                                    diaryId = locationDetail.diaryId,
+                                    place = locationDetail.name,
+                                    content = locationDetail.content,
+                                    address = locationDetail.address,
+                                    x = locationDetail.x,
+                                    y = locationDetail.y,
+                                    placeDate = locationDetail.date,
+                                    placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                    placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                                )
+                            })
+                        }
+
+                        diaryDetailResponse.diaryDto?.memo?.let { memo ->
+                            if (memo.isNotEmpty()) {
+                                diaryDetailModels.add(
+                                    DiaryDetailModel(
+                                        diaryLocationId = -1,
+                                        diaryId = diaryDetailResponse.diaryDto.diaryId,
+                                        place = "MEMO",
+                                        content = memo
+                                    )
+                                )
+                            }
+                        }
+
+                        diaryDetailAdapter.updateData(diaryDetailModels)
+                    },
+                    onError = { throwable ->
+                        Log.e("서버 테스트3", "오류: $throwable")
+                    }
+                )
+            }
+
+        }
+
         binding.diaryDetailCommentBtn.setOnClickListener { //댓글 버튼 클릭 시,  CommentActivity로 이동
             val bottomSheetFragment = CommentFragment()
             bottomSheetFragment.setDiaryId(diaryId) // diaryId를 Fragment에 전달
@@ -197,7 +279,11 @@ class DiaryDetailActivity : AppCompatActivity() {
                 return true
             }
             R.id.mod_menu -> { //수정하기 버튼 클릭 시
-
+                val intent = Intent(this, AddDiaryActivity::class.java)
+                // 수정하는 것임을 알림
+                intent.putExtra("new_diary", 0)
+                intent.putExtra("diary_id", diaryId)
+                diaryModActivityResult.launch(intent)
                 return true
             }
             R.id.remove_menu -> { //삭제하기 버튼 클릭 시
