@@ -24,7 +24,7 @@ interface PlanService { // 플랜 작성
 }
 
 interface ModPlanService { // 플랜 수정
-    @PATCH("plan/{planId}") // 서버 주소/plan 으로 POST
+    @PATCH("plan/{planId}")
     fun sendModPlan(@Path("planId") planId: Int, @Body planData: PlanData,
                     @Header("Authorization") authToken: String): Call<Void>
 }
@@ -59,11 +59,17 @@ interface DeletePlanService {
     fun deletePlanData(@Path("planId") planId: Int): Call<Void>
 }
 
-interface DiaryService {
+interface DiaryService { // 일기 작성
     @POST("diary")
     fun sendDiary(
         @Body diaryData: DiaryData, @Header("Authorization") authToken: String
     ): Call<Void>
+}
+
+interface ModDiaryService { // 일기 수정
+    @PATCH("diary/{diaryId}")
+    fun sendModDiary(@Path("diaryId") diaryId: Int, @Body diaryData: DiaryData,
+                    @Header("Authorization") authToken: String): Call<Void>
 }
 
 interface MapDiaryService {

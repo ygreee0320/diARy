@@ -102,18 +102,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // 툴바의 로그인/마이페이지 버튼 클릭 시
         if (item.itemId == R.id.toolbar_auth) {
-//            if (authToken != null) {
-//                Log.d("MainActivity", "Auth Token: $authToken")
-//
-//                val myPageFragment = MyPageFragment() // MyPageFragment 인스턴스 생성
-//                supportFragmentManager.beginTransaction()
-//                    .replace(R.id.fragment_container, myPageFragment)
-//                    .addToBackStack(null) // 뒤로 가기 버튼으로 이전 프래그먼트로 돌아갈 수 있도록 스택에 추가
-//                    .commit()
-//            } else {
+            if (authToken != null) {
+                Log.d("MainActivity", "Auth Token: $authToken")
+
+                val myPageFragment = MyPageFragment() // MyPageFragment 인스턴스 생성
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container, myPageFragment)
+                    .addToBackStack(null) // 뒤로 가기 버튼으로 이전 프래그먼트로 돌아갈 수 있도록 스택에 추가
+                    .commit()
+            } else {
                 val intent = Intent(this, LogInActivity::class.java)
                 startActivity(intent)
-        //          }
+            }
         }
 
         return super.onOptionsItemSelected(item)

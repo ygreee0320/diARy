@@ -91,7 +91,6 @@ class DiaryDetailActivity : AppCompatActivity() {
                     binding.diaryDetailDate.text = "$formattedStartDate ~ $formattedEndDate"
 
                     // 여행지 리스트 (비어있으면 emptyList)
-                    // planDetailModels 초기화
                     val diaryDetailModels: MutableList<DiaryDetailModel> = mutableListOf()
 
                     if (diaryDetail.diaryLocationDtoList != null && diaryDetail.diaryLocationDtoList.isNotEmpty()) {
@@ -133,14 +132,10 @@ class DiaryDetailActivity : AppCompatActivity() {
                         }
                     }
 
-
-                    // planDetailModels가 비어 있지 않으면 업데이트
+                    // diaryDetailModels가 비어 있지 않으면 업데이트
                     if (diaryDetailModels.isNotEmpty()) {
                         diaryDetailAdapter.updateData(diaryDetailModels)
                     }
-
-                    //같지 않다면, 수정/삭제 gone, 정보레이아웃 visible 필요
-
                 },
                 onError = { throwable ->
                     Log.e("서버 테스트3", "오류: $throwable")
@@ -263,6 +258,91 @@ class DiaryDetailActivity : AppCompatActivity() {
             val bottomSheetFragment = CommentFragment()
             bottomSheetFragment.setDiaryId(diaryId) // diaryId를 Fragment에 전달
             bottomSheetFragment.show(supportFragmentManager, bottomSheetFragment.tag)
+        }
+
+        diaryModActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                // 수정 후 넘어왔을 때 보여줄 내용 추가
+                DiaryDetailManager.getDiaryDetailData(
+                    diaryId,
+                    onSuccess = { diaryDetail ->
+                        // 다이어리 상세 정보를 UI에 적용하는 작업
+                        binding.diaryDetailTitle.text = diaryDetail.diaryDto.title
+                        binding.diaryDetailSubtitle.text = diaryDetail.diaryDto.travelDest
+                        binding.diaryDetailWriter.text = diaryDetail.userDto.username
+                        binding.diaryDetailCreateDate.text = "${diaryDetail.diaryDto.createdAt}"
+                        binding.diaryDetailComment.text = "댓글 ${diaryDetail.diaryDto.comments.size}개 >"
+                        binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()
+
+                        isLiked = diaryDetail.diaryDto.likes.any { it.userId == userId }
+
+                        // 좋아요 상태에 따라 UI 업데이트
+                        if (isLiked) { //로그인 한 유저가 좋아요를 누른 상태라면
+                            binding.diaryDetailLikeImg.text = "♥ "
+                        } else {
+                            binding.diaryDetailLikeImg.text = "♡ "
+                        }
+
+                        val tagNames = diaryDetail.diaryDto.tags.joinToString(" ") { "#${it.name}" }
+                        binding.diaryDetailHash.text = tagNames
+
+                        // 만약 작성한 유저와 현재 유저가 같다면, 수정하기/삭제하기 등등
+                        val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        val formattedStartDate = dateFormatter.format(diaryDetail.diaryDto.travelStart)
+                        val formattedEndDate = dateFormatter.format(diaryDetail.diaryDto.travelEnd)
+
+                        binding.diaryDetailDate.text = "$formattedStartDate ~ $formattedEndDate"
+
+                        // 여행지 리스트 (비어있으면 emptyList)
+                        val diaryDetailModels: MutableList<DiaryDetailModel> = mutableListOf()
+
+                        if (diaryDetail.diaryLocationDtoList != null && diaryDetail.diaryLocationDtoList.isNotEmpty()) {
+                            diaryDetailModels.addAll(diaryDetail.diaryLocationDtoList.map { locationDetail ->
+                                val formattedStartTime = SimpleDateFormat(
+                                    "HH:mm",
+                                    Locale.getDefault()
+                                ).format(locationDetail.timeStart)
+                                val formattedEndTime = SimpleDateFormat(
+                                    "HH:mm",
+                                    Locale.getDefault()
+                                ).format(locationDetail.timeEnd)
+
+                                DiaryDetailModel(
+                                    diaryLocationId = locationDetail.diaryLocationId,
+                                    diaryId = locationDetail.diaryId,
+                                    place = locationDetail.name,
+                                    content = locationDetail.content,
+                                    address = locationDetail.address,
+                                    placeDate = locationDetail.date,
+                                    placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                    placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                                )
+                            })
+                        }
+
+                        diaryDetail.diaryDto?.memo?.let { memo ->
+                            if (memo.isNotEmpty()) {
+                                diaryDetailModels.add(
+                                    DiaryDetailModel(
+                                        diaryLocationId = -1,
+                                        diaryId = diaryDetail.diaryDto.diaryId,
+                                        place = "MEMO",
+                                        content = memo
+                                    )
+                                )
+                            }
+                        }
+
+                        // diaryDetailModels가 비어 있지 않으면 업데이트
+                        if (diaryDetailModels.isNotEmpty()) {
+                            diaryDetailAdapter.updateData(diaryDetailModels)
+                        }
+                    },
+                    onError = { throwable ->
+                        Log.e("서버 테스트3", "오류: $throwable")
+                    }
+                )
+            }
         }
 
     }

@@ -50,10 +50,12 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
                 intent.putExtra("timeEnd", item.placeTimeE)
                 intent.putExtra("content", item.content)
                 intent.putExtra("address", item.address)
+                intent.putExtra("x", item.x)
+                intent.putExtra("y", item.y)
                 intent.putParcelableArrayListExtra("imageUris", item.imageUris)
 
                 Log.d("mylog", "여행지 정보 in 지도" + adapterPosition + item.place + item.placeDate
-                        + item.placeTimeS +item.placeTimeE)
+                        + item.placeTimeS +item.placeTimeE + item.content + item.address + item.x + item.y)
                 AddDiaryActivity.addContentActivityResult.launch(intent)
             }
         }
@@ -91,6 +93,15 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
         memoItem?.let {
             itemList.remove(it)
             itemList.add(it)
+            notifyDataSetChanged()
+        }
+    }
+
+    // 데이터를 업데이트하는 메서드
+    fun updateData(newItems: List<DiaryPlaceModel>) {
+        if (newItems.isNotEmpty()) { // 리스트가 비어있지 않은 경우에만 업데이트
+            itemList.clear()
+            itemList.addAll(newItems)
             notifyDataSetChanged()
         }
     }

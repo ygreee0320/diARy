@@ -287,6 +287,25 @@ object DiaryManager {
             }
         })
     }
+
+    fun sendModDiaryToServer(diaryId: Int, diaryData: DiaryData, authToken: String) { // 일기 수정
+        val apiService = MyApplication().modDiaryService
+        val call = apiService.sendModDiary(diaryId, diaryData, authToken)
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("서버 테스트", "성공")
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("서버 테스트1", "오류: $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("서버 테스트2", "오류: ${t.message}")
+            }
+        })
+    }
 }
 
 //장소별 일기 목록 불러오기

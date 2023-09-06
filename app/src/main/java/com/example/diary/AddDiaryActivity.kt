@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.diary.databinding.ActivityAddDiaryBinding
+import com.google.android.material.color.utilities.MaterialDynamicColors.onError
 import java.sql.Date
 import java.sql.Time
 import java.text.SimpleDateFormat
@@ -26,17 +27,13 @@ import java.util.*
 class AddDiaryActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddDiaryBinding
     private lateinit var viewModel: AddDiaryViewModel
-    private var authToken: String ?= "" // 로그인 토큰
+
     private var new: Int ?= 1 // 새로 작성이면 1, 수정이면 0
-    private var diaryId: Int ?= -1 // 일정 수정일 때의 해당 플랜 아이디
+    private var diaryId: Int ?= -1 // 일기 수정일 때의 해당 일기 아이디
 
     // 여행지 데이터를 저장할 리스트
     private val diaryPlaceList = mutableListOf<DiaryPlaceModel>()
-
     private val diaryPlaceAdapter = DiaryPlaceAdapter(diaryPlaceList)
-
-    private val diaryPlaceList1 = mutableListOf<DiaryDetailModel>()
-    private val diaryDetailAdapter = DiaryDetailAdapter(diaryPlaceList1)
 
     companion object {
         lateinit var addPlaceActivityResult: ActivityResultLauncher<Intent>
@@ -47,11 +44,6 @@ class AddDiaryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityAddDiaryBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // 저장된 토큰 읽어오기
-        val sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
-        authToken = sharedPreferences.getString("auth_token", null)
-        val userId = sharedPreferences.getInt("userId", -1)
 
         // 새로 작성 or 수정 (1이면 새로 작성, 아니면 수정)
         new = intent.getIntExtra("new_diary", 1)
@@ -77,10 +69,12 @@ class AddDiaryActivity : AppCompatActivity() {
                 val placeTimeS = data?.getStringExtra("timeStart")
                 val placeTimeE = data?.getStringExtra("timeEnd")
                 val placeAddress = data?.getStringExtra("address")
-                //val x = data?.getStringExtra("enteredX")
-                //val y = data?.getStringExtra("enteredY")
+                val placeX = data?.getStringExtra("x")
+                val placeY = data?.getStringExtra("y")
+
                 val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
-                Log.d("리사이클러뷰", ""+position + enteredText + place + placeDate + placeTimeS + placeTimeE)
+                Log.d("리사이클러뷰", ""+position + enteredText + place +
+                        placeDate + placeTimeS + placeTimeE + placeAddress + placeX + placeY)
 
                 if (position != null && position >= 0) {
                     val item = diaryPlaceList[position]
@@ -91,15 +85,15 @@ class AddDiaryActivity : AppCompatActivity() {
                     item.placeTimeS = placeTimeS
                     item.placeTimeE = placeTimeE
                     item.address = placeAddress
-                    //item.x = x
-                    //item.y = y
+                    item.x = placeX
+                    item.y = placeY
                     diaryPlaceAdapter.notifyItemChanged(position)
                 } else {
                     if (!enteredText.isNullOrEmpty() || imageUris != null) {
                         // DiaryPlaceModel 인스턴스를 생성하고 리스트에 추가
                         val newDiaryPlaceModel =
-                            DiaryPlaceModel(content = enteredText, imageUris = imageUris, place = place,
-                            placeDate = placeDate, placeTimeS = placeTimeS, placeTimeE = placeTimeE, address = placeAddress)
+                            DiaryPlaceModel(content = enteredText, imageUris = imageUris, place = place, placeDate = placeDate,
+                                placeTimeS = placeTimeS, placeTimeE = placeTimeE, address = placeAddress, x = placeX, y = placeY)
                         diaryPlaceList.add(newDiaryPlaceModel)
 
                         // 특정 아이템을 리스트의 맨 마지막으로 이동시키는 함수 호출
@@ -154,26 +148,6 @@ class AddDiaryActivity : AppCompatActivity() {
                         diaryPlaceAdapter.notifyDataSetChanged()
                     }
                 }
-
-//                val intent = Intent(this, AddPlaceInDiaryActivity::class.java)
-//                intent.putExtra("itemPosition", position) // position 전달
-//                intent.putExtra("place", enteredPlace)
-//                intent.putExtra("date", enteredDate)
-//                intent.putExtra("timeStart", enteredTimeS)
-//                intent.putExtra("timeEnd", enteredTimeE)
-//
-//                addContentActivityResult.launch(intent)
-
-//                if (isActivityOpen(AddPlaceInDiaryActivity::class.java)) {
-//                    // 이미 Activity가 열려 있는 경우 해당 활동으로 이동
-//                    val intent = Intent(this, AddPlaceInDiaryActivity::class.java)
-//                    intent.putExtra("itemPosition", position) // position 전달
-//                    intent.putExtra("place", enteredPlace)
-//                    addContentActivityResult.launch(intent)
-//                } else {
-//                    // AddDiaryMapActivity가 열려 있지 않은 경우 새로운 활동 시작
-//                    addContentActivityResult.launch(Intent(this, AddPlaceInDiaryActivity::class.java))
-//                }
             }
         }
 
@@ -189,8 +163,9 @@ class AddDiaryActivity : AppCompatActivity() {
 
         // 툴바 완료 버튼 클릭 시
         binding.diarySaveBtn.setOnClickListener {
+            new = intent.getIntExtra("new_diary", 1)
             // 일기 저장 처리
-            saveDiaryToServer()
+            saveDiaryToServer(new!!)
             finish()
         }
 
@@ -218,7 +193,6 @@ class AddDiaryActivity : AppCompatActivity() {
 
         // 여행지 추가 버튼 클릭 시
         binding.diaryAddPlaceBtn.setOnClickListener {
-
             // 기존의 입력을 ViewModel에 저장
             viewModel.enteredTitle = binding.diaryAddTitle.text.toString()
             viewModel.enteredDest = binding.diaryAddDest.text.toString()
@@ -237,68 +211,53 @@ class AddDiaryActivity : AppCompatActivity() {
 
         }
 
-        if (new != 1) {
+        if (new != 1) { // 기존의 일기 수정이라면, 기존의 일기 내용 그대로 출력
             diaryId = intent.getIntExtra("diary_id", -1)
-            Log.d("일기 수정", "" + diaryId)
             DiaryDetailManager.getDiaryDetailData(
                 diaryId!!,
-                onSuccess = {diaryDetailResponse ->
-                    val editTitle = Editable.Factory.getInstance().newEditable(diaryDetailResponse.diaryDto.title)
-                    val editTravelDest = Editable.Factory.getInstance().newEditable(diaryDetailResponse.diaryDto.travelDest)
-                    val editHash = Editable.Factory.getInstance().newEditable(diaryDetailResponse.diaryDto.tags.joinToString(" ") { "#${it.name}" })
+                onSuccess = {diaryDetail ->
+                    val editTitle = Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.title)
+                    val editTravelDest = Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.travelDest)
+                    val editHash = Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.tags.joinToString(" ") { "#${it.name}" })
                     binding.diaryAddTitle.text = editTitle
                     binding.diaryAddDest.text = editTravelDest
                     binding.diaryAddHash.text = editHash
 
                     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    val formattedStartDate = dateFormatter.format(diaryDetailResponse.diaryDto.travelStart)
-                    val formattedEndDate = dateFormatter.format(diaryDetailResponse.diaryDto.travelEnd)
+                    val formattedStartDate = dateFormatter.format(diaryDetail.diaryDto.travelStart)
+                    val formattedEndDate = dateFormatter.format(diaryDetail.diaryDto.travelEnd)
 
                     binding.diaryAddStart.text = formattedStartDate
                     binding.diaryAddEnd.text = formattedEndDate
 
-                    val diaryDetailModels: MutableList<DiaryDetailModel> = mutableListOf()
-                    if (diaryDetailResponse.diaryLocationDtoList != null && diaryDetailResponse.diaryLocationDtoList.isNotEmpty()) {
-                        diaryDetailModels.addAll(diaryDetailResponse.diaryLocationDtoList.map { locationDetail ->
-                            val formattedStartTime = SimpleDateFormat(
-                                "HH:mm",
-                                Locale.getDefault()
-                            ).format(locationDetail.timeStart)
-                            val formattedEndTime = SimpleDateFormat(
-                                "HH:mm",
-                                Locale.getDefault()
-                            ).format(locationDetail.timeEnd)
+                    val diaryPlaceModels: List<DiaryPlaceModel> =
+                        if (diaryDetail.diaryLocationDtoList != null && diaryDetail.diaryLocationDtoList.isNotEmpty()) {
+                            diaryDetail.diaryLocationDtoList.map { locationDetail ->
+                                val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
+                                val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
 
-                            DiaryDetailModel(
-                                diaryLocationId = locationDetail.diaryLocationId,
-                                diaryId = locationDetail.diaryId,
-                                place = locationDetail.name,
-                                content = locationDetail.content,
-                                address = locationDetail.address,
-                                x = locationDetail.x,
-                                y = locationDetail.y,
-                                placeDate = locationDetail.date,
-                                placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                                placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
-                            )
-                        })
-                    }
-
-                    diaryDetailResponse.diaryDto?.memo?.let { memo ->
-                        if (memo.isNotEmpty()) {
-                            diaryDetailModels.add(
-                                DiaryDetailModel(
-                                    diaryLocationId = -1,
-                                    diaryId = diaryDetailResponse.diaryDto.diaryId,
-                                    place = "MEMO",
-                                    content = memo
+                                DiaryPlaceModel(
+                                    place = locationDetail.name,
+                                    content = locationDetail.content,
+                                    address = locationDetail.address,
+                                    x = locationDetail.x,
+                                    y = locationDetail.y,
+                                    placeDate = dateFormatter.format(locationDetail.date),
+                                    placeTimeS = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                    placeTimeE= formattedEndTime    // timeEnd를 원하는 형식으로 변환
                                 )
-                            )
+                            }
+                        } else {
+                            emptyList()
+                        }
+
+                    diaryPlaceAdapter.updateData(diaryPlaceModels)
+                    diaryDetail.diaryDto?.memo?.let { memo ->
+                        if (memo.isNotEmpty()) {
+                            val memoItem = DiaryPlaceModel(place = "MEMO", content = memo)
+                            //diaryPlaceAdapter.add(memoItem)
                         }
                     }
-
-                    diaryDetailAdapter.updateData(diaryDetailModels)
-
                 },
                 onError = { throwable ->
                     Log.e("서버 테스트3", "오류: $throwable")
@@ -327,7 +286,7 @@ class AddDiaryActivity : AppCompatActivity() {
         binding.diaryAddLockBtn.isChecked = viewModel.enteredClosed
     }
 
-    private fun saveDiaryToServer() { // 일기 서버에 추가
+    private fun saveDiaryToServer(isNew :Int) { // 일기 서버에 추가
         val travelDest = binding.diaryAddDest.text.toString()
         val content = binding.diaryAddTitle.text.toString()
         val public = !binding.diaryAddLockBtn.isChecked
@@ -375,8 +334,8 @@ class AddDiaryActivity : AppCompatActivity() {
             lateinit var content :String
             val imageUris = item.imageUris
             val address = item.address ?: ""
-            val x = item.x?: ""
-            val y = item.y?: ""
+            val x = item.x ?: ""
+            val y = item.y ?: ""
 
             if (item.content == "클릭하여 여행지별 일기를 기록하세요.") {
                 content = ""
@@ -406,7 +365,7 @@ class AddDiaryActivity : AppCompatActivity() {
                 val diaryLocation = DiaryLocationDto(
                     content = content,
                     name = place,
-                    address = place,
+                    address = address,
                     x = x,
                     y = y,
                     date = placeDate,
@@ -414,7 +373,6 @@ class AddDiaryActivity : AppCompatActivity() {
                     timeEnd = placeTimeEnd,
                     diaryLocationImageDtoList = listOf() // 이미지 리스트 추가 필요
                 )
-                Log.d("kyumin", "" + diaryLocation)
                 diaryLocations.add(diaryLocation)
             }
         }
@@ -427,8 +385,13 @@ class AddDiaryActivity : AppCompatActivity() {
 
         Log.d("서버 테스트", ""+diaryData)
         if (authToken != null) {
-            DiaryManager.sendDiaryToServer(diaryData, authToken)
-        }
+            if(isNew == 1) {
+                DiaryManager.sendDiaryToServer(diaryData, authToken)
+            } else {
+                DiaryManager.sendModDiaryToServer(diaryId!!, diaryData, authToken)
+            }
 
+        }
     }
+
 }

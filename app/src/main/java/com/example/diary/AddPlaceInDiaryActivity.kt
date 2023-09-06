@@ -51,6 +51,9 @@ class AddPlaceInDiaryActivity : AppCompatActivity() {
         val placeTimeS = intent.getStringExtra("timeStart")
         val placeTimeE = intent.getStringExtra("timeEnd")
         var content = intent.getStringExtra("content")
+        val address = intent.getStringExtra("address")
+        val x = intent.getStringExtra("x")
+        val y = intent.getStringExtra("y")
 
         Log.d("여행지추가", ""+itemPosition+place+content)
 
@@ -104,9 +107,13 @@ class AddPlaceInDiaryActivity : AppCompatActivity() {
             intent.putExtra("date", placeDate)
             intent.putExtra("timeStart", placeTimeS)
             intent.putExtra("timeEnd", placeTimeE)
+            intent.putExtra("address", address)
+            intent.putExtra("x", x)
+            intent.putExtra("y", y)
             intent.putParcelableArrayListExtra("imageUris", uriList)
 
-            Log.d("mylog", "AddPlaceInDiary에서 완료 클릭" + itemPosition + title + placeDate + placeTimeS +placeTimeE)
+            Log.d("mylog", "AddPlaceInDiary에서 완료 클릭"
+                    + itemPosition + title + placeDate + placeTimeS +placeTimeE + address + x + y)
 
             // 결과를 설정하고 현재 활동 종료
             setResult(Activity.RESULT_OK, intent)
