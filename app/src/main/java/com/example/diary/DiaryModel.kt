@@ -40,6 +40,8 @@ data class DiaryLocationDtoList(
     val content: String,
     val name: String,
     val address: String,
+    val x: String,
+    val y: String,
     val diaryLocationImageDtoList: List<DiaryLocationImageDto>
 )
 
@@ -76,6 +78,8 @@ data class DiaryLocationDto(
     val content: String,
     val name: String,
     val address: String,
+    val x: String,
+    val y: String,
     val diaryLocationImageDtoList: List<DiaryLocationImageDto>
 )
 

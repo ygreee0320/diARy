@@ -30,6 +30,10 @@ class DiaryFragment : Fragment() {
 
         //일기 작성 버튼 클릭 시, bottomSheet 출력
         binding.diaryAddBtn.setOnClickListener {
+//            val intent = Intent(activity, AddDiaryActivity::class.java)
+//            // 새로 작성하는 것임을 알림
+//            intent.putExtra("new_diary", 1)
+//            startActivity(intent)
             val bottomSheetFragment = BottomAddDiaryFragment()
             bottomSheetFragment.show(parentFragmentManager, bottomSheetFragment.tag)
         }

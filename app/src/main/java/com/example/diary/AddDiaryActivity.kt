@@ -62,6 +62,8 @@ class AddDiaryActivity : AppCompatActivity() {
                 val placeTimeS = data?.getStringExtra("timeStart")
                 val placeTimeE = data?.getStringExtra("timeEnd")
                 val placeAddress = data?.getStringExtra("address")
+                //val x = data?.getStringExtra("enteredX")
+                //val y = data?.getStringExtra("enteredY")
                 val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
                 Log.d("리사이클러뷰", ""+position + enteredText + place + placeDate + placeTimeS + placeTimeE)
 
@@ -74,6 +76,8 @@ class AddDiaryActivity : AppCompatActivity() {
                     item.placeTimeS = placeTimeS
                     item.placeTimeE = placeTimeE
                     item.address = placeAddress
+                    //item.x = x
+                    //item.y = y
                     diaryPlaceAdapter.notifyItemChanged(position)
                 } else {
                     if (!enteredText.isNullOrEmpty() || imageUris != null) {
@@ -103,9 +107,11 @@ class AddDiaryActivity : AppCompatActivity() {
                 val enteredTimeS = data?.getStringExtra("enteredStart")
                 val enteredTimeE = data?.getStringExtra("enteredEnd")
                 val enteredAddress = data?.getStringExtra("enteredAddress")
+                val enteredX = data?.getStringExtra("enteredX")
+                val enteredY = data?.getStringExtra("enteredY")
 
                 Log.d("지도 이후 AddDiary에서 추가", ""+position + enteredPlace +
-                        enteredDate + enteredTimeS + enteredTimeE + enteredAddress)
+                        enteredDate + enteredTimeS + enteredTimeE + enteredAddress + enteredX + enteredY)
 
                 if (position != null && position >= 0) {
                     val item = diaryPlaceList[position]
@@ -114,6 +120,8 @@ class AddDiaryActivity : AppCompatActivity() {
                     item.placeTimeS = enteredTimeS
                     item.placeTimeE = enteredTimeE
                     item.address = enteredAddress
+                    item.x = enteredX
+                    item.y = enteredY
 
                     diaryPlaceAdapter.notifyItemChanged(position)
                 } else {
@@ -121,7 +129,7 @@ class AddDiaryActivity : AppCompatActivity() {
                         // DiaryPlaceModel 인스턴스를 생성하고 리스트에 추가
                         val newDiaryPlaceModel =
                             DiaryPlaceModel(place = enteredPlace, placeDate = enteredDate, placeTimeS = enteredTimeS,
-                                placeTimeE = enteredTimeE, address = enteredAddress)
+                                placeTimeE = enteredTimeE, address = enteredAddress, x = enteredX, y = enteredY)
                         diaryPlaceList.add(newDiaryPlaceModel)
 
                         // 특정 아이템을 리스트의 맨 마지막으로 이동시키는 함수 호출
@@ -283,6 +291,8 @@ class AddDiaryActivity : AppCompatActivity() {
             lateinit var content :String
             val imageUris = item.imageUris
             val address = item.address ?: ""
+            val x = item.x?: ""
+            val y = item.y?: ""
 
             if (item.content == "클릭하여 여행지별 일기를 기록하세요.") {
                 content = ""
@@ -312,12 +322,15 @@ class AddDiaryActivity : AppCompatActivity() {
                 val diaryLocation = DiaryLocationDto(
                     content = content,
                     name = place,
-                    address = address,
+                    address = place,
+                    x = x,
+                    y = y,
                     date = placeDate,
                     timeStart = placeTimeStart,
                     timeEnd = placeTimeEnd,
                     diaryLocationImageDtoList = listOf() // 이미지 리스트 추가 필요
                 )
+                Log.d("kyumin", "" + diaryLocation)
                 diaryLocations.add(diaryLocation)
             }
         }
