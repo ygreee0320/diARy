@@ -360,12 +360,12 @@ class AddDiaryActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 java.sql.Time(System.currentTimeMillis())
             }
-
+            Log.d("서버 테스트 content", ""+content)
             if (!place.isNullOrEmpty()) {
                 val diaryLocation = DiaryLocationDto(
                     content = content,
                     name = place,
-                    address = address,
+                    address = place,
                     x = x,
                     y = y,
                     date = placeDate,
