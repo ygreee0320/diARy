@@ -81,6 +81,32 @@ object MyPageManager {
     }
 }
 
+object HotTopicManager {
+    fun getHotTopicData(onSuccess: (List<Topic>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().hotTopicService
+        val call = apiService.getHotTopicData()
+
+        call.enqueue(object : Callback<List<Topic>> {
+            override fun onResponse(call: Call<List<Topic>>, response: Response<List<Topic>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<Topic>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+}
+
 object PlanManager {
     fun sendPlanToServer(planData: PlanData, authToken: String) { // 일정 새로 추가
         val apiService = MyApplication().planService

@@ -115,3 +115,8 @@ interface CommentListService { // 일기 댓글 조회
     @GET("diary/{diaryId}/comment")
     fun getCommentListData(@Path("diaryId") diaryId: Int): Call<List<CommentListResponse>>
 }
+
+interface HotTopicService { // 핫토픽 리스트 조회
+    @GET("home/topic")
+    fun getHotTopicData(): Call<List<Topic>>
+}

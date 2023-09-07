@@ -252,12 +252,11 @@ class AddDiaryActivity : AppCompatActivity() {
                             emptyList()
                         }
 
-//                    diaryPlaceAdapter.updateData(diaryPlaceModels)
-                    diaryDetail.diaryDto?.memo?.let { memo ->
-                        if (memo.isNotEmpty()) {
-                            val memoItem = DiaryPlaceModel(place = "MEMO", content = memo)
-                            diaryPlaceAdapter.updateData(diaryPlaceModels + listOf(memoItem))
-                        }
+                    if (diaryDetail.diaryDto.memo != null && diaryDetail.diaryDto.memo.isNotEmpty()) {
+                        val memoItem = DiaryPlaceModel(place = "MEMO", content = diaryDetail.diaryDto.memo)
+                        diaryPlaceAdapter.updateData(diaryPlaceModels + listOf(memoItem))
+                    } else {
+                        diaryPlaceAdapter.updateData(diaryPlaceModels)
                     }
                 },
                 onError = { throwable ->

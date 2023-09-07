@@ -143,3 +143,8 @@ data class CommentListResponse(
     val replyDtos: List<ReplyList>,
     val userDto: User
 )
+
+data class Topic(
+    val diaryResponseDtoList: List<DiaryDetailResponse>,
+    val tagname: String
+)

@@ -70,6 +70,8 @@ class DiaryDetailActivity : AppCompatActivity() {
                     binding.diaryDetailCreateDate.text = "${diaryDetail.diaryDto.createdAt}"
                     binding.diaryDetailComment.text = "댓글 ${diaryDetail.diaryDto.comments.size}개 >"
                     binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()
+                    binding.diaryProgress.progress = diaryDetail.diaryDto.satisfaction
+                    binding.diarySat.text = "${diaryDetail.diaryDto.satisfaction} %"
 
                     isLiked = diaryDetail.diaryDto.likes.any { it.userId == userId }
 
