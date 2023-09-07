@@ -165,6 +165,7 @@ class AddDiaryActivity : AppCompatActivity() {
         binding.diarySaveBtn.setOnClickListener {
             new = intent.getIntExtra("new_diary", 1)
             // 일기 저장 처리
+            Log.d("일기 저장or수정",""+new)
             saveDiaryToServer(new!!)
             finish()
         }
@@ -251,11 +252,11 @@ class AddDiaryActivity : AppCompatActivity() {
                             emptyList()
                         }
 
-                    diaryPlaceAdapter.updateData(diaryPlaceModels)
+//                    diaryPlaceAdapter.updateData(diaryPlaceModels)
                     diaryDetail.diaryDto?.memo?.let { memo ->
                         if (memo.isNotEmpty()) {
                             val memoItem = DiaryPlaceModel(place = "MEMO", content = memo)
-                            //diaryPlaceAdapter.add(memoItem)
+                            diaryPlaceAdapter.updateData(diaryPlaceModels + listOf(memoItem))
                         }
                     }
                 },
@@ -365,7 +366,7 @@ class AddDiaryActivity : AppCompatActivity() {
                 val diaryLocation = DiaryLocationDto(
                     content = content,
                     name = place,
-                    address = place,
+                    address = address,
                     x = x,
                     y = y,
                     date = placeDate,
@@ -389,6 +390,8 @@ class AddDiaryActivity : AppCompatActivity() {
                 DiaryManager.sendDiaryToServer(diaryData, authToken)
             } else {
                 DiaryManager.sendModDiaryToServer(diaryId!!, diaryData, authToken)
+                val resultIntent = Intent()
+                setResult(Activity.RESULT_OK, resultIntent)
             }
 
         }
