@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.net.Uri
 import org.w3c.dom.Comment
 import java.sql.Date
 import java.sql.Time
