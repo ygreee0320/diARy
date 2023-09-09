@@ -79,7 +79,7 @@ interface MapDiaryService {
 
 interface MyDiaryService {
     @GET("user/diary")
-    fun getDiaryData(@Header("Authorization") authToken: String): Call<List<MyDiaryList>>
+    fun getDiaryData(@Header("Authorization") authToken: String): Call<List<DiaryDetailResponse>>
 }
 
 interface DiaryDetailService {
@@ -119,4 +119,14 @@ interface CommentListService { // 일기 댓글 조회
 interface HotTopicService { // 핫토픽 리스트 조회
     @GET("home/topic")
     fun getHotTopicData(): Call<List<Topic>>
+}
+
+interface TagDiarySearchService { // 태그별 검색 조회
+    @GET("search/{searchWord}/diary-tag")
+    fun getTagDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
+}
+
+interface TagPlanSearchService { // 태그별 검색 조회
+    @GET("search/{searchword}/plan-tag")
+    fun getTagPlanSearchData(): Call<List<Topic>>
 }

@@ -1,6 +1,7 @@
 package com.example.diary
 
 import android.util.Log
+import com.google.android.material.color.utilities.MaterialDynamicColors.onError
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -101,6 +102,32 @@ object HotTopicManager {
             }
 
             override fun onFailure(call: Call<List<Topic>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+}
+
+object SearchManager {
+    fun getSearchTagDiaryData(searchWord: String, onSuccess: (List<DiaryDetailResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchTagPlanService
+        val call = apiService.getTagDiarySearchData(searchWord)
+
+        call.enqueue(object : Callback<List<DiaryDetailResponse>> {
+            override fun onResponse(call: Call<List<DiaryDetailResponse>>, response: Response<List<DiaryDetailResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<DiaryDetailResponse>>, t: Throwable) {
                 onError(t)
             }
         })
@@ -364,12 +391,12 @@ object MapDiaryListManager {
 
 // 유저별 일기 목록 불러오기
 object MyDiaryListManager {
-    fun getDiaryListData(authToken: String, onSuccess: (List<MyDiaryList>) -> Unit, onError: (Throwable) -> Unit) {
+    fun getDiaryListData(authToken: String, onSuccess: (List<DiaryDetailResponse>) -> Unit, onError: (Throwable) -> Unit) {
         val apiService = MyApplication().myDiaryService
         val call = apiService.getDiaryData(authToken)
 
-        call.enqueue(object : Callback<List<MyDiaryList>> {
-            override fun onResponse(call: Call<List<MyDiaryList>>, response: Response<List<MyDiaryList>>) {
+        call.enqueue(object : Callback<List<DiaryDetailResponse>> {
+            override fun onResponse(call: Call<List<DiaryDetailResponse>>, response: Response<List<DiaryDetailResponse>>) {
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     apiResponse?.let {
@@ -382,7 +409,7 @@ object MyDiaryListManager {
                 }
             }
 
-            override fun onFailure(call: Call<List<MyDiaryList>>, t: Throwable) {
+            override fun onFailure(call: Call<List<DiaryDetailResponse>>, t: Throwable) {
                 onError(t)
             }
         })

@@ -69,6 +69,34 @@
                     android:text="출발일 ~ 도착일"
                     android:textSize="13dp" />
 
+                <LinearLayout
+                    android:id="@+id/diary_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:visibility="gone" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="by  "
+                        android:textSize="13dp" />
+                    <TextView
+                        android:id="@+id/diary_writer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="작성자"
+                        android:textSize="13dp" />
+                    <TextView
+                        android:id="@+id/diary_create"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="작성일"
+                        android:textSize="13dp" />
+
+                </LinearLayout>
+
                 <TextView
                     android:id="@+id/diary_closed"
                     android:layout_width="wrap_content"

@@ -61,9 +61,9 @@ class DiaryFragment : Fragment() {
             MyDiaryListManager.getDiaryListData(
                 authToken,
                 onSuccess = { myDiaryList ->
-                    val diary = myDiaryList.map { it.diaryDto }
+                    val diary = myDiaryList.map { it }
                     Log.d("내 일기 목록 테스트", ""+diary)
-                    diaryAdapter.updateData(diary)
+                    diaryAdapter.updateData(diary, false)
 
                     // username 값을 추출하여 텍스트 뷰에 적용
                     val username = myDiaryList.firstOrNull()?.userDto?.username ?: "username"

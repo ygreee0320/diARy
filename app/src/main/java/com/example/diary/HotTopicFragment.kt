@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
@@ -65,7 +66,33 @@ class HotTopicFragment : Fragment() {
         }
         Log.d("핫토픽 어댑터", "" + hotTopic + diaryTitles)
 
+        // 핫토픽 클릭 시, 아이디를 가지고 다이어리 디테일 페이지로 이동
+        binding.diary1.setOnClickListener {
+            if (diaryIds != null && diaryIds.isNotEmpty()) {
+                val diaryId = diaryIds[0]
+                val intent = Intent(requireContext(), DiaryDetailActivity::class.java)
+                intent.putExtra("diaryId", diaryId)
+                startActivity(intent)
+            }
+        }
 
+        binding.diary2.setOnClickListener {
+            if (diaryIds != null && diaryIds.size >= 2) {
+                val diaryId = diaryIds[1]
+                val intent = Intent(requireContext(), DiaryDetailActivity::class.java)
+                intent.putExtra("diaryId", diaryId)
+                startActivity(intent)
+            }
+        }
+
+        binding.diary3.setOnClickListener {
+            if (diaryIds != null && diaryIds.size >= 3) {
+                val diaryId = diaryIds[2]
+                val intent = Intent(requireContext(), DiaryDetailActivity::class.java)
+                intent.putExtra("diaryId", diaryId)
+                startActivity(intent)
+            }
+        }
 
         return binding.root
     }

@@ -115,14 +115,7 @@ data class DiaryData(
     val diaryLocationDtoList: List<DiaryLocationDto>
 )
 
-// 유저별 일기 목록
-data class MyDiaryList(
-    val userDto: User,
-    val diaryDto: DiaryDtoMyList,
-    val diaryLocationDtoList: List<DiaryLocationDtoList>
-)
-
-// 일기 상세 불러오기
+// 일기 상세 불러오기, 일기 목록
 data class DiaryDetailResponse(
     val userDto: User,
     val diaryDto: DiaryDtoMyList,

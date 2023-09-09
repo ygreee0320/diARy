@@ -35,7 +35,7 @@
                 android:layout_height="match_parent"
                 android:layout_marginBottom="3dp"
                 android:layout_marginRight="5dp"
-                android:text="제목 검색 |"
+                android:text="태그 검색 |"
                 android:textColor="#959595"
                 android:textSize="13dp" />
 
@@ -52,15 +52,18 @@
 
         <!-- 검색바 테두리 -->
         <FrameLayout
+            android:id="@+id/search_fragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#86AED8"
             android:padding="2dp"
-            android:layout_alignParentTop="true" >
+            android:layout_alignParentTop="true"
+            android:clickable="false"
+            android:focusable="true">
 
             <!-- 검색바 (SearchView) -->
             <androidx.appcompat.widget.SearchView
-                android:id="@+id/search_ranking"
+                android:id="@+id/search_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#ffffff"
@@ -68,7 +71,8 @@
                 android:inputType="text"
                 android:iconifiedByDefault="false"
                 android:queryBackground="@null"
-                android:queryHint="검색어를 입력하세요" />
+                android:queryHint="검색어를 입력하세요"
+                android:focusableInTouchMode="true" />
 
         </FrameLayout>
 
