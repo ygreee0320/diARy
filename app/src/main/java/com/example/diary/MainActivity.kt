@@ -3,6 +3,8 @@ package com.example.diary
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
@@ -10,6 +12,7 @@ import android.text.TextUtils.replace
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -19,6 +22,7 @@ import com.example.diary.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.navigation.NavigationView
+import android.Manifest
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityMainBinding
@@ -31,6 +35,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(Manifest.permission.MANAGE_MEDIA) != PackageManager.PERMISSION_GRANTED) {
+                Log.d("mainactivity", "권한 요청")
+                if (shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)) {
+                    Toast.makeText(this, "외부 저장소 사용을 위해 읽기/쓰기 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
+                }
+
+                requestPermissions(
+                    arrayOf(Manifest.permission.MANAGE_EXTERNAL_STORAGE, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.MANAGE_MEDIA),
+                    2
+                );
+            }
+        }
         // 저장된 토큰 읽어오기
         sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
         authToken = sharedPreferences.getString("auth_token", null)

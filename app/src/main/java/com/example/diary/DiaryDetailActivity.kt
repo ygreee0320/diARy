@@ -1,5 +1,6 @@
 package com.example.diary
 
+import DiaryDetailAdapter
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -116,7 +117,8 @@ class DiaryDetailActivity : AppCompatActivity() {
                                 y = locationDetail.y,
                                 placeDate = locationDetail.date,
                                 placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                                placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                                placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                imageUris = locationDetail.diaryLocationImageDtoList
                             )
                         })
                     }
