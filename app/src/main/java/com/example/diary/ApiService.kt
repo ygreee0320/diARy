@@ -111,6 +111,7 @@ interface CommentService {
         @Body commentData: CommentData
     ): Call<Void>
 }
+
 interface CommentListService { // 일기 댓글 조회
     @GET("diary/{diaryId}/comment")
     fun getCommentListData(@Path("diaryId") diaryId: Int): Call<List<CommentListResponse>>
@@ -121,12 +122,12 @@ interface HotTopicService { // 핫토픽 리스트 조회
     fun getHotTopicData(): Call<List<Topic>>
 }
 
-interface TagDiarySearchService { // 태그별 검색 조회
+interface TagDiarySearchService { // 태그별 일기 검색 조회
     @GET("search/{searchWord}/diary-tag")
     fun getTagDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
 }
 
-interface TagPlanSearchService { // 태그별 검색 조회
-    @GET("search/{searchword}/plan-tag")
-    fun getTagPlanSearchData(): Call<List<Topic>>
+interface TagPlanSearchService { // 태그별 일정 검색 조회
+    @GET("search/{searchWord}/plan-tag")
+    fun getTagPlanSearchData(@Path("searchWord") searchWord: String): Call<List<MyPlanListResponse>>
 }

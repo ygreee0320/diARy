@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:padding="15dp"
     android:orientation="vertical"
-    tools:context=".SearchFragment">
+    tools:context=".SearchMoreFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -88,64 +88,34 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:orientation="horizontal" >
 
         <TextView
+            android:id="@+id/type_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginLeft="5dp"
-            android:text="DIARY"
-            android:textColor="@color/black" />
-        <TextView
-            android:id="@+id/diary_more"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:layout_gravity="end"
-            android:text="더보기 >"
-            android:textColor="@color/black" />
-
-    </LinearLayout>
-
-    <!--  다이어리 목록(리사이클러 뷰)  -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/diaryRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="260dp"
-        android:layout_marginTop="4dp"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:orientation="horizontal" >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
             android:text="PLAN"
             android:textColor="@color/black" />
 
         <TextView
-            android:id="@+id/plan_more"
+            android:id="@+id/order_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
             android:layout_gravity="right"
-            android:text="더보기 >"
-            android:textColor="@color/black" />
+            android:layout_marginRight="7dp"
+            android:text="인기순"
+            android:textColor="@color/primary" />
 
     </LinearLayout>
 
-    <!--  다이어리 목록(리사이클러 뷰)  -->
+    <!--  서치 목록(리사이클러 뷰)  -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/planRecyclerView"
+        android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="260dp"
+        android:layout_height="match_parent"
         android:layout_marginTop="4dp"/>
 
 </LinearLayout>

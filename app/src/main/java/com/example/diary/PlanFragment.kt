@@ -74,8 +74,8 @@ class PlanFragment : Fragment(){
             MyPlanListManager.getPlanListData(
                 authToken,
                 onSuccess = { myPlanListResponse ->
-                    val plan = myPlanListResponse.map { it.plan }
-                    planAdapter.updateData(plan)
+                    val plan = myPlanListResponse.map { it }
+                    planAdapter.updateData(plan, false)
                 },
                 onError = { throwable ->
                     Log.e("서버 테스트3", "오류: $throwable")

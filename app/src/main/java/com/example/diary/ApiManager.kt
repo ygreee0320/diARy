@@ -110,7 +110,7 @@ object HotTopicManager {
 
 object SearchManager {
     fun getSearchTagDiaryData(searchWord: String, onSuccess: (List<DiaryDetailResponse>) -> Unit, onError: (Throwable) -> Unit) {
-        val apiService = MyApplication().searchTagPlanService
+        val apiService = MyApplication().searchTagDiaryService
         val call = apiService.getTagDiarySearchData(searchWord)
 
         call.enqueue(object : Callback<List<DiaryDetailResponse>> {
@@ -128,6 +128,30 @@ object SearchManager {
             }
 
             override fun onFailure(call: Call<List<DiaryDetailResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
+    fun getSearchTagPlanData(searchWord: String, onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchTagPlanService
+        val call = apiService.getTagPlanSearchData(searchWord)
+
+        call.enqueue(object : Callback<List<MyPlanListResponse>> {
+            override fun onResponse(call: Call<List<MyPlanListResponse>>, response: Response<List<MyPlanListResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<MyPlanListResponse>>, t: Throwable) {
                 onError(t)
             }
         })

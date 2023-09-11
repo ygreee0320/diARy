@@ -8,52 +8,53 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentTransaction
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.diary.databinding.FragmentSearchBinding
-import com.google.android.material.color.utilities.MaterialDynamicColors.onError
+import com.example.diary.databinding.FragmentSearchMoreBinding
 
-class SearchFragment : Fragment() {
-    private lateinit var binding: FragmentSearchBinding
-    private lateinit var diaryRecyclerView: RecyclerView
+class SearchMoreFragment : Fragment() {
+    private lateinit var binding: FragmentSearchMoreBinding
+    private lateinit var recyclerView: RecyclerView
     private lateinit var diaryAdapter: DiaryAdapter
-    private lateinit var planRecyclerView: RecyclerView
     private lateinit var planAdapter: PlanAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentSearchBinding.inflate(inflater, container, false)
+        binding = FragmentSearchMoreBinding.inflate(inflater, container, false)
 
-        diaryRecyclerView = binding.diaryRecyclerView
-        planRecyclerView = binding.planRecyclerView
+        recyclerView = binding.recyclerView
 
-        val diaryLayoutManager = LinearLayoutManager(requireContext())
-        diaryRecyclerView.layoutManager = diaryLayoutManager
-
-        val planLayoutManager = LinearLayoutManager(requireContext())
-        planRecyclerView.layoutManager = planLayoutManager
-
-        diaryAdapter = DiaryAdapter(emptyList()) // 초기에 빈 목록으로 어댑터 설정
-        diaryRecyclerView.adapter = diaryAdapter // 리사이클러뷰에 어댑터 설정
+        val layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
 
         planAdapter = PlanAdapter(emptyList())
-        planRecyclerView.adapter = planAdapter
+        diaryAdapter = DiaryAdapter(emptyList())
 
         val searchWord = arguments?.getString("searchWord")
-        if (searchWord != null) {
-            binding.searchView.setQuery(searchWord, false)
-            searchTagDiary(searchWord)
-            searchTagPlan(searchWord)
+        val type = arguments?.getString("type")
+
+        if (!searchWord.isNullOrBlank()) {
+            if (type == "PLAN") { // 플랜의 더보기 라면
+                recyclerView.adapter = planAdapter  // 플랜 어댑터 연결됨
+
+                searchTagPlan(searchWord)
+            } else if (type == "DIARY") { // 다이어리의 더보기 라면
+                binding.typeText.text = type
+                recyclerView.adapter = diaryAdapter
+
+                searchTagDiary(searchWord)
+            }
         }
 
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrBlank()) {
-                    searchTagDiary(query)
-                    searchTagPlan(query)
+                    if (type == "PLAN") {
+                        searchTagPlan(query)
+                    } else if (type == "DIARY") {
+                        searchTagDiary(query)
+                    }
 
                     // SearchView 포커스 제거
                     binding.searchView.clearFocus()
@@ -69,42 +70,6 @@ class SearchFragment : Fragment() {
                 return false
             }
         })
-
-        binding.diaryMore.setOnClickListener { // 일기 더보기 버튼 클릭 시
-            val searchWord = binding.searchView.query.toString()
-            Log.d("my log", ""+searchWord)
-
-            if (!searchWord.isNullOrBlank()) {
-                val fragment = SearchMoreFragment()
-                val args = Bundle()
-                args.putString("searchWord", searchWord)
-                args.putString("type", "DIARY")
-                fragment.arguments = args
-
-                val transaction = requireFragmentManager().beginTransaction()
-                transaction.replace(R.id.fragment_container, fragment)
-                transaction.addToBackStack(null) // 이전 Fragment로 돌아가기 위해 백 스택에 추가
-                transaction.commit()
-            }
-        }
-
-        binding.planMore.setOnClickListener { // 일정 더보기 버튼 클릭 시
-            val searchWord = binding.searchView.query.toString()
-            Log.d("my log", ""+searchWord)
-
-            if (!searchWord.isNullOrBlank()) {
-                val fragment = SearchMoreFragment()
-                val args = Bundle()
-                args.putString("searchWord", searchWord)
-                args.putString("type", "PLAN")
-                fragment.arguments = args
-
-                val transaction = requireFragmentManager().beginTransaction()
-                transaction.replace(R.id.fragment_container, fragment)
-                transaction.addToBackStack(null) // 이전 Fragment로 돌아가기 위해 백 스택에 추가
-                transaction.commit()
-            }
-        }
 
         return binding.root
     }
