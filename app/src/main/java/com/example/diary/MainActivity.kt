@@ -54,24 +54,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
         authToken = sharedPreferences.getString("auth_token", null)
 
+
         // "Bearer" 문자열 제거한 토큰 값 추출
-        val tokenOnly = authToken?.substringAfter("Bearer ")
+        if (authToken != null) {
+            val tokenOnly = authToken?.substringAfter("Bearer ")
+
+            if (tokenOnly != null) { // 토큰을 이용하여 유저 정보 저장
+                val jwt = JWT(tokenOnly)
+                val userId = jwt.getClaim("id")?.asInt() ?: -1
+                val userEmail = jwt.getClaim("email")?.asString() ?: ""
+
+                // userId를 SharedPreferences에 저장
+                val editor = sharedPreferences.edit()
+                editor.putInt("userId", userId)
+                editor.putString("userEmail", userEmail)
+                editor.apply()
+                Log.d("메인액티비티2", ""+ tokenOnly + userId + userEmail)
+            }
+        }
 
         Log.d("메인액티비티", ""+authToken)
-
-        // 토큰을 이용하여 유저 정보 저장
-        if (tokenOnly != null) {
-            val jwt = JWT(tokenOnly)
-            val userId = jwt.getClaim("id")?.asInt() ?: -1
-            val userEmail = jwt.getClaim("email")?.asString() ?: ""
-
-            // userId를 SharedPreferences에 저장
-            val editor = sharedPreferences.edit()
-            editor.putInt("userId", userId)
-            editor.putString("userEmail", userEmail)
-            editor.apply()
-            Log.d("메인액티비티2", ""+ tokenOnly + userId + userEmail)
-        }
 
         //toolbar
         setSupportActionBar(binding.toolbar)
@@ -145,5 +147,29 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.menu_3 -> {}
         }
         return true
+    }
+
+    // MyPageFragment에서 auth_token이 업데이트되었을 때 호출되는 메서드
+    fun onAuthTokenUpdated() {
+        // SharedPreferences에서 auth_token 다시 읽어오기
+        authToken = sharedPreferences.getString("auth_token", null)
+
+        // "Bearer" 문자열 제거한 토큰 값 추출
+        if (authToken != null) {
+            val tokenOnly = authToken?.substringAfter("Bearer ")
+
+            if (tokenOnly != null) { // 토큰을 이용하여 유저 정보 저장
+                val jwt = JWT(tokenOnly)
+                val userId = jwt.getClaim("id")?.asInt() ?: -1
+                val userEmail = jwt.getClaim("email")?.asString() ?: ""
+
+                // userId를 SharedPreferences에 저장
+                val editor = sharedPreferences.edit()
+                editor.putInt("userId", userId)
+                editor.putString("userEmail", userEmail)
+                editor.apply()
+                Log.d("메인액티비티2", ""+ tokenOnly + userId + userEmail)
+            }
+        }
     }
 }

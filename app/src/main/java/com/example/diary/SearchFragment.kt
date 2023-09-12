@@ -150,4 +150,46 @@ class SearchFragment : Fragment() {
         )
     }
 
+    private fun searchDestDiary(searchWord: String) {
+        SearchManager.getSearchDestDiaryData(
+            searchWord = searchWord,
+            onSuccess = { DestDiaryList ->
+                val diary = DestDiaryList.map { it }
+                Log.d("my log", "여행지별 다이어리"+ diary)
+
+                if (diary.isEmpty()) {
+                    // 검색 결과가 없을 때 어댑터에 빈 목록 설정
+                    diaryAdapter.updateData(emptyList(), true)
+                } else {
+                    diaryAdapter.updateData(diary, true)
+                }
+            },
+            onError = { throwable ->  // 검색어에 맞는 검색 결과가 없으면 여기로 옴
+                Log.e("서버 테스트3", "오류: $throwable")
+                diaryAdapter.updateData(emptyList(), true)
+            }
+        )
+    }
+
+    private fun searchWriterDiary(searchWord: String) {
+        SearchManager.getSearchWriterDiaryData(
+            searchWord = searchWord,
+            onSuccess = { WriterDiaryList ->
+                val diary = WriterDiaryList.map { it }
+                Log.d("my log", "작성자별 다이어리"+ diary)
+
+                if (diary.isEmpty()) {
+                    // 검색 결과가 없을 때 어댑터에 빈 목록 설정
+                    diaryAdapter.updateData(emptyList(), true)
+                } else {
+                    diaryAdapter.updateData(diary, true)
+                }
+            },
+            onError = { throwable ->  // 검색어에 맞는 검색 결과가 없으면 여기로 옴
+                Log.e("서버 테스트3", "오류: $throwable")
+                diaryAdapter.updateData(emptyList(), true)
+            }
+        )
+    }
+
 }

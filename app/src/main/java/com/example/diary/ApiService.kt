@@ -127,6 +127,16 @@ interface TagDiarySearchService { // 태그별 일기 검색 조회
     fun getTagDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
 }
 
+interface WriterDiarySearchService { // 작성자별 일기 검색 조회
+    @GET("search/{searchWord}/diary-writer")
+    fun getWriterDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
+}
+
+interface DestDiarySearchService { // 여행지별 일기 검색 조회
+    @GET("search/{searchWord}/diary-dest")
+    fun getDestDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
+}
+
 interface TagPlanSearchService { // 태그별 일정 검색 조회
     @GET("search/{searchWord}/plan-tag")
     fun getTagPlanSearchData(@Path("searchWord") searchWord: String): Call<List<MyPlanListResponse>>

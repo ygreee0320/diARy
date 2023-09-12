@@ -97,7 +97,9 @@ class PlanDetailActivity : AppCompatActivity() {
                             address = locationDetail.address,
                             placeDate = locationDetail.date,
                             placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                            placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                            placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                            x = locationDetail.x,
+                            y = locationDetail.y
                         )
                     }
 
@@ -186,7 +188,9 @@ class PlanDetailActivity : AppCompatActivity() {
                                 address = locationDetail.address,
                                 placeDate = locationDetail.date,
                                 placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                                placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                                placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                x = locationDetail.x,
+                                y = locationDetail.y
                             )
                         }
 
