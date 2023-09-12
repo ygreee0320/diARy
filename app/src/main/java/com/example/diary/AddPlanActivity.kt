@@ -227,7 +227,9 @@ class AddPlanActivity : AppCompatActivity() {
                 timeStart = timeStartSql,
                 timeEnd = timeEndSql,
                 name = planDetail.place ?: "",
-                address = planDetail.address ?: ""
+                address = planDetail.address ?: "",
+                x = planDetail.x ?: "",
+                y = planDetail.y ?: ""
             )
         }
 
@@ -283,7 +285,9 @@ class AddPlanActivity : AppCompatActivity() {
                 timeStart = timeStartSql,
                 timeEnd = timeEndSql,
                 name = planDetail.place ?: "",
-                address = planDetail.address ?: ""
+                address = planDetail.address ?: "",
+                x = planDetail.x ?: "",
+                y = planDetail.y ?: ""
             )
         }
 

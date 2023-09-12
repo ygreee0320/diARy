@@ -60,15 +60,9 @@ class RankingFragment : Fragment() {
             binding.searchTitleRanking.setTextColor(Color.parseColor("#959595"))
         }
 
-        // 랭킹 월별 주간 종류 클릭 시
+        // 랭킹 좋아요/최신순 종류 클릭 시
         binding.rankingMonth.setOnClickListener {
-            binding.rankingMonth.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary))
-            binding.rankingWeek.setTextColor(Color.parseColor("#959595"))
-        }
 
-        binding.rankingWeek.setOnClickListener {
-            binding.rankingWeek.setTextColor(ContextCompat.getColor(requireContext(), R.color.primary))
-            binding.rankingMonth.setTextColor(Color.parseColor("#959595"))
         }
 
         return binding.root
