@@ -572,7 +572,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 
         Log.d("서버 테스트", "" + diaryData)
         if (authToken != null) {
-            if (isNew == 1) {
+            if (isNew == 1 || isNew == -1) {
                 DiaryManager.sendDiaryToServer(diaryData, authToken)
             } else {
                 DiaryManager.sendModDiaryToServer(diaryId!!, diaryData, authToken)
