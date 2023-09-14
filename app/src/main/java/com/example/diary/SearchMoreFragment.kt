@@ -21,7 +21,6 @@ class SearchMoreFragment : Fragment(),
     private lateinit var planAdapter: PlanAdapter
     private var searchWord: String ?= null // 검색어
     private var searchType: String ?= "태그 검색↓" // 검색 기준
-    private var searchOrder: String ?= "popular" //정렬 기준
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -37,9 +36,7 @@ class SearchMoreFragment : Fragment(),
         diaryAdapter = DiaryAdapter(emptyList())
 
         searchWord = arguments?.getString("searchWord")
-        val type = arguments?.getString("type")
-
-
+        val type = arguments?.getString("type") // 초기 타입(태그/작성자/여행지 검색)
 
         if (!searchWord.isNullOrBlank()) {
             if (type == "PLAN") { // 플랜의 더보기 라면

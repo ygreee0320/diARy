@@ -37,14 +37,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class AddDiaryActivity : AppCompatActivity() {
+class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListener {
     private lateinit var binding: ActivityAddDiaryBinding
     private lateinit var viewModel: AddDiaryViewModel
     private lateinit var transferUtility: TransferUtility
 
-
-    private var new: Int? = 1 // 새로 작성이면 1, 수정이면 0
+    private var new: Int? = 1 // 새로 작성이면 1, 수정이면 0, 플랜 바탕 작성이면 -1
     private var diaryId: Int? = -1 // 일기 수정일 때의 해당 일기 아이디
+    private var planId: Int? = -1 // 플랜 바탕 작성일 때의 해당 플랜 아이디
 
     // 여행지 데이터를 저장할 리스트
     private val diaryPlaceList = mutableListOf<DiaryPlaceModel>()
@@ -82,6 +82,8 @@ class AddDiaryActivity : AppCompatActivity() {
         TransferNetworkLossHandler.getInstance(applicationContext)
 
         viewModel = ViewModelProvider(this).get(AddDiaryViewModel::class.java)
+
+        diaryPlaceAdapter.setItemClickListener(this)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.title = ""
@@ -278,7 +280,7 @@ class AddDiaryActivity : AppCompatActivity() {
 
         }
 
-        if (new != 1) { // 기존의 일기 수정이라면, 기존의 일기 내용 그대로 출력
+        if (new == 0) { // 기존의 일기 수정이라면, 기존의 일기 내용 그대로 출력
             diaryId = intent.getIntExtra("diary_id", -1)
             DiaryDetailManager.getDiaryDetailData(
                 diaryId!!,
@@ -292,6 +294,7 @@ class AddDiaryActivity : AppCompatActivity() {
                     binding.diaryAddTitle.text = editTitle
                     binding.diaryAddDest.text = editTravelDest
                     binding.diaryAddHash.text = editHash
+                    binding.diaryAddLockBtn.isChecked = !diaryDetail.diaryDto.public
 
                     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     val formattedStartDate = dateFormatter.format(diaryDetail.diaryDto.travelStart)
@@ -341,6 +344,75 @@ class AddDiaryActivity : AppCompatActivity() {
             )
         }
 
+        if (new == -1) { // 내 플랜에서 작성이라면, 플랜 내용 출력
+            planId = intent.getIntExtra("plan_id", -1)
+            PlanDetailManager.getPlanDetailData(
+                planId!!,
+                onSuccess = { planDetail ->
+                    val editTitle =
+                        Editable.Factory.getInstance().newEditable(planDetail.plan.content)
+                    val editTravelDest =
+                        Editable.Factory.getInstance().newEditable(planDetail.plan.travelDest)
+                    val editHash = Editable.Factory.getInstance()
+                        .newEditable(planDetail.tags.joinToString(" ") { "#${it.name}" })
+
+                    binding.diaryAddTitle.text = editTitle
+                    binding.diaryAddDest.text = editTravelDest
+                    binding.diaryAddHash.text = editHash
+
+                    val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                    val formattedStartDate = dateFormatter.format(planDetail.plan.travelStart)
+                    val formattedEndDate = dateFormatter.format(planDetail.plan.travelEnd)
+
+                    binding.diaryAddStart.text = formattedStartDate
+                    binding.diaryAddEnd.text = formattedEndDate
+
+                    val diaryPlaceModels: List<DiaryPlaceModel> =
+                        if (planDetail.locations != null && planDetail.locations.isNotEmpty()) {
+                            planDetail.locations.map { locationDetail ->
+                                val formattedStartTime =
+                                    SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+                                        locationDetail.timeStart
+                                    )
+                                val formattedEndTime =
+                                    SimpleDateFormat("HH:mm", Locale.getDefault()).format(
+                                        locationDetail.timeEnd
+                                    )
+
+                                DiaryPlaceModel(
+                                    place = locationDetail.name,
+                                    address = locationDetail.address,
+                                    x = locationDetail.x,
+                                    y = locationDetail.y,
+                                    placeDate = dateFormatter.format(locationDetail.date),
+                                    placeTimeS = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                    placeTimeE = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                                )
+                            }
+                        } else {
+                            emptyList()
+                        }
+                    diaryPlaceAdapter.updateData(diaryPlaceModels)
+
+                },
+                onError = { throwable ->
+                    Log.e("서버 테스트3", "오류: $throwable")
+                }
+            )
+        }
+
+
+    }
+
+    override fun itemClicked() {
+        // 기존의 입력을 ViewModel에 저장
+        viewModel.enteredTitle = binding.diaryAddTitle.text.toString()
+        viewModel.enteredDest = binding.diaryAddDest.text.toString()
+        viewModel.enteredStart = binding.diaryAddStart.text.toString()
+        viewModel.enteredEnd = binding.diaryAddEnd.text.toString()
+        viewModel.enteredHash = binding.diaryAddHash.text.toString()
+        viewModel.enteredClosed = binding.diaryAddLockBtn.isChecked
+        Log.d("my log", "뷰모델"+viewModel.enteredDest)
     }
 
     override fun onResume() {

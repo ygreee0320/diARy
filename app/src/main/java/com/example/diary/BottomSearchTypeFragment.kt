@@ -9,7 +9,7 @@ import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class BottomSearchTypeFragment : BottomSheetDialogFragment() {
+class BottomSearchTypeFragment : BottomSheetDialogFragment() { // 검색 정렬 기준 선택 창
 
     interface TypeChangeListener {
         fun onTypeChanged(type: String)

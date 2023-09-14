@@ -21,6 +21,8 @@ class SearchFragment : Fragment() {
     private lateinit var diaryAdapter: DiaryAdapter
     private lateinit var planRecyclerView: RecyclerView
     private lateinit var planAdapter: PlanAdapter
+    private var searchWord: String ?= null // 검색어
+    private var searchType: String ?= "태그 검색↓" // 검색 기준
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -42,18 +44,33 @@ class SearchFragment : Fragment() {
         planAdapter = PlanAdapter(emptyList())
         planRecyclerView.adapter = planAdapter
 
-        val searchWord = arguments?.getString("searchWord")
-        if (searchWord != null) {
+        searchWord = arguments?.getString("searchWord")
+        val type = arguments?.getString("type") // 초기 타입(태그/작성자/여행지 검색)
+        Log.d("my log", "서치뷰"+searchWord)
+
+        if (!searchWord.isNullOrBlank()) {  // 초기 검색
             binding.searchView.setQuery(searchWord, false)
-            searchTagDiary(searchWord)
-            searchTagPlan(searchWord)
+            searchTagDiary(searchWord!!)
+            searchTagPlan(searchWord!!)
         }
 
+        // 검색창에서 재검색 시
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 if (!query.isNullOrBlank()) {
-                    searchTagDiary(query)
-                    searchTagPlan(query)
+                    when (searchType) {
+                        "여행지 검색↓" -> {
+                            searchDestDiary(query)
+                        }
+                        "작성자 검색↓" -> {
+                            searchWriterDiary(query)
+                        }
+                        else -> {
+                            searchTagDiary(query)
+                            searchTagPlan(query)
+                        }
+                    }
+                    searchWord = query //검색어 저장
 
                     // SearchView 포커스 제거
                     binding.searchView.clearFocus()

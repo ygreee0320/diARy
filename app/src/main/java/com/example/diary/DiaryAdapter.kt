@@ -4,6 +4,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -42,6 +43,7 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
         private val diaryInfoLayout: LinearLayout = itemView.findViewById(R.id.diary_info)
         private val writerTextView: TextView = itemView.findViewById(R.id.diary_writer)
         private val createTextView: TextView = itemView.findViewById(R.id.diary_create)
+        private val diaryLockImg : ImageView = itemView.findViewById(R.id.diary_lock)
 
         init {
             itemView.setOnClickListener {
@@ -69,11 +71,12 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
 
             //일기 비공개라면
             if (diary.diaryDto.public == false) {
-                diaryLikeView.text = "비공개"
-            } else {
-                diaryLikeView.text = "${diary.diaryDto.likes.size}"
-                commentView.text = "${diary.diaryDto.comments.size}"
+                diaryLockImg.visibility = View.VISIBLE
             }
+
+            // 좋아요, 댓글 수 출력
+            diaryLikeView.text = "${diary.diaryDto.likes.size}"
+            commentView.text = "${diary.diaryDto.comments.size}"
         }
     }
 }

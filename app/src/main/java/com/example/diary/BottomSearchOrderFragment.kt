@@ -10,7 +10,7 @@ import android.widget.TextView
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
-class BottomSearchOrderFragment : BottomSheetDialogFragment() {
+class BottomSearchOrderFragment : BottomSheetDialogFragment() { // 검색 인기순/최신순 선택창
 
     interface OrderChangeListener {
         fun onOrderChanged(order: String)

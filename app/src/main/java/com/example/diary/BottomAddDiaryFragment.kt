@@ -46,7 +46,6 @@ class BottomAddDiaryFragment : BottomSheetDialogFragment() {
         // 내 일정 불러오기 버튼 클릭 시
         val planSelectButton = view.findViewById<LinearLayout>(R.id.diary_from_plan_btn)
         planSelectButton.setOnClickListener {
-            dismiss() // 다이얼로그 닫기
             val selectPlanDialog = SelectPlanDialogFragment()
             selectPlanDialog.show(childFragmentManager, "select_plan_dialog")
         }

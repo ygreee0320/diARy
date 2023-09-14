@@ -41,7 +41,8 @@ class SelectPlanAdapter(private var plans: List<MyPlan>) : RecyclerView.Adapter<
                 val clickedPlan = plans[adapterPosition]
                 val planId = clickedPlan.planId // 클릭된 플랜의 planId를 가져옴
                 val intent = Intent(itemView.context, AddDiaryActivity::class.java)
-                intent.putExtra("planId", planId)
+                intent.putExtra("plan_id", planId)
+                intent.putExtra("new_diary", -1)
                 itemView.context.startActivity(intent)
             }
         }

@@ -97,12 +97,12 @@
 
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/diary_closed"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="비공개"
-                    android:textSize="13dp"
+                <ImageView
+                    android:id="@+id/diary_lock"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginRight="6dp"
+                    android:src="@drawable/lock_icon"
                     android:visibility="gone" />
 
                 <TextView
