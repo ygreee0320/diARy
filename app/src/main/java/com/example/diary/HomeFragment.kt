@@ -18,6 +18,7 @@ import com.example.diary.databinding.FragmentHomeBinding
 class HomeFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var viewPager: ViewPager2
+    private lateinit var searchWord: String
 
     class HotTopicAdapter(
         fragmentManager: FragmentManager, lifecycle: Lifecycle, private val topicList: List<Topic>
@@ -59,8 +60,39 @@ class HomeFragment : Fragment() {
             }
         })
 
+        // 카테고리 클릭 시 검색
         binding.searchFragment.setOnClickListener {
             binding.searchView.requestFocus()
+        }
+
+        binding.category1.setOnClickListener {
+            searchWord = binding.textView1.text.toString()
+            navigateToSearchFragment(searchWord)
+        }
+
+        binding.category2.setOnClickListener {
+            searchWord = binding.textView2.text.toString()
+            navigateToSearchFragment(searchWord)
+        }
+
+        binding.category3.setOnClickListener {
+            searchWord = binding.textView3.text.toString()
+            navigateToSearchFragment(searchWord)
+        }
+
+        binding.category4.setOnClickListener {
+            searchWord = binding.textView4.text.toString()
+            navigateToSearchFragment(searchWord)
+        }
+
+        binding.category5.setOnClickListener {
+            searchWord = binding.textView5.text.toString()
+            navigateToSearchFragment(searchWord)
+        }
+
+        binding.category6.setOnClickListener {
+            searchWord = binding.textView6.text.toString()
+            navigateToSearchFragment(searchWord)
         }
 
         return binding.root

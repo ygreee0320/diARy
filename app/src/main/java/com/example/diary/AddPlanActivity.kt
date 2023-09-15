@@ -26,7 +26,7 @@ import retrofit2.http.POST
 import java.sql.Date
 import java.sql.Time
 import java.text.SimpleDateFormat
-import java.util.Locale
+import java.util.*
 
 class AddPlanActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPlanBinding
@@ -152,12 +152,18 @@ class AddPlanActivity : AppCompatActivity() {
             )
         }
 
+        // 현재 날짜를 가져옴
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+
         binding.planDateStart.setOnClickListener {
             val datePickerDialog = DatePickerDialog(this, object: DatePickerDialog.OnDateSetListener{
                 override fun onDateSet(view: DatePicker?, year:Int, month: Int, dayOfMonth: Int) {
                     binding.planDateStart.text = "${year}-${month+1}-${dayOfMonth}"
                 }
-            }, 2023, 9, 1)
+            }, currentYear, currentMonth, currentDayOfMonth)
             datePickerDialog.show()
             datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.primary))
             datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.primary))
@@ -168,7 +174,7 @@ class AddPlanActivity : AppCompatActivity() {
                 override fun onDateSet(view: DatePicker?, year:Int, month: Int, dayOfMonth: Int) {
                     binding.planDateEnd.text = "${year}-${month+1}-${dayOfMonth}"
                 }
-            }, 2023, 9, 1)
+            }, currentYear, currentMonth, currentDayOfMonth)
             datePickerDialog.show()
             datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.primary))
             datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.primary))

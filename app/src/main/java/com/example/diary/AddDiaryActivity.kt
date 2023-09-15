@@ -227,6 +227,12 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
             finish()
         }
 
+        // 현재 날짜를 가져옴
+        val calendar = Calendar.getInstance()
+        val currentYear = calendar.get(Calendar.YEAR)
+        val currentMonth = calendar.get(Calendar.MONTH)
+        val currentDayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
+
         binding.diaryAddStart.setOnClickListener {
             val datePickerDialog =
                 DatePickerDialog(this, object : DatePickerDialog.OnDateSetListener {
@@ -238,7 +244,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     ) {
                         binding.diaryAddStart.text = "${year}-${month + 1}-${dayOfMonth}"
                     }
-                }, 2023, 9, 1)
+                }, currentYear, currentMonth, currentDayOfMonth)
             datePickerDialog.show()
             datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE)
                 .setTextColor(ContextCompat.getColor(this, R.color.primary))
@@ -257,7 +263,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     ) {
                         binding.diaryAddEnd.text = "${year}-${month + 1}-${dayOfMonth}"
                     }
-                }, 2023, 9, 1)
+                }, currentYear, currentMonth, currentDayOfMonth)
             datePickerDialog.show()
             datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE)
                 .setTextColor(ContextCompat.getColor(this, R.color.primary))
