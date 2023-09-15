@@ -14,7 +14,6 @@ import com.example.diary.databinding.DiaryDetailPlaceRecyclerviewBinding
 
 class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
     RecyclerView.Adapter<DiaryPlaceAdapter.ViewHolder>() {
-    private lateinit var viewModel: AddDiaryViewModel
 
     companion object {
         private const val ITEM_TYPE_NORMAL = 0

@@ -3,6 +3,7 @@ package com.example.diary
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,36 +11,29 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.diary.databinding.FragmentRankingBinding
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [RankingFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class RankingFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var binding: FragmentRankingBinding
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var rankingAdapter: RankingAdapter
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        val binding = FragmentRankingBinding.inflate(inflater, container, false)
+        binding = FragmentRankingBinding.inflate(inflater, container, false)
+
+        recyclerView = binding.rankingRecyclerView
+
+        val layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = layoutManager
+
+        rankingAdapter = RankingAdapter(emptyList())
+        recyclerView.adapter = rankingAdapter
+
+        showRanking() // 랭킹 출력(어댑터에 연결)
 
         //검색바 검색 종류 클릭 시
         binding.searchPlaceRanking.setOnClickListener {
@@ -105,23 +99,24 @@ class RankingFragment : Fragment() {
         }
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment RankingFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            RankingFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    private fun showRanking() {
+        RankingManager.getRankingData(
+            onSuccess = { rankingList ->
+                val ranking = rankingList.map { it }
+                Log.d("my log", "랭킹 목록 출력"+ ranking)
+
+                if (ranking.isEmpty()) { // 결과가 없을 때 어댑터에 빈 목록 설정
+                    rankingAdapter.updateData(emptyList())
+                    Log.d("my log", "비었음"+ ranking)
+                } else {
+                    rankingAdapter.updateData(ranking)
                 }
+            },
+            onError = { throwable ->
+                Log.e("서버 테스트3", "오류: $throwable")
+                rankingAdapter.updateData(emptyList())
             }
+        )
     }
+
 }

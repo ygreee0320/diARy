@@ -73,26 +73,26 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:baselineAligned="false"
-                    android:layout_marginTop="4dp" >
+                    android:layout_marginTop="3dp" >
 
                     <TextView
                         android:id="@+id/ranking_hash"
                         android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="#해시태그"
                         android:textSize="12dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:text="by "
                         android:textSize="10dp" />
 
                     <TextView
                         android:id="@+id/ranking_writer"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:text="작성자"
                         android:textSize="10dp" />
 

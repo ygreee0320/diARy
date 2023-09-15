@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.amazonaws.auth.BasicAWSCredentials
@@ -38,6 +39,7 @@ import java.sql.Date
 import java.sql.Time
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListener {
@@ -106,7 +108,6 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     val placeAddress = data?.getStringExtra("address")
                     val placeX = data?.getStringExtra("x")
                     val placeY = data?.getStringExtra("y")
-
                     val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
                     Log.d(
                         "리사이클러뷰", "" + position + enteredText + place +
@@ -289,6 +290,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
             DiaryDetailManager.getDiaryDetailData(
                 diaryId!!,
                 onSuccess = { diaryDetail ->
+                    Log.d("adddiaryAc", "수정하러 들어옴" + diaryDetail)
                     val editTitle =
                         Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.title)
                     val editTravelDest =
@@ -310,6 +312,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     val diaryPlaceModels: List<DiaryPlaceModel> =
                         if (diaryDetail.diaryLocationDtoList != null && diaryDetail.diaryLocationDtoList.isNotEmpty()) {
                             diaryDetail.diaryLocationDtoList.map { locationDetail ->
+                                Log.d("adddiaryAc", "수정하러 들어옴" + locationDetail)
                                 val formattedStartTime =
                                     SimpleDateFormat("HH:mm", Locale.getDefault()).format(
                                         locationDetail.timeStart
@@ -319,10 +322,21 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                                         locationDetail.timeEnd
                                     )
 
+                                //uri list 만들기
+                                val diaryUris: ArrayList<Uri> = ArrayList()
+                                for (diaryImage in locationDetail.diaryLocationImageDtoList) {
+                                    val imageUri = diaryImage.imageUri
+                                    if (imageUri != null) {
+                                        diaryUris.add(imageUri.toUri())
+                                    }
+                                }
+                                Log.d("adddiaryAc", "수정하러 들어옴" + diaryUris)
+                                //locationDetail.diaryLocationImageDtoList.
                                 DiaryPlaceModel(
                                     place = locationDetail.name,
                                     content = locationDetail.content,
                                     address = locationDetail.address,
+                                    imageUris = diaryUris,
                                     x = locationDetail.x,
                                     y = locationDetail.y,
                                     placeDate = dateFormatter.format(locationDetail.date),
@@ -330,6 +344,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                                     placeTimeE = formattedEndTime    // timeEnd를 원하는 형식으로 변환
                                 )
                             }
+
                         } else {
                             emptyList()
                         }
@@ -504,7 +519,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     val file = File(filepath)
                     Log.d("adddiary", "file 완성" + file)
                     fileListFile.add(file)
-                    fileList.add(DiaryLocationImageDto(file.toString()))
+                    fileList.add(DiaryLocationImageDto(file.toString(), uri.toString()))
                     val uploadObserver = transferUtility.upload("diary", file.toString(), file)
                     uploadObserver.setTransferListener(object : TransferListener {
                         override fun onStateChanged(id: Int, state: TransferState) {
@@ -586,6 +601,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                 DiaryManager.sendDiaryToServer(diaryData, authToken)
             } else {
                 DiaryManager.sendModDiaryToServer(diaryId!!, diaryData, authToken)
+                Log.d("adddiaryAc", "수정")
                 val resultIntent = Intent()
                 setResult(Activity.RESULT_OK, resultIntent)
             }

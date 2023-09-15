@@ -61,7 +61,7 @@ class DiaryDetailAdapter(private val itemList: MutableList<DiaryDetailModel>) : 
 
         // layoutManager를 설정하는 부분은 onBindViewHolder에서 이루어집니다.
         layoutManager = LinearLayoutManager(holder.binding.root.context)
-        holder.binding.recyclerView.layoutManager = layoutManager
+        holder.binding.recyclerView.layoutManager = LinearLayoutManager(holder.binding.root.context, LinearLayoutManager.HORIZONTAL, true)
 
         val diaryLocationImageDto1: List<DiaryLocationImageDto>? = data.imageUris
 
@@ -157,7 +157,7 @@ class DiaryDetailAdapter(private val itemList: MutableList<DiaryDetailModel>) : 
                         if (completionCount.get() == imageUri.size) {
                             val imageAdapter = MultiImageAdapter(downloadFiles, binding.root.context)
                             binding.recyclerView.adapter = imageAdapter
-                            binding.recyclerView.layoutManager = layoutManager
+                            //binding.recyclerView.layoutManager = layoutManager
                             Log.d("detailAdapter", "이미지 추가")
                         }
                     }

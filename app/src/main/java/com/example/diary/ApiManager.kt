@@ -108,9 +108,59 @@ object HotTopicManager {
     }
 }
 
+object RankingManager {  // 랭킹 플랜 조회
+    fun getRankingData(onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().rankingService
+        val call = apiService.getRankingData()
+
+        call.enqueue(object : Callback<List<MyPlanListResponse>> {
+            override fun onResponse(call: Call<List<MyPlanListResponse>>, response: Response<List<MyPlanListResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<MyPlanListResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+}
+
 object SearchManager {
     fun getSearchTagDiaryData(searchWord: String, onSuccess: (List<DiaryDetailResponse>) -> Unit, onError: (Throwable) -> Unit) {
         val apiService = MyApplication().searchTagDiaryService
+        val call = apiService.getTagDiarySearchData(searchWord)
+
+        call.enqueue(object : Callback<List<DiaryDetailResponse>> {
+            override fun onResponse(call: Call<List<DiaryDetailResponse>>, response: Response<List<DiaryDetailResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<DiaryDetailResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
+    fun getSearchTagRecentDiaryData(searchWord: String, onSuccess: (List<DiaryDetailResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchTagRecentDiaryService
         val call = apiService.getTagDiarySearchData(searchWord)
 
         call.enqueue(object : Callback<List<DiaryDetailResponse>> {
@@ -157,9 +207,57 @@ object SearchManager {
         })
     }
 
+    fun getSearchWriterRecentDiaryData(searchWord: String, onSuccess: (List<DiaryDetailResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchWriterRecentDiaryService
+        val call = apiService.getWriterDiarySearchData(searchWord)
+
+        call.enqueue(object : Callback<List<DiaryDetailResponse>> {
+            override fun onResponse(call: Call<List<DiaryDetailResponse>>, response: Response<List<DiaryDetailResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<DiaryDetailResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
     fun getSearchDestDiaryData(searchWord: String, onSuccess: (List<DiaryDetailResponse>) -> Unit, onError: (Throwable) -> Unit) {
         val apiService = MyApplication().searchDestDiaryService
         val call = apiService.getDestDiarySearchData(searchWord)
+
+        call.enqueue(object : Callback<List<DiaryDetailResponse>> {
+            override fun onResponse(call: Call<List<DiaryDetailResponse>>, response: Response<List<DiaryDetailResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<DiaryDetailResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
+    fun getSearchDestRecentDiaryData(searchWord: String, onSuccess: (List<DiaryDetailResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchWriterRecentDiaryService
+        val call = apiService.getWriterDiarySearchData(searchWord)
 
         call.enqueue(object : Callback<List<DiaryDetailResponse>> {
             override fun onResponse(call: Call<List<DiaryDetailResponse>>, response: Response<List<DiaryDetailResponse>>) {
