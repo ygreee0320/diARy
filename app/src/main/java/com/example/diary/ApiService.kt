@@ -122,18 +122,18 @@ interface HotTopicService { // 핫토픽 리스트 조회
     fun getHotTopicData(): Call<List<Topic>>
 }
 
-interface TagDiarySearchService { // 태그별 일기 검색 조회
-    @GET("search/{searchWord}/diary-tag")
+interface TagDiarySearchService { // 태그별 일기 검색 조회(좋아요 순)
+    @GET("search/{searchWord}/diary-tag/like")
     fun getTagDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
 }
 
-interface WriterDiarySearchService { // 작성자별 일기 검색 조회
-    @GET("search/{searchWord}/diary-writer")
+interface WriterDiarySearchService { // 작성자별 일기 검색 조회(좋아요 순)
+    @GET("search/{searchWord}/diary-writer/like")
     fun getWriterDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
 }
 
-interface DestDiarySearchService { // 여행지별 일기 검색 조회
-    @GET("search/{searchWord}/diary-dest")
+interface DestDiarySearchService { // 여행지별 일기 검색 조회(좋아요 순)
+    @GET("search/{searchWord}/diary-dest/like")
     fun getDestDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
 }
 

@@ -1,10 +1,12 @@
 package com.example.diary
 
+import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
@@ -18,6 +20,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,6 +44,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
     private lateinit var binding: ActivityAddDiaryBinding
     private lateinit var viewModel: AddDiaryViewModel
     private lateinit var transferUtility: TransferUtility
+    private val REQUEST_CODE = 123
 
     private var new: Int? = 1 // 새로 작성이면 1, 수정이면 0, 플랜 바탕 작성이면 -1
     private var diaryId: Int? = -1 // 일기 수정일 때의 해당 일기 아이디
@@ -479,6 +483,12 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         )
 
         val diaryLocations = mutableListOf<DiaryLocationDto>()
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // 권한이 없는 경우 권한 요청
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE)
+        } else {
+        }
 
         for (item in filteredDiaryPlaceList) {
             val place = item.place ?: "여행지"
