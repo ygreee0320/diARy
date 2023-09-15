@@ -4,6 +4,7 @@ import DiaryDetailAdapter
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -16,11 +17,13 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.diary.databinding.ActivityDiaryDetailBinding
 import com.google.android.material.color.utilities.MaterialDynamicColors.onError
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class DiaryDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDiaryDetailBinding
@@ -199,7 +202,6 @@ class DiaryDetailActivity : AppCompatActivity() {
                             "댓글 ${diaryDetailResponse.diaryDto.comments.size}개 >"
                         binding.diaryDetailLike.text =
                             diaryDetailResponse.diaryDto.likes.size.toString()
-
                         val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                         val formattedStartDate =
                             dateFormatter.format(diaryDetailResponse.diaryDto.travelStart)
@@ -230,7 +232,8 @@ class DiaryDetailActivity : AppCompatActivity() {
                                     y = locationDetail.y,
                                     placeDate = locationDetail.date,
                                     placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                                    placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                                    placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                    imageUris = locationDetail.diaryLocationImageDtoList
                                 )
                             })
                         }
@@ -277,9 +280,7 @@ class DiaryDetailActivity : AppCompatActivity() {
                         binding.diaryDetailCreateDate.text = "${diaryDetail.diaryDto.createdAt}"
                         binding.diaryDetailComment.text = "댓글 ${diaryDetail.diaryDto.comments.size}개 >"
                         binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()
-
                         isLiked = diaryDetail.diaryDto.likes.any { it.userId == userId }
-
                         // 좋아요 상태에 따라 UI 업데이트
                         if (isLiked) { //로그인 한 유저가 좋아요를 누른 상태라면
                             binding.diaryDetailLikeImg.text = "♥ "
@@ -302,6 +303,11 @@ class DiaryDetailActivity : AppCompatActivity() {
 
                         if (diaryDetail.diaryLocationDtoList != null && diaryDetail.diaryLocationDtoList.isNotEmpty()) {
                             diaryDetailModels.addAll(diaryDetail.diaryLocationDtoList.map { locationDetail ->
+                                val diaryUri: ArrayList<Uri> = ArrayList()
+                                for(imageDto in locationDetail.diaryLocationImageDtoList) {
+                                    val uri = imageDto.imageUri.toUri()
+                                    diaryUri.add(uri)
+                                }
                                 val formattedStartTime = SimpleDateFormat(
                                     "HH:mm",
                                     Locale.getDefault()
@@ -310,7 +316,6 @@ class DiaryDetailActivity : AppCompatActivity() {
                                     "HH:mm",
                                     Locale.getDefault()
                                 ).format(locationDetail.timeEnd)
-
                                 DiaryDetailModel(
                                     diaryLocationId = locationDetail.diaryLocationId,
                                     diaryId = locationDetail.diaryId,
@@ -319,7 +324,8 @@ class DiaryDetailActivity : AppCompatActivity() {
                                     address = locationDetail.address,
                                     placeDate = locationDetail.date,
                                     placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                                    placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                                    placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                    imageUris = locationDetail.diaryLocationImageDtoList
                                 )
                             })
                         }

@@ -85,7 +85,8 @@ data class DiaryLocationDto(
 )
 
 data class DiaryLocationImageDto( //수정 필요
-    val imageData: String
+    val imageData: String,
+    val imageUri: String
 )
 
 data class DiaryLocationMapDto(
