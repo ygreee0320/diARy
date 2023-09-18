@@ -54,7 +54,6 @@ class AddPlanActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.title = ""
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)  //툴바에 뒤로 가기 버튼 추가
 
         // 저장된 토큰 읽어오기
         val sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
@@ -211,6 +210,10 @@ class AddPlanActivity : AppCompatActivity() {
             //->finish()
         }
 
+        // 툴바 취소 버튼 클릭 시
+        binding.planCancelBtn.setOnClickListener {
+            finish()
+        }
     }
 
     // 입력된 데이터를 planData에 넣어서 전송 요청 (일정 추가)

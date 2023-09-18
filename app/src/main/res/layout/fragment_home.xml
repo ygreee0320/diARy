@@ -20,22 +20,22 @@
             android:orientation="horizontal" >
 
             <TextView
-                android:id="@+id/search_place_home"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="3dp"
-                android:layout_marginRight="5dp"
-                android:text="여행지 검색 |"
-                android:textColor="@color/primary"
-                android:textSize="13dp" />
-
-            <TextView
-                android:id="@+id/search_title_home"
+                android:id="@+id/search_tag_home"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="3dp"
                 android:layout_marginRight="5dp"
                 android:text="태그 검색 |"
+                android:textColor="@color/primary"
+                android:textSize="13dp" />
+
+            <TextView
+                android:id="@+id/search_dest_home"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="3dp"
+                android:layout_marginRight="5dp"
+                android:text="여행지 검색 |"
                 android:textColor="#959595"
                 android:textSize="13dp" />
 
@@ -56,23 +56,52 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#86AED8"
-            android:padding="2dp"
+            android:padding="1.7dp"
             android:layout_alignParentTop="true"
             android:clickable="false"
             android:focusable="true">
 
             <!-- 검색바 (SearchView) -->
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/search_view"
+<!--            <androidx.appcompat.widget.SearchView-->
+<!--                android:id="@+id/search_view"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:background="#ffffff"-->
+<!--                android:imeOptions="actionSearch"-->
+<!--                android:inputType="text"-->
+<!--                android:iconifiedByDefault="false"-->
+<!--                android:queryBackground="@null"-->
+<!--                android:queryHint="검색어를 입력하세요"-->
+<!--                android:focusableInTouchMode="true" />-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#ffffff"
-                android:imeOptions="actionSearch"
-                android:inputType="text"
-                android:iconifiedByDefault="false"
-                android:queryBackground="@null"
-                android:queryHint="검색어를 입력하세요"
-                android:focusableInTouchMode="true" />
+                android:padding="7dp"
+                android:orientation="horizontal" >
+
+                <ImageView
+                    android:id="@+id/search_btn"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:src="@drawable/search_icon" />
+
+                <!-- 검색바 (SearchView) -->
+                <EditText
+                    android:id="@+id/search_view"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="5dp"
+                    android:inputType="text"
+                    android:background="#ffffff"
+                    android:imeOptions="actionSearch"
+                    android:hint="검색어를 입력하세요." />
+
+            </LinearLayout>
 
         </FrameLayout>
 
@@ -80,6 +109,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="2dp"
             android:text="추천 검색어   제주도  식도락  휴식"
             android:textSize="13dp" />
 
@@ -164,7 +194,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="부산"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/white"
                         android:textSize="20sp"
                         android:layout_gravity="center" />
                 </FrameLayout>
@@ -193,7 +223,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="제주도"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/white"
                         android:textSize="20sp"
                         android:layout_gravity="center" />
                 </FrameLayout>

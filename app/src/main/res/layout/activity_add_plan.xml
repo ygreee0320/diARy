@@ -13,7 +13,35 @@
         style="@style/Widget.MaterialComponents.Toolbar.Primary"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" >
+
+        <ImageView
+            android:id="@+id/plan_cancel_btn"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:src="@drawable/x_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:text="일정 작성"
+            android:textColor="#1E1E1E"
+            android:textSize="16dp" />
+
+        <android.widget.Button
+            android:id="@+id/plan_save_btn"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="18dp"
+            android:gravity="center"
+            android:layout_gravity="end"
+            android:background="@drawable/stroke_button"
+            android:textColor="@android:color/white"
+            android:textSize="15dp"
+            android:text="완료" />
+
+    </androidx.appcompat.widget.Toolbar>
 
     <RelativeLayout
         app:layout_constraintEnd_toEndOf="parent"
@@ -30,33 +58,14 @@
             android:orientation="vertical"
             android:padding="15dp">
 
-            <LinearLayout
+            <EditText
+                android:id="@+id/plan_title_edit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
-
-                <EditText
-                    android:id="@+id/plan_title_edit"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@android:color/transparent"
-                    android:hint="여행지명"
-                    android:textColor="#191919"
-                    android:textSize="25dp" />
-
-                <android.widget.Button
-                    android:id="@+id/plan_save_btn"
-                    android:layout_width="75dp"
-                    android:layout_height="25dp"
-                    android:layout_marginLeft="5dp"
-                    android:gravity="center"
-                    android:background="@drawable/stroke_button"
-                    android:textColor="@android:color/white"
-                    android:textSize="14dp"
-                    android:text="저장하기" />
-
-            </LinearLayout>
+                android:background="@android:color/transparent"
+                android:hint="여행지명"
+                android:textColor="#191919"
+                android:textSize="25dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"

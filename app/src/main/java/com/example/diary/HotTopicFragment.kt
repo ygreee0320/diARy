@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
@@ -30,6 +31,11 @@ class HotTopicFragment : Fragment() {
             fragment.arguments = args
             return fragment
         }
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        // 여기에서 초기화 또는 다른 작업을 수행할 수 있습니다.
     }
 
     override fun onCreateView(
