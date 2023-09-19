@@ -353,7 +353,8 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     binding.diaryAddStart.text = formattedStartDate
                     binding.diaryAddEnd.text = formattedEndDate
                     if (diaryDetail.diaryDto.imageUri != null) {
-                        binding.diaryImgBtn.setImageURI(uriList[0])
+                        binding.diaryImgBtn.setImageURI(diaryDetail.diaryDto.imageUri.toUri())
+
                     }
 
 
