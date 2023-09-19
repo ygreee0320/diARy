@@ -20,6 +20,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.registerForActivityResult
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -69,7 +70,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
     }
 
     private val singleImagePicker =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
             if (uri != null) {
                 // 이미 선택된 사진을 지웁니다.
                 uriList.clear()
@@ -304,7 +305,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 
 
         binding.diaryImgBtn.setOnClickListener {
-            singleImagePicker.launch("image/*")
+            singleImagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
         }
 
 
@@ -351,6 +352,10 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 
                     binding.diaryAddStart.text = formattedStartDate
                     binding.diaryAddEnd.text = formattedEndDate
+                    if (diaryDetail.diaryDto.imageUri != null) {
+                        binding.diaryImgBtn.setImageURI(uriList[0])
+                    }
+
 
                     val diaryPlaceModels: List<DiaryPlaceModel> =
                         if (diaryDetail.diaryLocationDtoList != null && diaryDetail.diaryLocationDtoList.isNotEmpty()) {
@@ -508,6 +513,30 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         val fileList: MutableList<DiaryLocationImageDto> = mutableListOf()
         val fileListFile: MutableList<File> = mutableListOf()
 
+        val imageuri = uriList[0]
+        val imagedata = getRealPathFromURI(imageuri)
+        val imagefile = File(imagedata)
+
+        val uploadObserver = transferUtility.upload("diary", imagefile.toString(), imagefile)
+        uploadObserver.setTransferListener(object : TransferListener {
+            override fun onStateChanged(id: Int, state: TransferState) {
+                Log.d("onStateChanged: $id", "${state.toString()}")
+            }
+
+            override fun onProgressChanged(
+                id: Int,
+                bytesCurrent: Long,
+                bytesTotal: Long
+            ) {
+                val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
+                val percentDone = percentDonef.toInt()
+                Log.d("ID:" ,"$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%")
+            }
+
+            override fun onError(id: Int, ex: Exception) {
+            }
+        })
+
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
@@ -537,7 +566,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         }
 
         val diaryDto = DiaryDto(
-            content, travelDest, memo, travelStartDate, travelEndDate, tags, public
+            content, travelDest, memo, travelStartDate, travelEndDate, tags, public, imagedata.toString(), imageuri.toString()
         )
 
         val diaryLocations = mutableListOf<DiaryLocationDto>()

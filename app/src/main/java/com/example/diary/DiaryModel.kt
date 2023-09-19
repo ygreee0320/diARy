@@ -16,6 +16,8 @@ data class DiaryDto(
     val travelEnd: Date,
     val tags: List<TagName>,
     val public: Boolean,
+    val imageData: String,
+    val imageUri: String
 )
 
 data class DiaryDtoMyList(
@@ -33,6 +35,8 @@ data class DiaryDtoMyList(
     val likesCount: Int,
     val comments: List<CommentList>,
     val public: Boolean,
+    val imageData: String,
+    val imageUri: String
 )
 
 data class DiaryLocationDtoList(

@@ -14,7 +14,5 @@ data class DiaryDetailModel( //다이어리 상세 페이지의 여행지 별 �
     var placeDate: Date? = null,
     var placeStart: String? = null, //임시로 스트링
     var placeEnd: String? = null,
-    var imageUri: String? = null,
-    var imageData: String? = null,
     var imageUris: List<DiaryLocationImageDto>? = null,
 )
