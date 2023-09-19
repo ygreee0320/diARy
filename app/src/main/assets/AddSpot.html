@@ -186,7 +186,7 @@
 
       Android.setPlaceInfo(title, address, tel, x, y);
 
-      var imgURL = Android.getSearchImg()
+      var imgURL = Android.getSearchImg(title);
 
       title = title.replace(/(.{13})/g,"$1<br>");
       address = address.replace(/(.{20})/g,"$1<br>");
@@ -229,9 +229,19 @@
 
     //html 추가
     function displaySlider(places) {
-      var i = 0, j = 3, btn = 0;
       var items = document.querySelector('.carousel-inner');
       var indicators = document.querySelector('.carousel-indicators');
+
+      // 이전에 생성된 요소 삭제
+      while (items.firstChild) {
+        items.removeChild(items.firstChild);
+      }
+
+      while (indicators.firstChild) {
+        indicators.removeChild(indicators.firstChild);
+      }
+
+      var i = 0, j = 3, btn = 0;
 
       while(true) {
         var item = document.createElement('div');
@@ -259,9 +269,10 @@
           var col = document.createElement('div');
           col.className = 'col search_R';
 
+          var imgURL = Android.getSearchImg(places[i].place_name);
           var img = document.createElement('img');
           img.className = 'img search_R';
-          img.src = 'image/sample.png';
+          img.src = imgURL;
 
           var p = document.createElement('p');
           p.className = 'name search_R';
