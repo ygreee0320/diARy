@@ -20,7 +20,7 @@ import java.util.concurrent.Executors
 class MapDialog(context: Context) {
     val dialog = Dialog(context)
 
-    fun myDialog(placeInfo: MutableMap<String, String?>) {
+    fun myDialog(placeInfo: MutableMap<String, String?>, diary: List<DiaryDtoList>) {
         dialog.setContentView(R.layout.map_dialog)
         dialog.setCanceledOnTouchOutside(true)
         dialog.setCancelable(true)
@@ -30,7 +30,7 @@ class MapDialog(context: Context) {
         //recyclerview
         val recyclerView = dialog.findViewById<RecyclerView>(R.id.map_recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(dialog.context, LinearLayoutManager.HORIZONTAL, false)
-        val adapter = MapDiaryAdapter(emptyList()) //초기 빈 목록으로 어댑터 설정
+        val adapter = MapDiaryAdapter(diary) //초기 빈 목록으로 어댑터 설정
         recyclerView.adapter = adapter
 
         //DB 읽기
@@ -38,26 +38,6 @@ class MapDialog(context: Context) {
         val y = placeInfo.getValue("y")
 
         Log.d("mylog", "일기 조회 주소 - ${x}, ${y}")
-
-        if (x != null && y != null) {
-                MapDiaryListManager.getDiaryListData(
-                    x,
-                    y,
-                    onSuccess = { mapDiaryList -> //백그라운드 스레드
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val diary = mapDiaryList.map { it }
-                            Log.d("mylog", "x: ${x}, y: ${y}")
-                            Log.d("mylog", "주소별 일기 조회 - ${diary}")
-                            withContext(Dispatchers.Main) {
-                                adapter.updateData(diary)
-                            }
-                        }
-                    },
-                    onError = {throwable ->
-                        Log.e("mylog", "주소별 일기 조회 실패 - ${throwable}")
-                    }
-                )
-        }
 
         //장소사진
         val imgURL = placeInfo.getValue("imgURL")

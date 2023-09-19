@@ -85,10 +85,29 @@ class MapFragment : Fragment() {
 
         @JavascriptInterface
         fun showCustomOverlay() {
-            Log.d("mylog", "showCustomOverlay -> 현재 스레드: ${Thread.currentThread()}")
+            val x = placeInfo.getValue("x")
+            val y = placeInfo.getValue("y")
 
-            val dialog = MapDialog(this@MapFragment.requireContext())
-            dialog.myDialog(placeInfo)
+            if (x != null && y != null) {
+                MapDiaryListManager.getDiaryListData(
+                    x,
+                    y,
+                    onSuccess = { mapDiaryList -> //백그라운드 스레드
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val diary = mapDiaryList.map { it }
+                            Log.d("mylog", "x: ${x}, y: ${y}")
+                            Log.d("mylog", "주소별 일기 조회 - ${diary}")
+                            withContext(Dispatchers.Main) {
+                                val dialog = MapDialog(this@MapFragment.requireContext())
+                                dialog.myDialog(placeInfo, diary)
+                            }
+                        }
+                    },
+                    onError = {throwable ->
+                        Log.e("mylog", "주소별 일기 조회 실패 - ${throwable}")
+                    }
+                )
+            }
         }
 
         @JavascriptInterface
