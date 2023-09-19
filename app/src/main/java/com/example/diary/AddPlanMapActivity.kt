@@ -14,7 +14,6 @@ import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
 import android.widget.SearchView
 import androidx.annotation.RequiresApi
-import com.example.diary.databinding.ActivityAddDiaryMapBinding
 import com.example.diary.databinding.ActivityAddPlanMapBinding
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -130,10 +129,10 @@ class AddPlanMapActivity : AppCompatActivity() {
         @RequiresApi(Build.VERSION_CODES.O)
         @JavascriptInterface
         fun setTripDate() {
-            val dialog = AddDiaryMapDialog(this@AddPlanMapActivity)
+            val dialog = setTripDateDialog(this@AddPlanMapActivity)
             dialog.myDialog(dateS, dateE, timeS, timeE)
 
-            dialog.setOnClickedListener(object: AddDiaryMapDialog.ButtonClickListener {
+            dialog.setOnClickedListener(object: setTripDateDialog.ButtonClickListener {
                 override fun onClicked(dateS_d: Array<Int>, dateE_d: Array<Int>, timeS_d: Array<Int>, timeE_d: Array<Int>) {
                     dateS = dateS_d //날짜
                     dateE = dateE_d
@@ -162,7 +161,6 @@ class AddPlanMapActivity : AppCompatActivity() {
             intent.putExtra("enteredTimeE", placeEnd)
             intent.putExtra("x", x)
             intent.putExtra("y", y)
-            intent.putExtra("imgURL", imgURL)
 
             // 결과를 설정하고 현재 활동 종료
             setResult(Activity.RESULT_OK, intent)

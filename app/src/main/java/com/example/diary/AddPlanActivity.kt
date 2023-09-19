@@ -84,6 +84,7 @@ class AddPlanActivity : AppCompatActivity() {
                 val enteredEnd = data?.getStringExtra("enteredTimeE")
                 val x = data?.getStringExtra("x")
                 val y = data?.getStringExtra("y")
+                val imgURL =
 
                 //val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
                 Log.d("리사이클러뷰", ""+position)

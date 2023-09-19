@@ -1,10 +1,6 @@
 package com.example.diary
 
 import android.app.Activity
-import android.app.AlertDialog
-import android.app.DatePickerDialog
-import android.app.ProgressDialog.show
-import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -16,13 +12,9 @@ import android.view.MenuItem
 import android.view.inputmethod.InputMethodManager
 import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
-import android.widget.DatePicker
 import android.widget.SearchView
-import android.widget.TimePicker
 import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import com.example.diary.databinding.ActivityAddDiaryMapBinding
-import java.time.LocalDateTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 class AddDiaryMapActivity : AppCompatActivity() {
@@ -75,7 +67,7 @@ class AddDiaryMapActivity : AppCompatActivity() {
                     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 
-                    binding.webview.loadUrl("javascript:diaryAddSpot.searchPlaces()")
+                    binding.webview.loadUrl("javascript:addSpot.searchPlaces()")
                 }
                 return true
             }
@@ -95,6 +87,7 @@ class AddDiaryMapActivity : AppCompatActivity() {
         var tel: String? = null
         var x: String? = null
         var y: String? = null
+        var imgURL: String? = null
 
         //일정 정보 - 초기값: 현재 날짜 및 시간
         var dateS: Array<Int>? = null
@@ -124,6 +117,12 @@ class AddDiaryMapActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun getSearchImg(): String {
+            imgURL = ApiSearchImg().searchImg(title!!)
+            return imgURL as String
+        }
+
+        @JavascriptInterface
         fun getSearchResult(): String {
             return keyword
         }
@@ -131,10 +130,10 @@ class AddDiaryMapActivity : AppCompatActivity() {
         @RequiresApi(Build.VERSION_CODES.O)
         @JavascriptInterface
         fun setTripDate() {
-            val dialog = AddDiaryMapDialog(this@AddDiaryMapActivity)
+            val dialog = setTripDateDialog(this@AddDiaryMapActivity)
             dialog.myDialog(dateS, dateE, timeS, timeE)
 
-            dialog.setOnClickedListener(object: AddDiaryMapDialog.ButtonClickListener {
+            dialog.setOnClickedListener(object: setTripDateDialog.ButtonClickListener {
                 override fun onClicked(dateS_d: Array<Int>, dateE_d: Array<Int>, timeS_d: Array<Int>, timeE_d: Array<Int>) {
                     dateS = dateS_d
                     dateE = dateE_d
