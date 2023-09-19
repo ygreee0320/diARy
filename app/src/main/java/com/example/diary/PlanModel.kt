@@ -9,6 +9,8 @@ data class Plan(
     val content: String,
     val travelStart: Date,
     val travelEnd: Date,
+    val imageData: String,
+    val imageUri: String,
     val public: Boolean
 )
 
