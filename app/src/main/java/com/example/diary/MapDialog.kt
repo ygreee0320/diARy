@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -47,6 +48,15 @@ class MapDialog(context: Context) {
         //장소이름
         val place = dialog.findViewById<TextView>(R.id.place)
         place.text = placeInfo.getValue("title")
+
+        //만족도(임시)
+        val progressBar = dialog.findViewById<ProgressBar>(R.id.diary_progress)
+        val data = diary.map { it.satisfaction }
+        val avg = if (data.size > 0) data.sum() / data.size else 0.0
+        progressBar.progress = avg as Int
+
+        val satisfaction = dialog.findViewById<TextView>(R.id.diary_sat)
+        satisfaction.text = avg.toString() + "%"
 
         //로드맵 존재 유무
         val roadmapBtn = dialog.findViewById<Button>(R.id.roadmapBtn)
