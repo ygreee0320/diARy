@@ -335,6 +335,126 @@ object SearchManager {
             }
         })
     }
+
+    fun getSearchTagRecentPlanData(searchWord: String, onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchTagRecentPlanService
+        val call = apiService.getTagPlanSearchData(searchWord)
+
+        call.enqueue(object : Callback<List<MyPlanListResponse>> {
+            override fun onResponse(call: Call<List<MyPlanListResponse>>, response: Response<List<MyPlanListResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<MyPlanListResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
+    fun getSearchWriterPlanData(searchWord: String, onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchWriterPlanService
+        val call = apiService.getWriterPlanSearchData(searchWord)
+
+        call.enqueue(object : Callback<List<MyPlanListResponse>> {
+            override fun onResponse(call: Call<List<MyPlanListResponse>>, response: Response<List<MyPlanListResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<MyPlanListResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
+    fun getSearchWriterRecentPlanData(searchWord: String, onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchWriterRecentPlanService
+        val call = apiService.getWriterPlanSearchData(searchWord)
+
+        call.enqueue(object : Callback<List<MyPlanListResponse>> {
+            override fun onResponse(call: Call<List<MyPlanListResponse>>, response: Response<List<MyPlanListResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<MyPlanListResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
+    fun getSearchDestPlanData(searchWord: String, onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchDestPlanService
+        val call = apiService.getDestPlanSearchData(searchWord)
+
+        call.enqueue(object : Callback<List<MyPlanListResponse>> {
+            override fun onResponse(call: Call<List<MyPlanListResponse>>, response: Response<List<MyPlanListResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<MyPlanListResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
+
+    fun getSearchDestRecentPlanData(searchWord: String, onSuccess: (List<MyPlanListResponse>) -> Unit, onError: (Throwable) -> Unit) {
+        val apiService = MyApplication().searchDestRecentPlanService
+        val call = apiService.getDestPlanSearchData(searchWord)
+
+        call.enqueue(object : Callback<List<MyPlanListResponse>> {
+            override fun onResponse(call: Call<List<MyPlanListResponse>>, response: Response<List<MyPlanListResponse>>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    apiResponse?.let {
+                        onSuccess(it)
+                    } ?: run {
+                        onError(Throwable("Response body is null"))
+                    }
+                } else {
+                    onError(Throwable("API call failed with response code: ${response.code()}"))
+                }
+            }
+
+            override fun onFailure(call: Call<List<MyPlanListResponse>>, t: Throwable) {
+                onError(t)
+            }
+        })
+    }
 }
 
 object PlanManager {
@@ -459,6 +579,30 @@ object PlanLikeManager { //좋아요 등록 & 취소
             override fun onResponse(call: Call<Void>, response: Response<Void>) {
                 if (response.isSuccessful) {
                     Log.d("서버 테스트", "취소-성공")
+                    callback(true) // 성공 시 true 전달
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("서버 테스트1", "오류: $errorBody")
+                    callback(false) // 실패 시 false 전달
+                }
+            }
+
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.e("서버 테스트2", "오류: ${t.message}")
+                callback(false) // 실패 시 false 전달
+            }
+        })
+    }
+}
+
+object PlanTakeInManager { //일정 담기
+    fun sendPlanTakeInToServer(planId: Int, authToken: String, callback: (Boolean) -> Unit) {
+        val apiService = MyApplication().planTakeInService
+        val call = apiService.sendPlanTakeIn(planId, authToken)
+        call.enqueue(object : Callback<Void> {
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                if (response.isSuccessful) {
+                    Log.d("서버 테스트", "성공")
                     callback(true) // 성공 시 true 전달
                 } else {
                     val errorBody = response.errorBody()?.string()

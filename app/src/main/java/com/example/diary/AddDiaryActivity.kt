@@ -22,6 +22,7 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,6 +36,7 @@ import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
 import com.example.diary.databinding.ActivityAddDiaryBinding
 import java.io.File
+import java.io.FileOutputStream
 import java.sql.Date
 import java.sql.Time
 import java.text.SimpleDateFormat
@@ -524,8 +526,14 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     Log.d("adddiary", "filepath" + filepath)
                     val file = File(filepath)
                     Log.d("adddiary", "file 완성" + file)
+
+                    // 파일을 FileProvider를 사용하여 Uri로 변환 (새로 추가한 부분)
+//                    val fileUri = FileProvider.getUriForFile(this, "com.example.diary.fileprovider", file)
+
                     fileListFile.add(file)
                     fileList.add(DiaryLocationImageDto(file.toString(), uri.toString()))
+//                    fileList.add(DiaryLocationImageDto(file.toString(), fileUri.toString()))
+//                    val uploadObserver = transferUtility.upload("diary", file.toString(), file)
                     val uploadObserver = transferUtility.upload("diary", file.toString(), file)
                     uploadObserver.setTransferListener(object : TransferListener {
                         override fun onStateChanged(id: Int, state: TransferState) {
@@ -615,40 +623,70 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
-    private fun getRealPathFromURI(contentUri: Uri): String? {
-        var filePath: String? = null
-        if (DocumentsContract.isDocumentUri(this, contentUri)) {
-            val docId = DocumentsContract.getDocumentId(contentUri)
-            if ("com.android.providers.media.documents" == contentUri.authority) {
-                val id = docId.split(":")[1]
-                val selection = MediaStore.Images.Media._ID + "=?"
-                val selectionArgs = arrayOf(id)
-                val column = "_data"
-                val projection = arrayOf(column)
-                val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-                val cursor =
-                    contentResolver.query(contentUri, projection, selection, selectionArgs, null)
-                cursor?.use {
-                    if (it.moveToFirst()) {
-                        val columnIndex = it.getColumnIndex(column)
-                        filePath = it.getString(columnIndex)
-                    }
+    private fun getRealPathFromURI(uri: Uri): String? {
+        val inputStream = contentResolver.openInputStream(uri)
+        inputStream?.use { stream ->
+            val tempFile = createTempFile("temp_image", ".jpg")
+            val outputStream = FileOutputStream(tempFile)
+            outputStream.use { output ->
+                val buffer = ByteArray(4 * 1024) // 4K buffer
+                var bytesRead: Int
+                while (true) {
+                    bytesRead = stream.read(buffer)
+                    if (bytesRead == -1) break
+                    output.write(buffer, 0, bytesRead)
                 }
-            } else if ("com.android.providers.downloads.documents" == contentUri.authority) {
-                val contentUri = ContentUris.withAppendedId(
-                    Uri.parse("content://downloads/public_downloads"),
-                    docId.toLong()
-                )
-                filePath = getDataColumn(contentUri, null, null)
+                return tempFile.absolutePath
             }
-        } else if ("content".equals(contentUri.scheme, ignoreCase = true)) {
-            filePath = getDataColumn(contentUri, null, null)
-        } else if ("file".equals(contentUri.scheme, ignoreCase = true)) {
-            filePath = contentUri.path
         }
-        return filePath
+        return null
     }
+
+//    private fun getRealPathFromURI(contentUri: Uri): String? {
+//        val projection = arrayOf(MediaStore.Images.Media.DATA)
+//        val cursor = contentResolver.query(contentUri, projection, null, null, null)
+//        cursor?.use {
+//            it.moveToFirst()
+//            val columnIndex = it.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+//            return it.getString(columnIndex)
+//        }
+//        return null
+//    }
+
+//    @RequiresApi(Build.VERSION_CODES.KITKAT)
+//    private fun getRealPathFromURI(contentUri: Uri): String? {
+//        var filePath: String? = null
+//        if (DocumentsContract.isDocumentUri(this, contentUri)) {
+//            val docId = DocumentsContract.getDocumentId(contentUri)
+//            if ("com.android.providers.media.documents" == contentUri.authority) {
+//                val id = docId.split(":")[1]
+//                val selection = MediaStore.Images.Media._ID + "=?"
+//                val selectionArgs = arrayOf(id)
+//                val column = "_data"
+//                val projection = arrayOf(column)
+//                val contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+//                val cursor =
+//                    contentResolver.query(contentUri, projection, selection, selectionArgs, null)
+//                cursor?.use {
+//                    if (it.moveToFirst()) {
+//                        val columnIndex = it.getColumnIndex(column)
+//                        filePath = it.getString(columnIndex)
+//                    }
+//                }
+//            } else if ("com.android.providers.downloads.documents" == contentUri.authority) {
+//                val contentUri = ContentUris.withAppendedId(
+//                    Uri.parse("content://downloads/public_downloads"),
+//                    docId.toLong()
+//                )
+//                filePath = getDataColumn(contentUri, null, null)
+//            }
+//        } else if ("content".equals(contentUri.scheme, ignoreCase = true)) {
+//            filePath = getDataColumn(contentUri, null, null)
+//        } else if ("file".equals(contentUri.scheme, ignoreCase = true)) {
+//            filePath = contentUri.path
+//        }
+//        return filePath
+//    }
 
     private fun getDataColumn(
         uri: Uri,

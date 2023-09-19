@@ -11,6 +11,8 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.diary.databinding.ActivityAddPlaceInDiaryBinding
@@ -21,7 +23,24 @@ class AddPlaceInDiaryActivity : AppCompatActivity() {
     private lateinit var adapter: MultiImageAdapter
 
     // 여러 이미지 선택을 위한 ActivityResultLauncher
-    private val multipleImagePicker = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri>? ->
+//    private val multipleImagePicker = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) { uris: List<Uri>? ->
+//        if (uris != null) {
+//            val totalSelectedImages = uriList.size + uris.size
+//            if (totalSelectedImages > 10) {
+//                Toast.makeText(applicationContext, "사진은 10장까지 선택 가능합니다.", Toast.LENGTH_LONG).show()
+//            } else {
+//                uriList.addAll(0, uris)
+//                adapter = MultiImageAdapter(uriList, applicationContext)
+//                binding.recyclerView.adapter = adapter
+//            }
+//        } else {
+//            Toast.makeText(applicationContext, "이미지를 선택하지 않았습니다.", Toast.LENGTH_LONG).show()
+//        }
+//    }
+
+
+    private val multipleImagePicker =
+        registerForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(10)) { uris: List<Uri>? ->
         if (uris != null) {
             val totalSelectedImages = uriList.size + uris.size
             if (totalSelectedImages > 10) {
@@ -30,11 +49,52 @@ class AddPlaceInDiaryActivity : AppCompatActivity() {
                 uriList.addAll(0, uris)
                 adapter = MultiImageAdapter(uriList, applicationContext)
                 binding.recyclerView.adapter = adapter
+
+                // URI에 대한 지속적인 권한을 부여합니다.
+                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                for (uri in uris) {
+                    applicationContext.contentResolver.takePersistableUriPermission(uri, flag)
+                }
             }
         } else {
             Toast.makeText(applicationContext, "이미지를 선택하지 않았습니다.", Toast.LENGTH_LONG).show()
         }
     }
+
+    private val REQUEST_CODE_PICK_IMAGES = 1001 // 원하는 숫자로 지정
+
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//
+//        if (requestCode == REQUEST_CODE_PICK_IMAGES && resultCode == Activity.RESULT_OK) {
+//            val selectedUris = mutableListOf<Uri>()
+//
+//            // 다중 이미지 선택을 처리
+//            if (data?.clipData != null) {
+//                val clipData = data.clipData
+//                for (i in 0 until clipData!!.itemCount) {
+//                    val uri = clipData.getItemAt(i).uri
+//                    selectedUris.add(uri)
+//                }
+//            } else if (data?.data != null) {
+//                // 단일 이미지 선택을 처리
+//                val uri = data.data
+//                selectedUris.add(uri!!)
+//            }
+//
+//            // 이미지를 처리하고 리스트에 추가
+//            if (selectedUris.isNotEmpty()) {
+//                val totalSelectedImages = uriList.size + selectedUris.size
+//                if (totalSelectedImages > 10) {
+//                    Toast.makeText(applicationContext, "사진은 10장까지 선택 가능합니다.", Toast.LENGTH_LONG).show()
+//                } else {
+//                    uriList.addAll(selectedUris)
+//                    adapter = MultiImageAdapter(uriList, applicationContext)
+//                    binding.recyclerView.adapter = adapter
+//                }
+//            }
+//        }
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +145,12 @@ class AddPlaceInDiaryActivity : AppCompatActivity() {
             val remainingImages = 10 - uriList.size
             if (remainingImages > 0) {
                 // 최대 10장 이하의 이미지만 선택 가능하도록 합니다.
-                multipleImagePicker.launch("image/*")
+//                multipleImagePicker.launch("image/*")
+                multipleImagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+//                val intent = Intent(Intent.ACTION_GET_CONTENT)
+//                intent.type = "image/*"
+//                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+//                startActivityForResult(intent, REQUEST_CODE_PICK_IMAGES)
             } else {
                 Toast.makeText(applicationContext, "사진은 10장까지 선택 가능합니다.", Toast.LENGTH_LONG).show()
             }

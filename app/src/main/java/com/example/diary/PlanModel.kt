@@ -58,9 +58,18 @@ data class User(
     val image: String?
 )
 
+data class Origin(
+    val userId: Int,
+    val username: String,
+    val email: String,
+    val password: String,
+    val image: String?
+)
+
 // 서버에 내 일정 목록 불러오기
 data class MyPlanListResponse(
     val user: User,
+    val origin: Origin,
     val plan: MyPlan,
     val locations: List<LocationDetail>,
     val tags: List<MyTag>
@@ -100,6 +109,7 @@ data class PlanLikesList(
 
 data class PlanDetailResponse(
     val user: User,
+    val origin: Origin,
     val plan: PlanDetail,
     val locations: List<LocationDetail>,
     val tags: List<TagDetail>,
