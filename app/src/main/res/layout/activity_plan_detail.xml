@@ -39,6 +39,7 @@
                 android:textColor="#191919"
                 android:textSize="25dp" />
 
+
             <ImageView
                 android:id="@+id/plan_detail_take_in_btn"
                 android:layout_width="22dp"
@@ -80,6 +81,12 @@
             android:layout_marginBottom="4dp"
             android:text="작성자의 코멘트"
             android:textSize="15dp" />
+        <TextView
+            android:id="@+id/plan_detail_create_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="8dp"
+            android:text="작성일" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -108,26 +115,31 @@
                 android:id="@+id/origin_img"
                 android:layout_width="13dp"
                 android:layout_height="13dp"
-                android:layout_gravity="center"
+                android:layout_gravity="center_vertical"
                 android:layout_marginRight="5dp"
                 android:visibility="gone"
                 android:src="@drawable/share_icon" />
 
             <TextView
                 android:id="@+id/plan_detail_origin_writer"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:gravity="center_vertical"
                 android:visibility="gone"
                 android:textSize="10dp"
                 android:text="원작자명" />
 
             <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textSize="13dp"
+                android:text="" />
+
+            <TextView
                 android:id="@+id/plan_map_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_gravity=""
                 android:textSize="13dp"
                 android:text=" 지도보기 " />
 

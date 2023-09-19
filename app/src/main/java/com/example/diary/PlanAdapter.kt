@@ -1,12 +1,15 @@
 package com.example.diary
 
 import android.content.Intent
+import android.media.Image
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 
 class PlanAdapter(private var plans: List<MyPlanListResponse>) : RecyclerView.Adapter<PlanAdapter.PlanViewHolder>() {
@@ -42,6 +45,7 @@ class PlanAdapter(private var plans: List<MyPlanListResponse>) : RecyclerView.Ad
         private val myPlanInfoLayout: LinearLayout = itemView.findViewById(R.id.my_plan_info)
         private val hashTextView: TextView = itemView.findViewById(R.id.plan_hash)
         private val writerTextView: TextView = itemView.findViewById(R.id.plan_writer)
+        private val planImg: ImageView = itemView.findViewById(R.id.plan_img)
 
         init {
             itemView.setOnClickListener {
@@ -55,7 +59,9 @@ class PlanAdapter(private var plans: List<MyPlanListResponse>) : RecyclerView.Ad
 
         fun bind(planList: MyPlanListResponse) {
             titleTextView.text = planList.plan.travelDest
-
+            if (planList.plan.imageUri != null) {
+                planImg.setImageURI(planList.plan.imageUri.toUri())
+            }
             if (searchPlan) { // 일정 검색 목록이라면
                 planInfoLayout.visibility = View.VISIBLE
                 myPlanInfoLayout.visibility = View.GONE

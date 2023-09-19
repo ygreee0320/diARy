@@ -4,6 +4,9 @@ import android.net.Uri
 import org.w3c.dom.Comment
 import java.sql.Date
 import java.sql.Time
+import java.sql.Timestamp
+import java.time.DateTimeException
+import java.time.format.DateTimeFormatter
 
 data class DiaryDto(
     val title: String,
@@ -13,6 +16,8 @@ data class DiaryDto(
     val travelEnd: Date,
     val tags: List<TagName>,
     val public: Boolean,
+    val imageData: String,
+    val imageUri: String
 )
 
 data class DiaryDtoMyList(
@@ -23,13 +28,15 @@ data class DiaryDtoMyList(
     val satisfaction: Int,
     val travelStart: Date,
     val travelEnd: Date,
-    val createdAt: Date,
-    val updatedAt: Date,
+    val createdAt: String,
+    val updatedAt: String,
     val tags: List<TagName>,
     val likes: List<LikesList>,
     val likesCount: Int,
     val comments: List<CommentList>,
     val public: Boolean,
+    val imageData: String,
+    val imageUri: String
 )
 
 data class DiaryLocationDtoList(
@@ -133,8 +140,8 @@ data class CommentData(
 data class CommentListResponse(
     val diaryId: Int,
     val content: String,
-    val createdAt: Date,
-    val updatedAt: Date,
+    val createdAt: String,
+    val updatedAt: String,
     val replyDtos: List<ReplyList>,
     val userDto: User
 )
