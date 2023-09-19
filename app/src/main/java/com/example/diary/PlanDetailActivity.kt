@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,7 +24,6 @@ class PlanDetailActivity : AppCompatActivity() {
     private var planId = -1 //현재 플랜ID를 담는 변수
     private var planLikeCount: Int ?= 0 // 현재 플랜의 좋아요 수
     private var isLiked:Boolean = false // 초기에는 좋아요가 되지 않은 상태로 설정
-    private var isTakeIn:Boolean = false // 초기에는 담기가 되지 않은 상태로 설정
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     // 여행지 데이터를 저장할 리스트
@@ -64,6 +64,16 @@ class PlanDetailActivity : AppCompatActivity() {
                     binding.planDetailTitle.text = planDetail.plan.travelDest
                     binding.planDetailSubtitle.text = planDetail.plan.content
                     binding.planDetailWriter.text = planDetail.user.username
+
+                    if (planDetail.user.userId == userId) {
+                        binding.planDetailTakeInBtn.visibility = View.GONE
+                    }
+
+                    if (planDetail.origin.userId != userId) {
+                        binding.planDetailOriginWriter.text = planDetail.origin.username
+                        binding.originImg.visibility = View.VISIBLE // 텍스트뷰를 보이도록 설정
+                        binding.planDetailOriginWriter.visibility = View.VISIBLE
+                    }
 
                     val tagNames = planDetail.tags.joinToString(" ") { "#${it.name}" }
                     binding.planDetailHash.text = tagNames

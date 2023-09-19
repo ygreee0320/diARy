@@ -96,6 +96,12 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         setSupportActionBar(binding.toolbar)
         supportActionBar?.title = ""
 
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // 권한이 없는 경우 권한 요청
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE)
+        } else {
+        }
+
         // AddPlaceInDiaryActivity를 시작하기 위한 요청 코드 정의
         addContentActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -507,16 +513,13 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 
         val diaryLocations = mutableListOf<DiaryLocationDto>()
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            // 권한이 없는 경우 권한 요청
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_CODE)
-        } else {
-        }
-
         for (item in filteredDiaryPlaceList) {
             val place = item.place ?: "여행지"
             lateinit var content: String
             val imageUris = item.imageUris
+
+            // 이미지 리스트를 따로 관리하기 위한 리스트
+            val placeImageList: MutableList<DiaryLocationImageDto> = mutableListOf()
 
             if (imageUris != null) {
                 Log.d("adddiary", "imageUris" + imageUris)
@@ -531,7 +534,10 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 //                    val fileUri = FileProvider.getUriForFile(this, "com.example.diary.fileprovider", file)
 
                     fileListFile.add(file)
-                    fileList.add(DiaryLocationImageDto(file.toString(), uri.toString()))
+//                    fileList.add(DiaryLocationImageDto(file.toString(), uri.toString()))
+                    // 여행지 별로 이미지 리스트에 추가
+                    placeImageList.add(DiaryLocationImageDto(file.toString(), uri.toString()))
+
 //                    fileList.add(DiaryLocationImageDto(file.toString(), fileUri.toString()))
 //                    val uploadObserver = transferUtility.upload("diary", file.toString(), file)
                     val uploadObserver = transferUtility.upload("diary", file.toString(), file)
@@ -556,7 +562,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                 }
             }
 
-            Log.d("adddiary", "fileList 완성" + fileList)
+            Log.d("adddiary", "fileList 완성" + placeImageList)
 
 
             val address = item.address ?: ""
@@ -597,7 +603,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     date = placeDate,
                     timeStart = placeTimeStart,
                     timeEnd = placeTimeEnd,
-                    diaryLocationImageDtoList = fileList // 이미지 리스트 추가 필요
+                    diaryLocationImageDtoList = placeImageList // 이미지 리스트 추가 필요
                 )
                 diaryLocations.add(diaryLocation)
             }

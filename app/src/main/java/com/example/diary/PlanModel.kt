@@ -42,6 +42,8 @@ data class MyPlan(
     val travelEnd: Date,
     val createdAt: Date,
     val updatedAt: Date,
+    val imageData: String,
+    val imageUri: String,
     val public: Boolean
 )
 
@@ -83,7 +85,9 @@ data class PlanDetail(
     val travelStart: Date,
     val travelEnd: Date,
     val createdAt: Date,
-    val public: Boolean
+    val imageData: String,
+    val imageUri: String,
+    val public: Boolean,
 )
 
 data class LocationDetail(

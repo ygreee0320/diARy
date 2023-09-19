@@ -11,7 +11,9 @@ import android.text.Editable
 import android.util.Log
 import android.view.MenuItem
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -184,6 +186,10 @@ class AddPlanActivity : AppCompatActivity() {
             datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.primary))
         }
 
+        binding.planImgBtn.setOnClickListener { // 이미지 버튼 클릭 시, 갤러리로 이동해서 이미지 부착
+            imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        }
+
         // 저장하기 버튼 클릭 시
         binding.planSaveBtn.setOnClickListener {
             if (new == 1) {
@@ -220,6 +226,20 @@ class AddPlanActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    private val imagePicker =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
+            if (uri != null) {
+                // 이미지 뷰에 선택한 이미지를 표시
+                binding.planImgBtn.setImageURI(uri)
+
+                // URI에 대한 지속적인 권한을 부여
+                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                applicationContext.contentResolver.takePersistableUriPermission(uri, flag)
+            } else {
+                Toast.makeText(applicationContext, "이미지를 선택하지 않았습니다.", Toast.LENGTH_LONG).show()
+            }
+        }
 
     // 입력된 데이터를 planData에 넣어서 전송 요청 (일정 추가)
     private fun savePlanToServer() {
