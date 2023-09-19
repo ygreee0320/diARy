@@ -16,7 +16,9 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.util.Log
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -50,6 +52,9 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
     private lateinit var transferUtility: TransferUtility
     private val REQUEST_CODE = 123
 
+    //대표이미지 추가를 위한
+    private var uriList = ArrayList<Uri>()
+
     private var new: Int? = 1 // 새로 작성이면 1, 수정이면 0, 플랜 바탕 작성이면 -1
     private var diaryId: Int? = -1 // 일기 수정일 때의 해당 일기 아이디
     private var planId: Int? = -1 // 플랜 바탕 작성일 때의 해당 플랜 아이디
@@ -62,6 +67,24 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         lateinit var addPlaceActivityResult: ActivityResultLauncher<Intent>
         lateinit var addContentActivityResult: ActivityResultLauncher<Intent>
     }
+
+    private val singleImagePicker =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) {
+                // 이미 선택된 사진을 지웁니다.
+                uriList.clear()
+
+                uriList.add(uri)
+                binding.diaryImgBtn.setImageURI(uri)
+
+                // URI에 대한 지속적인 권한을 부여합니다.
+                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                applicationContext.contentResolver.takePersistableUriPermission(uri, flag)
+            } else {
+                Toast.makeText(applicationContext, "이미지를 선택하지 않았습니다.", Toast.LENGTH_LONG).show()
+            }
+        }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -278,6 +301,12 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
             datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE)
                 .setTextColor(ContextCompat.getColor(this, R.color.primary))
         }
+
+
+        binding.diaryImgBtn.setOnClickListener {
+            singleImagePicker.launch("image/*")
+        }
+
 
         // 여행지 추가 버튼 클릭 시
         binding.diaryAddPlaceBtn.setOnClickListener {
