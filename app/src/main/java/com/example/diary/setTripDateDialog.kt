@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat
 import java.time.LocalDateTime
 import java.time.ZoneId
 
-class AddDiaryMapDialog(val context: Context) {
+class setTripDateDialog(val context: Context) {
     lateinit var onClickListener: ButtonClickListener
 
     //일정정보

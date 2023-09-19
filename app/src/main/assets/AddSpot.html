@@ -189,6 +189,7 @@
       var imgURL = Android.getSearchImg()
 
       title = title.replace(/(.{13})/g,"$1<br>");
+      address = address.replace(/(.{20})/g,"$1<br>");
 
       if(tel !== "") {
         tel = '<i class="fi fi-sr-phone-flip"></i> ' + tel;
