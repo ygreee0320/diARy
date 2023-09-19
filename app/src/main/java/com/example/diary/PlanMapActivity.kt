@@ -9,14 +9,7 @@ import android.view.MenuItem
 import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
 import com.example.diary.databinding.ActivityPlanMapBinding
-import com.google.android.material.color.utilities.MaterialDynamicColors.onError
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import org.json.JSONArray
-import org.json.JSONObject
-import retrofit2.Call
 
 class PlanMapActivity : AppCompatActivity() {
     lateinit var binding: ActivityPlanMapBinding
@@ -84,7 +77,7 @@ class PlanMapActivity : AppCompatActivity() {
                     val place = intent.getStringArrayListExtra("place${i}")!! //place, x, y, placeDate, placeStart, placeEnd
                     Log.d("mylog", "PlanMapActivity -> place${i}의 정보: ${place}")
 
-                    val searchResponse = SearchManager.getList(apiKey, place[0], "", place[1], place[2])
+                    val searchResponse = SearchPlaceManager.getList(apiKey, place[0], "", place[1], place[2])
                     val foundPlace = findPlaceByCoordinates(searchResponse!!, place[0], place[1], place[2]) ///place -> phone, address를 찾는 함수
 
                     if (foundPlace != null) {

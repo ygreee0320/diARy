@@ -4,12 +4,9 @@ import android.util.Log
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
 
 //카카오 맵 REST API Manager
-object SearchManager {
+object SearchPlaceManager {
     fun getList(apiKey: String, query: String, category: String, x: String, y: String): SearchResponse? {
         val apiService = MyApplication().searchService
         val call = apiService.getList(apiKey, query, category, x, y)
