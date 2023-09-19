@@ -116,8 +116,8 @@ class AddPlanMapActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
-        fun getSearchImg(): String {
-            imgURL = ApiSearchImg().searchImg(title!!)
+        fun getSearchImg(title: String): String {
+            imgURL = ApiSearchImg().searchImg(title)
             return imgURL as String
         }
 
