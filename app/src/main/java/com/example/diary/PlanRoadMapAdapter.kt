@@ -52,7 +52,7 @@ class PlanRoadMapAdapter(var datas: List<PlanDetailModel>): RecyclerView.Adapter
 
             binding.placeTime.text = plan.placeStart + " ~ " + plan.placeEnd
             binding.placeName.text = plan.place
-            ImageLoader.load(plan.imgURL!!, binding.placeImageView)
+            imageLoader(plan.imgURL!!, binding.placeImageView)
         }
     }
 
@@ -71,22 +71,21 @@ class PlanRoadMapAdapter(var datas: List<PlanDetailModel>): RecyclerView.Adapter
         return datas.size
     }
 
+    fun imageLoader(url : String, view : ImageView){
+        val executors = Executors.newSingleThreadExecutor()
+        var image : Bitmap? = null
 
+        executors.execute {
+            try {
+                image = BitmapFactory.decodeStream(URL(url).openStream())
+            }catch (e : Exception){
+                e.printStackTrace()
+            }
 
-    object ImageLoader {
-        fun load(url : String, view : ImageView){
-            val executors = Executors.newSingleThreadExecutor()
-            var image : Bitmap? = null
-
-            executors.execute {
-                try {
-                    image = BitmapFactory.decodeStream(URL(url).openStream())
-                    view.setImageBitmap(image)
-                }catch (e : Exception){
-                    e.printStackTrace()
-                }
+            // 이미지 로딩이 완료된 후 UI 업데이트를 메인(UI) 스레드에서 수행
+            view.post {
+                view.setImageBitmap(image)
             }
         }
     }
-
 }

@@ -22,6 +22,8 @@ import com.aqoong.lib.hashtagedittextview.HashTagEditTextView
 import com.example.diary.PlanManager.sendModPlanToServer
 import com.example.diary.PlanManager.sendPlanToServer
 import com.example.diary.databinding.ActivityAddPlanBinding
+import kotlinx.coroutines.*
+import okhttp3.Dispatcher
 import retrofit2.http.POST
 import java.sql.Date
 import java.sql.Time
@@ -84,7 +86,6 @@ class AddPlanActivity : AppCompatActivity() {
                 val enteredEnd = data?.getStringExtra("enteredTimeE")
                 val x = data?.getStringExtra("x")
                 val y = data?.getStringExtra("y")
-                val imgURL =
 
                 //val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
                 Log.d("리사이클러뷰", ""+position)
@@ -101,13 +102,17 @@ class AddPlanActivity : AppCompatActivity() {
                 } else {
                     if (!enteredPlace.isNullOrEmpty()) {
                         // planDetailModel 인스턴스를 생성하고 리스트에 추가
-                        val newPlanPlaceModel =
-                            PlanDetailModel(place = enteredPlace, address = enteredAddress, tel = enteredTel,
-                                placeDate = placeDate, placeStart = enteredStart, placeEnd = enteredEnd, x = x, y = y)
-                        planPlaceList.add(newPlanPlaceModel)
-
-                        // 어댑터에 데이터 변경을 알림
-                        planDetailAdapter.notifyDataSetChanged()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val imgURL = ApiSearchImg().searchImg(enteredPlace)
+                            val newPlanPlaceModel =
+                                PlanDetailModel(place = enteredPlace, address = enteredAddress, tel = enteredTel, imgURL = imgURL,
+                                    placeDate = placeDate, placeStart = enteredStart, placeEnd = enteredEnd, x = x, y = y)
+                            withContext(Dispatchers.Main) {
+                                planPlaceList.add(newPlanPlaceModel)
+                                // 어댑터에 데이터 변경을 알림
+                                planDetailAdapter.notifyDataSetChanged()
+                            }
+                        }
                     }
                 }
             }
@@ -134,22 +139,27 @@ class AddPlanActivity : AppCompatActivity() {
                     binding.planDateStart.text = formattedStartDate
                     binding.planDateEnd.text = formattedEndDate
 
-                    val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
-                        val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
-                        val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
+                            val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
+                            val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+                            val imgURL = ApiSearchImg().searchImg(locationDetail.name)
 
-                        PlanDetailModel(
-                            place = locationDetail.name,
-                            address = locationDetail.address,
-                            placeDate = locationDetail.date,
-                            placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                            placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
-                            x = locationDetail.x,
-                            y = locationDetail.y,
-                        )
+                            PlanDetailModel(
+                                place = locationDetail.name,
+                                address = locationDetail.address,
+                                placeDate = locationDetail.date,
+                                placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                x = locationDetail.x,
+                                y = locationDetail.y,
+                                imgURL = imgURL
+                            )
+                        }
+                        withContext(Dispatchers.Main) {
+                            planDetailAdapter.updateData(planDetailModels)
+                        }
                     }
-
-                    planDetailAdapter.updateData(planDetailModels)
                 },
                 onError = { throwable ->
                     Log.e("서버 테스트3", "오류: $throwable")

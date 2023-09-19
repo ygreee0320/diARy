@@ -15,6 +15,10 @@ import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.diary.databinding.ActivityPlanDetailBinding
 import com.google.android.material.color.utilities.MaterialDynamicColors.onError
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -90,25 +94,34 @@ class PlanDetailActivity : AppCompatActivity() {
                         binding.planDetailLikeImg.text = "♡ "
                     }
 
-                    val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
-                        val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
-                        val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
+                            val formattedStartTime = SimpleDateFormat(
+                                "HH:mm",
+                                Locale.getDefault()
+                            ).format(locationDetail.timeStart)
+                            val formattedEndTime = SimpleDateFormat(
+                                "HH:mm",
+                                Locale.getDefault()
+                            ).format(locationDetail.timeEnd)
+                            val imgURL = ApiSearchImg().searchImg(locationDetail.name)
 
-                        PlanDetailModel(
-                            place = locationDetail.name,
-                            address = locationDetail.address,
-                            placeDate = locationDetail.date,
-                            placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                            placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
-                            x = locationDetail.x,
-                            y = locationDetail.y
-                        )
+                            PlanDetailModel(
+                                place = locationDetail.name,
+                                address = locationDetail.address,
+                                placeDate = locationDetail.date,
+                                placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                x = locationDetail.x,
+                                y = locationDetail.y,
+                                imgURL = imgURL
+                            )
+                        }
+                        withContext(Dispatchers.Main) {
+                            planDetailAdapter.updateData(planDetailModels)
+                            //같지 않다면, 수정/삭제 gone, 정보레이아웃 visible 필요
+                        }
                     }
-
-                    planDetailAdapter.updateData(planDetailModels)
-
-                    //같지 않다면, 수정/삭제 gone, 정보레이아웃 visible 필요
-
                 },
                 onError = { throwable ->
                     Log.e("서버 테스트3", "오류: $throwable")
@@ -211,22 +224,26 @@ class PlanDetailActivity : AppCompatActivity() {
                         planLikeCount = planDetail.likes.size  //좋아요 수 저장
                         binding.planDetailLike.text = "$planLikeCount"
 
-                        val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
-                            val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
-                            val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
+                                val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
+                                val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+                                val imgURL = ApiSearchImg().searchImg(locationDetail.name)
 
-                            PlanDetailModel(
-                                place = locationDetail.name,
-                                address = locationDetail.address,
-                                placeDate = locationDetail.date,
-                                placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                                placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
-                                x = locationDetail.x,
-                                y = locationDetail.y
-                            )
+                                PlanDetailModel(
+                                    place = locationDetail.name,
+                                    address = locationDetail.address,
+                                    placeDate = locationDetail.date,
+                                    placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                    placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                    x = locationDetail.x,
+                                    y = locationDetail.y
+                                )
+                            }
+                            withContext(Dispatchers.Main) {
+                                planDetailAdapter.updateData(planDetailModels)
+                            }
                         }
-
-                        planDetailAdapter.updateData(planDetailModels)
                     },
                     onError = { throwable ->
                         Log.e("서버 테스트3", "오류: $throwable")
