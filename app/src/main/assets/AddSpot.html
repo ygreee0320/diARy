@@ -19,7 +19,8 @@
   ></script>
 
   <!-- style sheet 적용 -->
-  <link rel="stylesheet" href="css/searchPlace.css">
+  <link rel="stylesheet" href="css/searchResult.css">
+  <link rel="stylesheet" href="css/searchOverlay.css">
 
   <style>
     body {
@@ -52,26 +53,6 @@
       outline: none !important;
       box-shadow: none !important;
     }
-
-    #cancelBtn {
-      background-color: white;
-      color: #86AED8;
-    }
-
-    #cancelBtn:hover {
-      background-color: #86AED8;
-      color: white;
-    }
-
-    #addBtn {
-      background-color: #86AED8;
-      color: white;
-    }
-
-    #addBtn:hover {
-      background-color: white;
-      color: #86AED8;
-    }
   </style>
 </head>
 <body>
@@ -79,8 +60,8 @@
 
   <button id="cal_btn" onclick="Android.setTripDate();"><i class="fi fi-br-calendar-check"></i></button>
 
-  <div id="search_place">
-    <h6>검색결과(<span id="place_cnt">n</span>건)</h6>
+  <div id="search_result">
+    <h6>검색결과(<span id="result_cnt">n</span>건)</h6>
     <!-- carousel slider -->
     <div id="carouselExampleIndicators" class="carousel slide">
       <div class="carousel-inner">
@@ -121,7 +102,7 @@
     });
 
     //키워드 검색 요청 함수
-    var diaryAddSpot = {
+    var addSpot = {
       searchPlaces: function(){
         var keyword = Android.getSearchResult()
         console.log("keyword: " + keyword);
@@ -198,12 +179,14 @@
     //Custom Overlay 호출 함수
     function displayCustomOverlay(position, place) {
       var title = place.place_name,
-          address = place.road_address_name,
+          address = place.address_name,
           tel = place.phone,
           x = place.x,
           y = place.y;
 
       Android.setPlaceInfo(title, address, tel, x, y);
+
+      var imgURL = Android.getSearchImg()
 
       title = title.replace(/(.{13})/g,"$1<br>");
 
@@ -211,20 +194,20 @@
         tel = '<i class="fi fi-sr-phone-flip"></i> ' + tel;
       }
 
-      var content = '<div class="card" style="width: 80vw; padding: 10px; transform: translate(0, 50%);">\
-                      <div class="row" style="margin: 5px 0px;">\
-                        <div class="col col-8" style="padding: 0;">\
-                          <h6 id="place_name">' + title + '</h6>\
-                          <p id="place_address" style="margin: 0; font-size: 12px; color: gray;">' + address + '</p>\
-                          <p id="place_tel" style="margin: 0; font-size: 12px; color: gray;">' + tel + '</p>\
+      var content = '<div class="card search_O">\
+                      <div class="row search_O">\
+                        <div class="col col-8 search_O">\
+                          <h6 class="name search_O">' + title + '</h6>\
+                          <p class="address detail search_O">' + address + '</p>\
+                          <p class="tel detail search_O">' + tel + '</p>\
                         </div>\
-                        <div class="col col-4" style="padding: 0; text-align: center;">\
-                          <img id="place_img" src="image/sample.png" style="width: 20vw; height: 15vw; object-fit: cover; object-position: center;">\
+                        <div class="col col-4">\
+                          <img class="img search_O" src="' + imgURL + '">\
                         </div>\
                       </div>\
-                      <div class="row button-group" style="margin: 5px 0px;">\
-                        <div class="col" style="padding: 0px 5px;"><button id="cancelBtn" onclick="closeOverlay();" style="width: 100%; border: 1px solid #86AED8; border-radius: 5px; padding: 3px; font-size: 15px;">취소</button></div>\
-                        <div class="col" style="padding: 0px 5px;"><button id="addBtn" onclick="Android.addPlaceIn();" style="width: 100%; border: 1px solid #86AED8; border-radius: 5px; padding: 3px; font-size: 15px;">추가하기</button></div>\
+                      <div class="row btn_G search_O">\
+                        <div class="col btn search_O"><button id="cancelBtn" onclick="closeOverlay();" style="width: 100%; border: 1px solid #86AED8; border-radius: 5px; padding: 3px; font-size: 15px;">취소</button></div>\
+                        <div class="col btn search_O"><button id="addBtn" onclick="Android.addPlaceIn();" style="width: 100%; border: 1px solid #86AED8; border-radius: 5px; padding: 3px; font-size: 15px;">추가하기</button></div>\
                       </div>\
                     </div>';
 
@@ -249,12 +232,12 @@
       var items = document.querySelector('.carousel-inner');
       var indicators = document.querySelector('.carousel-indicators');
 
-       while(true) {
+      while(true) {
         var item = document.createElement('div');
         item.className = 'carousel-item';
 
         var row = document.createElement('div');
-        row.className = 'row';
+        row.className = 'row search_R';
 
         var button = document.createElement('button');
         button.type = 'button'
@@ -273,14 +256,14 @@
 
         for (i; i < j; i++) {
           var col = document.createElement('div');
-          col.className = 'col';
+          col.className = 'col search_R';
 
           var img = document.createElement('img');
-          img.className = 'place_img';
+          img.className = 'img search_R';
           img.src = 'image/sample.png';
 
           var p = document.createElement('p');
-          p.className = 'place_name';
+          p.className = 'name search_R';
           p.textContent = places[i].place_name;
 
           row.appendChild(col);
@@ -302,8 +285,6 @@
       active_indicator.className = 'active';
       active_indicator.setAttribute('aria-current', 'true');
     }
-
-
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>

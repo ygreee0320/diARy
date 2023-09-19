@@ -11,8 +11,13 @@ import java.util.*
 
 class MyApplication {
     val retrofit = Retrofit.Builder()
-        .baseUrl("http:/172.20.1.190:8080/") // 서버 임시 URL(로컬)
+        .baseUrl("http://192.168.84.222:8080/") // 서버 임시 URL(로컬)
         .addConverterFactory(GsonConverterFactory.create(getGson()))
+        .build()
+
+    val mapApi = Retrofit.Builder()
+        .baseUrl("https://dapi.kakao.com/")
+        .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     fun getGson(): Gson {
@@ -26,6 +31,8 @@ class MyApplication {
             //.registerTypeAdapter(Time::class.java, timeDeserializer) // 시간 변환기 등록
             .create()
     }
+
+    val searchService = mapApi.create(SearchService::class.java)
 
     val planService = retrofit.create(PlanService::class.java)
     val myPlanService = retrofit.create(MyPlanService::class.java)

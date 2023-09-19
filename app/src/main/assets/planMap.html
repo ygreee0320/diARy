@@ -17,6 +17,9 @@
       src="//dapi.kakao.com/v2/maps/sdk.js?appkey=08e5a0f9ad6656a4e9d4a0afc5f90c36&libraries=services,clusterer,drawing"
   ></script>
 
+  <!-- style sheet 적용 -->
+  <link rel="stylesheet" href="css/searchOverlay.css">
+
   <style>
     body {
       margin : 0;
@@ -53,14 +56,14 @@
 <body>
 <div id="map"></div>
 
-<button id="roadmap_btn" onclick=""><i class="fi fi-sr-marker"></i></button>
+<button id="roadmap_btn" onclick="Android.moveToRoadmap();"><i class="fi fi-sr-marker"></i></button>
 </body>
 <script>
     var markers = []
 
     var mapContainer = document.getElementById("map"), // 지도를 표시할 div
       mapOption = {
-        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+        center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
         level: 3, // 지도의 확대 레벨
       };
 
@@ -74,15 +77,25 @@
       zIndex: 1
     });
 
-    //마커 표시 위치 - 임시 code
-    var positions = [{ title: '카카오',
-                      latlng: new kakao.maps.LatLng(33.450705, 126.570677)},
-                    { title: '생태연못',
-                      latlng: new kakao.maps.LatLng(33.450936, 126.569477)},
-                    { title: '텃밭',
-                      latlng: new kakao.maps.LatLng(33.450879, 126.569940)},
-                    { title: '근린공원',
-                      latlng: new kakao.maps.LatLng(33.451393, 126.570738)}];
+    //마커 표시 위치 및 지도 범위 재설정
+    var positions = [];
+    var place = JSON.parse(Android.getPlacesInfo());
+    var bounds = new kakao.maps.LatLngBounds();
+
+    console.log("place 테스트 -> place[0].imgURL: " + place[0].imgURL);
+
+    for (var i = 0; i < place.length; i++) {
+      var item = place[i];
+      var object = { title: item.place,
+                     latlng: new kakao.maps.LatLng(Number(item.y), Number(item.x)),
+                     phone: item.tel,
+                     address: item.address,
+                     imgURL: item.imgURL };
+      positions.push(object);
+
+      bounds.extend(new kakao.maps.LatLng(Number(item.y), Number(item.x)));
+    }
+    map.setBounds(bounds);
 
     //마커 생성
     var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
@@ -95,15 +108,15 @@
         position: positions[i].latlng,
         title : positions[i].title,
         image : markerImage
-      })
+      });
 
       markers.push(marker);
 
-      (function(marker, title, place) {
+      (function(marker, place) {
           kakao.maps.event.addListener(marker, 'click', function() {
-            displayCustomOverlay(map.getCenter(), title, place);
+            displayCustomOverlay(map.getCenter(), place);
           });
-        })(marker, positions[i].title, positions[i].latlng);
+        })(marker, positions[i]);
     }
 
     //선 생성
@@ -123,11 +136,10 @@
 
     //Custom Overlay 호출 함수
     function displayCustomOverlay(position, place) {
-      var title = place.place_name,
-          address = place.road_address_name,
+      var title = place.title,
+          address = place.address,
           tel = place.phone,
-          x = place.x,
-          y = place.y;
+          imgURL = place.imgURL;
 
       title = title.replace(/(.{13})/g,"$1<br>");
 
@@ -143,11 +155,11 @@
                           <p class="tel detail search_O">' + tel + '</p>\
                         </div>\
                         <div class="col col-4">\
-                          <img class="img search_O" src="image/sample.png">\
+                          <img class="img search_O" src="' + imgURL + '">\
                         </div>\
                       </div>\
                       <div class="row btn_G search_O">\
-                        <div class="col btn search_O"><button id="cancelBtn" onclick="closeOverlay();" style="width: 50%; border: 1px solid #86AED8; border-radius: 5px; padding: 3px; font-size: 15px; text-align: right;">취소</button></div>\
+                        <div class="col btn search_O" style="text-align: right;"><button id="cancelBtn" onclick="closeOverlay();" style="width: 50%; border: 1px solid #86AED8; border-radius: 5px; padding: 3px; font-size: 15px;">취소</button></div>\
                       </div>\
                     </div>';
 

@@ -1,0 +1,59 @@
+.search_O.card {
+  width: 80vw; 
+  padding: 10px; 
+  transform: translate(0, 50%);
+}
+
+.search_O.row {
+  margin: 5px 0px;
+}
+
+.search_O.col-8 {
+  padding: 0;
+}
+
+.search_O.detail {
+  margin: 0;
+  font-size: 12px;
+  color: gray;
+}
+
+.search_O.col-4 {
+  padding: 0; 
+  text-align: center;
+}
+
+.search_O.img {
+  width: 20vw; 
+  height: 15vw; 
+  object-fit: cover; 
+  object-position: center;
+}
+
+.search_O.btn_G {
+  margin: 5px 0px;
+}
+
+.search_O.btn {
+  padding: 0px 5px;
+}
+
+#cancelBtn {
+  background-color: white;
+  color: #86AED8;
+}
+
+#cancelBtn:hover {
+  background-color: #86AED8;
+  color: white;
+}
+
+#addBtn {
+  background-color: #86AED8;
+  color: white;
+}
+
+#addBtn:hover {
+  background-color: white;
+  color: #86AED8;
+}

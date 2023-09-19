@@ -1,11 +1,50 @@
 package com.example.diary
 
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
+
+//카카오 맵 REST API Manager
+object SearchManager {
+    fun getList(apiKey: String, query: String, category: String, x: String, y: String): SearchResponse? {
+        val apiService = MyApplication().searchService
+        val call = apiService.getList(apiKey, query, category, x, y)
+        val response = call.execute()
+
+        if (response.isSuccessful) {
+            return response.body()
+        } else {
+            return null
+        }
+    }
+
+//    fun getList(apiKey: String, query: String, category: String, x: String, y: String, onSuccess: (SearchResponse) -> Unit) {
+//        val apiService = MyApplication().searchService
+//        val call = apiService.getList(apiKey, query, category, x, y)
+//
+//        call.enqueue(object : Callback<SearchResponse> {
+//            override fun onResponse(call: Call<SearchResponse>, response: Response<SearchResponse>) {
+//                if(response.isSuccessful) {
+//                    val json = response.body()
+//                    onSuccess(json!!)
+//                    Log.d("mylog", "검색 결과 - ${json}")
+//                } else {
+//                    Log.d("mylog", "API 호출 실패. 응답 코드: ${response.code()}")
+//                }
+//            }
+//
+//            override fun onFailure(call: Call<SearchResponse>, t: Throwable) {
+//                Log.d("mylog", "${t}")
+//            }
+//        })
+//    }
+}
 
 object LogInManager {
     fun sendLogInToServer(loginData: LogInData, onSuccess: (String) -> Unit) {
@@ -310,9 +349,9 @@ object DiaryManager {
 
 //장소별 일기 목록 불러오기
 object MapDiaryListManager {
-    fun getDiaryListData(address: String, onSuccess: (List<DiaryDtoList>) -> Unit, onError: (Throwable) -> Unit) {
+    fun getDiaryListData(x: String, y: String, onSuccess: (List<DiaryDtoList>) -> Unit, onError: (Throwable) -> Unit) {
         val apiService = MyApplication().mapDiaryService
-        val call = apiService.getDiaryData(address)
+        val call = apiService.getDiaryData(x, y)
 
         call.enqueue(object : Callback<List<DiaryDtoList>> {
             override fun onResponse(call: Call<List<DiaryDtoList>>, response: Response<List<DiaryDtoList>>) {

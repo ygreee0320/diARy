@@ -3,6 +3,18 @@ package com.example.diary
 import retrofit2.Call
 import retrofit2.http.*
 
+//카카오 맵 REST API
+interface SearchService {
+    @GET("v2/local/search/keyword.json")
+    fun getList(
+        @Header("Authorization") API_KEY: String,
+        @Query("query") query: String,
+        @Query("category_group_code") category: String,
+        @Query("x") x: String,
+        @Query("y") y: String
+    ): Call<SearchResponse>
+}
+
 interface LogInService {
     @POST("login")
     fun sendLogInRequest(@Body loginData: LogInData): Call<Void>
@@ -73,8 +85,8 @@ interface ModDiaryService { // 일기 수정
 }
 
 interface MapDiaryService {
-    @GET("map/{address}")
-    fun getDiaryData(@Path("address") address: String): Call<List<DiaryDtoList>>
+    @GET("map/{x}/{y}")
+    fun getDiaryData(@Path("x") x: String, @Path("y") y: String): Call<List<DiaryDtoList>>
 }
 
 interface MyDiaryService {

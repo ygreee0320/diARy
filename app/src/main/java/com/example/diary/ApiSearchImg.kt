@@ -2,14 +2,19 @@ package com.example.diary
 
 import android.util.Log
 import com.bumptech.glide.module.AppGlideModule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStream
 import java.io.InputStreamReader
+import java.io.UnsupportedEncodingException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
+import java.net.URLEncoder
 
 class ApiSearchImg{
     val clientId = "PTbDG8TOZrpK0jDyPC1u"   //애플리케이션 클라이언트 아이디
@@ -22,9 +27,14 @@ class ApiSearchImg{
     fun searchImg(text: String): String {
         var image = "image/sample.png" //기본 이미지
 
-        this.text = text
+        try {
+            this.text = URLEncoder.encode(text, "UTF-8")
+        } catch (e: UnsupportedEncodingException) {
+            throw RuntimeException("검색어 인코딩 실패")
+        }
 
         val apiURL = "https://openapi.naver.com/v1/search/image?query=${text}&display=1&sort=sim"; //JSON 결과
+
         val responseBody = get(apiURL, requestHeaders)
 
         Log.d("mylog", "이미지 검색 테스트 - ${responseBody}")

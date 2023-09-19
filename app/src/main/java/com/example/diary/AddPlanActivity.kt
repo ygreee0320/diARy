@@ -82,6 +82,8 @@ class AddPlanActivity : AppCompatActivity() {
                 val enteredDate = data?.getStringExtra("enteredDateS")
                 val enteredStart = data?.getStringExtra("enteredTimeS")
                 val enteredEnd = data?.getStringExtra("enteredTimeE")
+                val x = data?.getStringExtra("x")
+                val y = data?.getStringExtra("y")
 
                 //val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
                 Log.d("리사이클러뷰", ""+position)
@@ -100,7 +102,7 @@ class AddPlanActivity : AppCompatActivity() {
                         // planDetailModel 인스턴스를 생성하고 리스트에 추가
                         val newPlanPlaceModel =
                             PlanDetailModel(place = enteredPlace, address = enteredAddress, tel = enteredTel,
-                                placeDate = placeDate, placeStart = enteredStart, placeEnd = enteredEnd)
+                                placeDate = placeDate, placeStart = enteredStart, placeEnd = enteredEnd, x = x, y = y)
                         planPlaceList.add(newPlanPlaceModel)
 
                         // 어댑터에 데이터 변경을 알림
@@ -140,7 +142,9 @@ class AddPlanActivity : AppCompatActivity() {
                             address = locationDetail.address,
                             placeDate = locationDetail.date,
                             placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                            placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                            placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                            x = locationDetail.x,
+                            y = locationDetail.y,
                         )
                     }
 
@@ -227,7 +231,9 @@ class AddPlanActivity : AppCompatActivity() {
                 timeStart = timeStartSql,
                 timeEnd = timeEndSql,
                 name = planDetail.place ?: "",
-                address = planDetail.address ?: ""
+                address = planDetail.address ?: "",
+                x = planDetail.x!!,
+                y = planDetail.y!!
             )
         }
 
@@ -283,7 +289,9 @@ class AddPlanActivity : AppCompatActivity() {
                 timeStart = timeStartSql,
                 timeEnd = timeEndSql,
                 name = planDetail.place ?: "",
-                address = planDetail.address ?: ""
+                address = planDetail.address ?: "",
+                x = planDetail.x!!,
+                y = planDetail.y!!,
             )
         }
 

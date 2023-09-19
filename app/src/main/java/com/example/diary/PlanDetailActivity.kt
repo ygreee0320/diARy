@@ -97,7 +97,9 @@ class PlanDetailActivity : AppCompatActivity() {
                             address = locationDetail.address,
                             placeDate = locationDetail.date,
                             placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                            placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                            placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                            x = locationDetail.x,
+                            y = locationDetail.y
                         )
                     }
 
@@ -110,6 +112,24 @@ class PlanDetailActivity : AppCompatActivity() {
                     Log.e("서버 테스트3", "오류: $throwable")
                 }
             )
+        }
+
+        binding.planMapBtn.setOnClickListener { // 지도보기 클릭 시
+            val intent = Intent(this, PlanMapActivity::class.java)
+
+            var i = 0
+            for (place in planPlaceList) {
+                val placeInfo = arrayListOf(place.place, place.x, place.y, place.placeDate.toString(), place.placeStart, place.placeEnd)
+                intent.putExtra("place${i}", placeInfo)
+
+                Log.d("mylog", "PlanDetailActivity -> place${i}의 정보: ${placeInfo}")
+
+                i++
+            }
+
+            intent.putExtra("planId", planId)
+            intent.putExtra("placeCnt", i)
+            startActivity(intent)
         }
 
         binding.planDetailLikeBtn.setOnClickListener { // 좋아요 버튼 클릭 시
@@ -186,7 +206,9 @@ class PlanDetailActivity : AppCompatActivity() {
                                 address = locationDetail.address,
                                 placeDate = locationDetail.date,
                                 placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                                placeEnd = formattedEndTime    // timeEnd를 원하는 형식으로 변환
+                                placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                x = locationDetail.x,
+                                y = locationDetail.y
                             )
                         }
 

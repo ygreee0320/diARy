@@ -3,6 +3,9 @@ package com.example.diary
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Half
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -57,7 +60,7 @@ class MapFragment : Fragment() {
         return binding.root
     }
 
-    inner class MapInterface(val context: Context) {
+    inner class MapInterface(context: Context) {
         var placeInfo: MutableMap<String, String?> = mutableMapOf()
 //        var title: String? = ""
 //        var address: String? = ""
@@ -71,20 +74,12 @@ class MapFragment : Fragment() {
 
         @JavascriptInterface
         fun showCustomOverlay() {
-//            val dialog = MapDialog(requireContext())
-
-            val search_img = ApiSearchImg()
-            val img = search_img.searchImg(placeInfo.getValue("title")!!)
-            placeInfo.put("imgURL", img)
-
-//            dialog.myDialog(placeInfo)
-
-            val dialog = MapDialog(context, placeInfo)
-            dialog.show()
+            val dialog = MapDialog(this@MapFragment.requireContext())
+            dialog.myDialog(placeInfo)
 
             dialog.setOnClickedListener(object: MapDialog.ButtonClickListener {
                 override fun onClicked(placeInfo: MutableMap<String, String?>) {
-                    val intent = Intent(context, RoadMapActivity::class.java)
+                    val intent = Intent(requireContext(), RoadMapActivity::class.java)
 
                     intent.putExtra("title", placeInfo.getValue("title"))
                     intent.putExtra("address", placeInfo.getValue("address"))
@@ -98,33 +93,21 @@ class MapFragment : Fragment() {
 
         @JavascriptInterface
         fun setPlaceInfo(title: String?, address: String?, x: String?, y: String?, panoId: String?) {
+            val search_img = ApiSearchImg()
+            val img = search_img.searchImg(title!!)
+
             placeInfo.putAll(
                 mapOf(
                     "title" to title,
                     "address" to address,
                     "x" to x,
                     "y" to y,
-                    "panoId" to panoId
-                ))
+                    "panoId" to panoId,
+                    "imgURL" to img
+                )
+            )
             Log.d("mylog", "placeInfo - ${placeInfo}")
-//            this.title = title
-//            this.address = address
-//            this.x = x
-//            this.y = y
-//            Log.d("mylog", "Save successed - ${this.title} / ${this.address} / ${this.x} / ${this.y}")
         }
-
-//        @JavascriptInterface
-//        fun moveToRoadMap() {
-//            val intent = Intent(context, RoadMapActivity::class.java)
-//
-//            intent.putExtra("title", title)
-//            intent.putExtra("address", address)
-//            intent.putExtra("x", x)
-//            intent.putExtra("y", y)
-//
-//            startActivity(intent)
-//        }
     }
 
     companion object {

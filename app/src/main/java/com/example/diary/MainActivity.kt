@@ -3,13 +3,17 @@ package com.example.diary
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
 import android.text.TextUtils.replace
+import android.util.Base64
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -19,17 +23,22 @@ import com.example.diary.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.navigation.NavigationView
+import java.security.MessageDigest
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityMainBinding
     lateinit var sharedPreferences: SharedPreferences //토큰을 위한 sharedPreferences
     private var authToken: String? = null    //로그인 토큰 저장
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        //KeyHash
+        getKeyHash()
 
         // 저장된 토큰 읽어오기
         sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
@@ -126,5 +135,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.menu_3 -> {}
         }
         return true
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    fun getKeyHash() {
+        try {
+            val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+            val signatures = info.signingInfo.apkContentsSigners
+            val md = MessageDigest.getInstance("SHA")
+            for (signature in signatures) {
+                val md: MessageDigest
+                md = MessageDigest.getInstance("SHA")
+                md.update(signature.toByteArray())
+                val key = String(Base64.encode(md.digest(), 0))
+                Log.d("mylog", "Hash key: $key")
+            }
+        } catch(e: Exception) {
+            Log.e("name not found", e.toString())
+        }
     }
 }

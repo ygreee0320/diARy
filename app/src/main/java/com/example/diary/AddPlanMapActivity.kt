@@ -68,7 +68,7 @@ class AddPlanMapActivity : AppCompatActivity() {
                     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 
-                    binding.webview.loadUrl("javascript:diaryAddSpot.searchPlaces()")
+                    binding.webview.loadUrl("javascript:addSpot.searchPlaces()")
                 }
                 return true
             }
@@ -87,6 +87,7 @@ class AddPlanMapActivity : AppCompatActivity() {
         var tel: String? = null
         var x: String? = null
         var y: String? = null
+        var imgURL: String? = null
 
         //일정 정보 - 초기값: 현재 날짜 및 시간
         var dateS: Array<Int>? = null
@@ -116,6 +117,12 @@ class AddPlanMapActivity : AppCompatActivity() {
         }
 
         @JavascriptInterface
+        fun getSearchImg(): String {
+            imgURL = ApiSearchImg().searchImg(title!!)
+            return imgURL as String
+        }
+
+        @JavascriptInterface
         fun getSearchResult(): String {
             return keyword
         }
@@ -138,7 +145,6 @@ class AddPlanMapActivity : AppCompatActivity() {
 
         @JavascriptInterface
         fun addPlaceIn() {
-
             Log.d("mylog", "add successed" + title + address + tel + dateS  + timeS + timeE)
 
             val placeDate = "${dateS?.get(0)}-${dateS?.get(1)}-${dateS?.get(2)}"
@@ -154,6 +160,9 @@ class AddPlanMapActivity : AppCompatActivity() {
             intent.putExtra("enteredDateS", placeDate)
             intent.putExtra("enteredTimeS", placeStart)
             intent.putExtra("enteredTimeE", placeEnd)
+            intent.putExtra("x", x)
+            intent.putExtra("y", y)
+            intent.putExtra("imgURL", imgURL)
 
             // 결과를 설정하고 현재 활동 종료
             setResult(Activity.RESULT_OK, intent)

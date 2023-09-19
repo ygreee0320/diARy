@@ -17,7 +17,9 @@ data class Location(
     val timeStart: Time,
     val timeEnd: Time,
     val name: String,
-    val address: String
+    val address: String,
+    val x: String,
+    val y: String
 )
 
 data class Tag(
@@ -81,7 +83,9 @@ data class LocationDetail(
     val timeStart: Time,
     val timeEnd: Time,
     val name: String,
-    val address: String
+    val address: String,
+    val x: String,
+    val y: String
 )
 
 data class TagDetail(

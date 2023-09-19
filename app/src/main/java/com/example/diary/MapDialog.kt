@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.annotation.UiThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.isVisible
@@ -17,20 +18,71 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.diary.databinding.MapDialogBinding
+import org.w3c.dom.Text
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
 import java.util.concurrent.Executors
 
-class MapDialog(context: Context, placeInfo: MutableMap<String, String?>): Dialog(context){
+class MapDialog(context: Context){
+
+    val dialog = Dialog(context)
     lateinit var onClickListener: ButtonClickListener
 
-    lateinit var binding: MapDialogBinding
     lateinit var recyclerView: RecyclerView
     lateinit var adapter: MapDiaryAdapter
 
-    val placeInfo = placeInfo
+    lateinit var placeInfo: MutableMap<String, String?>
+
+    fun myDialog(placeInfo: MutableMap<String, String?>) {
+        dialog.setContentView(R.layout.map_dialog)
+        dialog.setCanceledOnTouchOutside(true)
+        dialog.setCancelable(true)
+        dialog.show()
+
+        //변수설정
+        this.placeInfo = placeInfo
+
+        //초기화
+        //recyclerview
+        recyclerView = dialog.findViewById(R.id.map_recyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(dialog.context, LinearLayoutManager.HORIZONTAL, false)
+        adapter = MapDiaryAdapter(emptyList()) //초기 빈 목록으로 어댑터 설정
+        recyclerView.adapter = adapter
+
+        //DB 읽기
+        loadDiaryList()
+
+        //장소사진
+        val imgURL = placeInfo.getValue("imgURL")
+        val img = dialog.findViewById<ImageView>(R.id.img)
+        ImageLoader.load(imgURL!!, img)
+
+        //장소이름
+        val place = dialog.findViewById<TextView>(R.id.place)
+        place.text = placeInfo.getValue("title")
+
+        //로드맵 존재 유무
+        val roadmapBtn = dialog.findViewById<Button>(R.id.roadmapBtn)
+        if (placeInfo.getValue("panoId") == null) {
+            roadmapBtn.visibility = View.GONE
+        } else {
+            roadmapBtn.visibility = View.VISIBLE
+        }
+
+        //로드맵 이동
+        roadmapBtn.setOnClickListener {
+            onClickListener.onClicked(placeInfo)
+            dialog.dismiss()
+        }
+
+        //Dialog 닫기
+        val closeBtn = dialog.findViewById<ImageView>(R.id.closeBtn)
+        closeBtn.setOnClickListener {
+            dialog.dismiss()
+        }
+    }
 
     interface ButtonClickListener {
         fun onClicked(placeInfo: MutableMap<String, String?>)
@@ -38,50 +90,6 @@ class MapDialog(context: Context, placeInfo: MutableMap<String, String?>): Dialo
 
     fun setOnClickedListener(listener: ButtonClickListener) {
         onClickListener = listener
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = MapDialogBinding.inflate(layoutInflater)
-
-        setContentView(binding.root)
-        setCanceledOnTouchOutside(true)
-        setCancelable(true)
-
-        //초기화
-        //recyclerview
-        recyclerView = binding.mapRecyclerView
-        recyclerView.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
-
-        adapter = MapDiaryAdapter(emptyList()) //초기 빈 목록으로 어댑터 설정
-        recyclerView.adapter = adapter
-
-        loadDiaryList()
-
-        //장소 사진
-        val imgURL = placeInfo.getValue("imgURL")
-        ImageLoader.load(imgURL!!, binding.img)
-
-        //로드맵 존재 유무
-        if (placeInfo.getValue("panoId") == null) {
-            binding.roadmapBtn.visibility = View.GONE
-        } else {
-            binding.roadmapBtn.visibility = View.VISIBLE
-        }
-
-        //장소 이름
-        binding.place.text = placeInfo.getValue("title")
-
-        //로드맵 이동
-        binding.roadmapBtn.setOnClickListener {
-            onClickListener.onClicked(placeInfo)
-            dismiss()
-        }
-
-        //Dialog 닫기
-        binding.closeBtn.setOnClickListener {
-            dismiss()
-        }
     }
 
     object ImageLoader {
@@ -102,16 +110,19 @@ class MapDialog(context: Context, placeInfo: MutableMap<String, String?>): Dialo
     }
 
     fun loadDiaryList() {
-        val address = placeInfo.getValue("address")
+        val x = placeInfo.getValue("x")
+        val y = placeInfo.getValue("y")
 
-        Log.d("mylog", "일기 조회 주소 - ${address}")
+        Log.d("mylog", "일기 조회 주소 - ${x}, ${y}")
 
-        if (address != null) {
+        if (x != null && y != null) {
             MapDiaryListManager.getDiaryListData(
-                address,
+                x,
+                y,
                 onSuccess = { mapDiaryList ->
                     val diary = mapDiaryList.map { it }
-                    Log.d("mylog", "주소별 일기 조회 테스트 - ${diary}")
+                    Log.d("mylog", "x: ${x}, y: ${y}")
+                    Log.d("mylog", "주소별 일기 조회 - ${diary}")
                     adapter.updateData(diary)
                 },
                 onError = {throwable ->

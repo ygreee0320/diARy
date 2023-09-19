@@ -1,29 +1,29 @@
-#search_place {
+#search_result {
   height: 30vh;
   padding: 10px;
 }
 
-#search_place h6 {
+#search_result h6 {
   padding: 10px;
   margin: 0px;
 }
 
-.row {
+.search_R.row {
   margin: 0px;
 }
 
-.col {
+.search_R.col {
   padding: 10px;
 }
 
-.place_img {
+.search_R.img {
   width: 100%;
   height: 10vh;
   object-fit: cover; 
   object-position: center;
 }
 
-.place_name {
+.search_R.name {
   margin: 0px;
   font-size: 13px;
 }

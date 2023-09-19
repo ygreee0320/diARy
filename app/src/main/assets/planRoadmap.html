@@ -20,24 +20,35 @@
     }
     #roadview {
         width: 100vw;
-        height: 70vh;
+        height: 100vh;
     }
 </style>
 </head>
   <div id="roadview"></div>
 
   <script>
-    var position = new kakao.maps.LatLng();
+    //로드맵 설정 함수
+    var planRoadmap = {
+      setRoadmap: function(x, y){
+        var position = new kakao.maps.LatLng(Number(y), Number(x));
+
+        // 특정 위치의 좌표와 가까운 로드뷰의 panoId를 추출하여 로드뷰를 띄운다.
+        roadviewClient.getNearestPanoId(position, 50, function(panoId) {
+          roadview.setPanoId(panoId, position); //panoId와 중심좌표를 통해 로드뷰 실행
+        });
+       }
+    }
 
     //로드맵 표시
     var roadviewContainer = document.getElementById('roadview'); //로드뷰를 표시할 div
     var roadview = new kakao.maps.Roadview(roadviewContainer); //로드뷰 객체
     var roadviewClient = new kakao.maps.RoadviewClient(); //좌표로부터 로드뷰 파노ID를 가져올 로드뷰 helper객체
 
-    // 특정 위치의 좌표와 가까운 로드뷰의 panoId를 추출하여 로드뷰를 띄운다.
-    roadviewClient.getNearestPanoId(position, 50, function(panoId) {
-      roadview.setPanoId(panoId, position); //panoId와 중심좌표를 통해 로드뷰 실행
-    });
+    var coords = Android.getCoords(0),
+        x = coords.split(',')[0],
+        y = coords.split(',')[1];
+
+    planRoadmap.setRoadmap(x, y);
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
