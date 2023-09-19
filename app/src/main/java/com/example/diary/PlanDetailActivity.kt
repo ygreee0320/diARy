@@ -9,6 +9,7 @@ import android.text.TextUtils.split
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -17,6 +18,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.diary.databinding.ActivityPlanDetailBinding
 import com.google.android.material.color.utilities.MaterialDynamicColors.onError
 import java.sql.Timestamp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,7 +30,6 @@ class PlanDetailActivity : AppCompatActivity() {
     private var planId = -1 //현재 플랜ID를 담는 변수
     private var planLikeCount: Int ?= 0 // 현재 플랜의 좋아요 수
     private var isLiked:Boolean = false // 초기에는 좋아요가 되지 않은 상태로 설정
-    private var isTakeIn:Boolean = false // 초기에는 담기가 되지 않은 상태로 설정
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     // 여행지 데이터를 저장할 리스트
@@ -79,11 +83,13 @@ class PlanDetailActivity : AppCompatActivity() {
 
                         // 날짜와 시간을 조합하여 Timestamp로 변환
                         val timestampString = "$datePart $timePart"
-                        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                        val dateFormat =
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                         val parsedTimestamp = Timestamp(dateFormat.parse(timestampString).time)
 
                         // SimpleDateFormat을 사용하여 원하는 형식으로 포맷
-                        val outputDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                        val outputDateFormat =
+                            SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                         outputDateFormat.timeZone = TimeZone.getTimeZone("Asia/Seoul") // 원하는 시간대 설정
                         val formattedDate = outputDateFormat.format(parsedTimestamp)
 
@@ -92,56 +98,82 @@ class PlanDetailActivity : AppCompatActivity() {
                     } else {
                         // 올바른 형식이 아닐 경우 오류 처리
                         Log.e("Error", "Invalid timestamp format")
+
+
+
+
+
+                        if (planDetail.user.userId == userId) {
+                            binding.planDetailTakeInBtn.visibility = View.GONE
+                        }
+
+                        if (planDetail.origin.userId != userId) {
+                            binding.planDetailOriginWriter.text = planDetail.origin.username
+                            binding.originImg.visibility = View.VISIBLE // 텍스트뷰를 보이도록 설정
+                            binding.planDetailOriginWriter.visibility = View.VISIBLE
+                        }
+
+
+                        val tagNames = planDetail.tags.joinToString(" ") { "#${it.name}" }
+                        binding.planDetailHash.text = tagNames
+
+                        // 만약 작성한 유저와 현재 유저가 같다면, 수정하기/삭제하기 등등
+                        val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        val formattedStartDate = dateFormatter.format(planDetail.plan.travelStart)
+                        val formattedEndDate = dateFormatter.format(planDetail.plan.travelEnd)
+
+                        binding.planDetailMyDate.text = "$formattedStartDate ~ $formattedEndDate"
+
+                        planLikeCount = planDetail.likes.size  //좋아요 수 저장
+                        binding.planDetailLike.text = "$planLikeCount"
+
+                        isLiked = planDetail.likes.any { it.userId == userId }
+
+                        Log.d("기존 유저아이디", "" + userId)
+                        Log.d("기존 좋아요", "" + isLiked)
+
+                        // 좋아요 상태에 따라 UI 업데이트
+                        if (isLiked) { //로그인 한 유저가 좋아요를 누른 상태라면
+                            binding.planDetailLikeImg.text = "♥ "
+                        } else { //로그인 한 유저가 좋아요를 누른 상태가 아니라면
+                            binding.planDetailLikeImg.text = "♡ "
+                        }
+
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val planDetailModels: List<PlanDetailModel> =
+                                planDetail.locations.map { locationDetail ->
+                                    val formattedStartTime = SimpleDateFormat(
+                                        "HH:mm",
+                                        Locale.getDefault()
+                                    ).format(locationDetail.timeStart)
+                                    val formattedEndTime = SimpleDateFormat(
+                                        "HH:mm",
+                                        Locale.getDefault()
+                                    ).format(locationDetail.timeEnd)
+                                    val imgURL = ApiSearchImg().searchImg(locationDetail.name)
+
+                                    PlanDetailModel(
+                                        place = locationDetail.name,
+                                        address = locationDetail.address,
+                                        placeDate = locationDetail.date,
+                                        placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                        placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                        x = locationDetail.x,
+                                        y = locationDetail.y,
+                                        imgURL = imgURL
+                                    )
+                                }
+                            withContext(Dispatchers.Main) {
+                                planDetailAdapter.updateData(planDetailModels)
+                                //같지 않다면, 수정/삭제 gone, 정보레이아웃 visible 필요
+                            }
+                        }
                     }
-
-                    val tagNames = planDetail.tags.joinToString(" ") { "#${it.name}" }
-                    binding.planDetailHash.text = tagNames
-
-                    // 만약 작성한 유저와 현재 유저가 같다면, 수정하기/삭제하기 등등
-                    val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                    val formattedStartDate = dateFormatter.format(planDetail.plan.travelStart)
-                    val formattedEndDate = dateFormatter.format(planDetail.plan.travelEnd)
-
-                    binding.planDetailMyDate.text = "$formattedStartDate ~ $formattedEndDate"
-
-                    planLikeCount = planDetail.likes.size  //좋아요 수 저장
-                    binding.planDetailLike.text = "$planLikeCount"
-
-                    isLiked = planDetail.likes.any { it.userId == userId }
-
-                    Log.d("기존 유저아이디", "" + userId)
-                    Log.d("기존 좋아요", "" + isLiked)
-
-                    // 좋아요 상태에 따라 UI 업데이트
-                    if (isLiked) { //로그인 한 유저가 좋아요를 누른 상태라면
-                        binding.planDetailLikeImg.text = "♥ "
-                    } else { //로그인 한 유저가 좋아요를 누른 상태가 아니라면
-                        binding.planDetailLikeImg.text = "♡ "
-                    }
-
-                    val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
-                        val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
-                        val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
-
-                        PlanDetailModel(
-                            place = locationDetail.name,
-                            address = locationDetail.address,
-                            placeDate = locationDetail.date,
-                            placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                            placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
-                            x = locationDetail.x,
-                            y = locationDetail.y
-                        )
-                    }
-
-                    planDetailAdapter.updateData(planDetailModels)
-
-                    //같지 않다면, 수정/삭제 gone, 정보레이아웃 visible 필요
-
                 },
                 onError = { throwable ->
                     Log.e("서버 테스트3", "오류: $throwable")
                 }
+
             )
         }
 
@@ -269,22 +301,26 @@ class PlanDetailActivity : AppCompatActivity() {
                         planLikeCount = planDetail.likes.size  //좋아요 수 저장
                         binding.planDetailLike.text = "$planLikeCount"
 
-                        val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
-                            val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
-                            val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
+                                val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
+                                val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+                                val imgURL = ApiSearchImg().searchImg(locationDetail.name)
 
-                            PlanDetailModel(
-                                place = locationDetail.name,
-                                address = locationDetail.address,
-                                placeDate = locationDetail.date,
-                                placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                                placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
-                                x = locationDetail.x,
-                                y = locationDetail.y
-                            )
+                                PlanDetailModel(
+                                    place = locationDetail.name,
+                                    address = locationDetail.address,
+                                    placeDate = locationDetail.date,
+                                    placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                    placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                    x = locationDetail.x,
+                                    y = locationDetail.y
+                                )
+                            }
+                            withContext(Dispatchers.Main) {
+                                planDetailAdapter.updateData(planDetailModels)
+                            }
                         }
-
-                        planDetailAdapter.updateData(planDetailModels)
                     },
                     onError = { throwable ->
                         Log.e("서버 테스트3", "오류: $throwable")

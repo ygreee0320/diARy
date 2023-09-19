@@ -11,7 +11,9 @@ import android.text.Editable
 import android.util.Log
 import android.view.MenuItem
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -22,6 +24,8 @@ import com.aqoong.lib.hashtagedittextview.HashTagEditTextView
 import com.example.diary.PlanManager.sendModPlanToServer
 import com.example.diary.PlanManager.sendPlanToServer
 import com.example.diary.databinding.ActivityAddPlanBinding
+import kotlinx.coroutines.*
+import okhttp3.Dispatcher
 import retrofit2.http.POST
 import java.sql.Date
 import java.sql.Time
@@ -54,7 +58,6 @@ class AddPlanActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.title = ""
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)  //툴바에 뒤로 가기 버튼 추가
 
         // 저장된 토큰 읽어오기
         val sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
@@ -84,7 +87,6 @@ class AddPlanActivity : AppCompatActivity() {
                 val enteredEnd = data?.getStringExtra("enteredTimeE")
                 val x = data?.getStringExtra("x")
                 val y = data?.getStringExtra("y")
-                val imgURL =
 
                 //val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
                 Log.d("리사이클러뷰", ""+position)
@@ -101,13 +103,17 @@ class AddPlanActivity : AppCompatActivity() {
                 } else {
                     if (!enteredPlace.isNullOrEmpty()) {
                         // planDetailModel 인스턴스를 생성하고 리스트에 추가
-                        val newPlanPlaceModel =
-                            PlanDetailModel(place = enteredPlace, address = enteredAddress, tel = enteredTel,
-                                placeDate = placeDate, placeStart = enteredStart, placeEnd = enteredEnd, x = x, y = y)
-                        planPlaceList.add(newPlanPlaceModel)
-
-                        // 어댑터에 데이터 변경을 알림
-                        planDetailAdapter.notifyDataSetChanged()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val imgURL = ApiSearchImg().searchImg(enteredPlace)
+                            val newPlanPlaceModel =
+                                PlanDetailModel(place = enteredPlace, address = enteredAddress, tel = enteredTel, imgURL = imgURL,
+                                    placeDate = placeDate, placeStart = enteredStart, placeEnd = enteredEnd, x = x, y = y)
+                            withContext(Dispatchers.Main) {
+                                planPlaceList.add(newPlanPlaceModel)
+                                // 어댑터에 데이터 변경을 알림
+                                planDetailAdapter.notifyDataSetChanged()
+                            }
+                        }
                     }
                 }
             }
@@ -134,22 +140,27 @@ class AddPlanActivity : AppCompatActivity() {
                     binding.planDateStart.text = formattedStartDate
                     binding.planDateEnd.text = formattedEndDate
 
-                    val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
-                        val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
-                        val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
+                            val formattedStartTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeStart)
+                            val formattedEndTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(locationDetail.timeEnd)
+                            val imgURL = ApiSearchImg().searchImg(locationDetail.name)
 
-                        PlanDetailModel(
-                            place = locationDetail.name,
-                            address = locationDetail.address,
-                            placeDate = locationDetail.date,
-                            placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
-                            placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
-                            x = locationDetail.x,
-                            y = locationDetail.y,
-                        )
+                            PlanDetailModel(
+                                place = locationDetail.name,
+                                address = locationDetail.address,
+                                placeDate = locationDetail.date,
+                                placeStart = formattedStartTime, // timeStart를 원하는 형식으로 변환
+                                placeEnd = formattedEndTime,    // timeEnd를 원하는 형식으로 변환
+                                x = locationDetail.x,
+                                y = locationDetail.y,
+                                imgURL = imgURL
+                            )
+                        }
+                        withContext(Dispatchers.Main) {
+                            planDetailAdapter.updateData(planDetailModels)
+                        }
                     }
-
-                    planDetailAdapter.updateData(planDetailModels)
                 },
                 onError = { throwable ->
                     Log.e("서버 테스트3", "오류: $throwable")
@@ -183,6 +194,10 @@ class AddPlanActivity : AppCompatActivity() {
             datePickerDialog.show()
             datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.primary))
             datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(ContextCompat.getColor(this, R.color.primary))
+        }
+
+        binding.planImgBtn.setOnClickListener { // 이미지 버튼 클릭 시, 갤러리로 이동해서 이미지 부착
+            imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
         }
 
         // 저장하기 버튼 클릭 시
@@ -221,6 +236,20 @@ class AddPlanActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    private val imagePicker =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
+            if (uri != null) {
+                // 이미지 뷰에 선택한 이미지를 표시
+                binding.planImgBtn.setImageURI(uri)
+
+                // URI에 대한 지속적인 권한을 부여
+                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                applicationContext.contentResolver.takePersistableUriPermission(uri, flag)
+            } else {
+                Toast.makeText(applicationContext, "이미지를 선택하지 않았습니다.", Toast.LENGTH_LONG).show()
+            }
+        }
 
     // 입력된 데이터를 planData에 넣어서 전송 요청 (일정 추가)
     private fun savePlanToServer() {
