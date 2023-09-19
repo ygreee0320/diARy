@@ -21,10 +21,11 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.mobileconnectors.s3.transferutility.*
+import com.amazonaws.regions.Region
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.s3.AmazonS3Client
 import com.example.diary.PlanManager.sendModPlanToServer
 import com.example.diary.PlanManager.sendPlanToServer
 import com.example.diary.databinding.ActivityAddPlanBinding
@@ -45,6 +46,7 @@ class AddPlanActivity : AppCompatActivity() {
     private var new: Int ?= 1 // 새로 작성이면 1, 수정이면 0
     private var planId: Int ?= -1 // 일정 수정일 때의 해당 플랜 아이디
     private var uriList = ArrayList<Uri>()
+    private lateinit var transferUtility: TransferUtility
 
     // 여행지 데이터를 저장할 리스트
     private val planPlaceList = mutableListOf<PlanDetailModel>()
@@ -78,6 +80,19 @@ class AddPlanActivity : AppCompatActivity() {
         }
 
         viewModel = ViewModelProvider(this).get(AddPlanViewModel::class.java)
+
+        val awsAccessKey = "1807222EE827BB41A77C"
+        val awsSecretKey = "E9DC72D2C24094CB2FE00763EF33330FB7948154"
+        val awsCredentials = BasicAWSCredentials(awsAccessKey, awsSecretKey)
+        val s3Client = AmazonS3Client(awsCredentials, Region.getRegion(Regions.AP_NORTHEAST_2))
+        s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
+        // Initialize TransferUtility with a valid context (this)
+        transferUtility = TransferUtility.builder()
+            .s3Client(s3Client)
+            .context(this)
+            .defaultBucket("diary")
+            .build()
+        TransferNetworkLossHandler.getInstance(applicationContext)
 
         // AddPlaceInPlanActivity(지도)를 시작하기 위한 요청 코드 정의 (이미지 추가 필요)
         planInMapActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -277,7 +292,7 @@ class AddPlanActivity : AppCompatActivity() {
 
         val imageData = getRealPathFromURI(imageUri)
         val file = File(imageData)
-        val transferUtility : TransferUtility? = null
+
         val uploadObserver = transferUtility?.upload("diary", file.toString(), file)
         uploadObserver!!.setTransferListener(object : TransferListener {
             override fun onStateChanged(id: Int, state: TransferState) {
@@ -358,13 +373,12 @@ class AddPlanActivity : AppCompatActivity() {
         var imageUri: Uri? = null
         var imageData: String? = null
         val file: File?
-        val transferUtility : TransferUtility? = null
         if (uriList[0] != null) {
             imageUri = uriList[0]
 
             imageData = getRealPathFromURI(imageUri)
             file = File(imageData)
-            val uploadObserver = transferUtility?.upload("diary", file.toString(), file)
+            val uploadObserver = transferUtility.upload("diary", file.toString(), file)
             uploadObserver!!.setTransferListener(object : TransferListener {
                 override fun onStateChanged(id: Int, state: TransferState) {
                     Log.d("onStateChanged: $id", "${state.toString()}")
