@@ -75,7 +75,7 @@ class AddDiaryMapActivity : AppCompatActivity() {
                     val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
 
-                    binding.webview.loadUrl("javascript:diaryAddSpot.searchPlaces()")
+                    binding.webview.loadUrl("javascript:addSpot.searchPlaces()")
                 }
                 return true
             }
