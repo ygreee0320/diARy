@@ -1,7 +1,10 @@
 package com.example.diary
 
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,8 +16,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import android.webkit.WebViewClient
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.diary.databinding.FragmentMapBinding
+import com.google.android.material.color.utilities.MaterialDynamicColors.onError
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.net.URL
+import java.util.concurrent.Executors
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -62,10 +77,6 @@ class MapFragment : Fragment() {
 
     inner class MapInterface(context: Context) {
         var placeInfo: MutableMap<String, String?> = mutableMapOf()
-//        var title: String? = ""
-//        var address: String? = ""
-//        var x: String? = null
-//        var y: String? = null
 
         @JavascriptInterface
         fun showToast(toast: String) {
@@ -74,21 +85,10 @@ class MapFragment : Fragment() {
 
         @JavascriptInterface
         fun showCustomOverlay() {
+            Log.d("mylog", "showCustomOverlay -> 현재 스레드: ${Thread.currentThread()}")
+
             val dialog = MapDialog(this@MapFragment.requireContext())
             dialog.myDialog(placeInfo)
-
-            dialog.setOnClickedListener(object: MapDialog.ButtonClickListener {
-                override fun onClicked(placeInfo: MutableMap<String, String?>) {
-                    val intent = Intent(requireContext(), RoadMapActivity::class.java)
-
-                    intent.putExtra("title", placeInfo.getValue("title"))
-                    intent.putExtra("address", placeInfo.getValue("address"))
-                    intent.putExtra("x", placeInfo.getValue("x"))
-                    intent.putExtra("y", placeInfo.getValue("y"))
-
-                    startActivity(intent)
-                }
-            })
         }
 
         @JavascriptInterface

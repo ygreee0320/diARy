@@ -1,6 +1,7 @@
 package com.example.diary
 
 import android.content.Intent
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -28,6 +29,8 @@ class MapDiaryAdapter(var datas: List<DiaryDtoList>?): RecyclerView.Adapter<MapD
     @UiThread
     //데이터 업데이트 메서드
     fun updateData(newDiaries: List<DiaryDtoList>) {
+        Log.d("mylog", "MapDiaryAdapter.updateData -> 현재 스레드: ${Thread.currentThread()}")
+
         datas = newDiaries
         notifyDataSetChanged()
     }
