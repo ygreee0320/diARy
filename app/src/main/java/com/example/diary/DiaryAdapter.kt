@@ -7,15 +7,38 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
+import com.amazonaws.regions.Region
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.s3.AmazonS3Client
 import com.bumptech.glide.Glide.init
 
 class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerView.Adapter<DiaryAdapter.DiaryViewHolder>()  {
     private var searchDiary = false // 일기 검색이라면 true, 내 일기 목록이라면 false
+    private lateinit var transferUtility: TransferUtility
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DiaryViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.diary_recyclerview, parent, false)
         return DiaryViewHolder(view)
+        val awsAccessKey = "1807222EE827BB41A77C"
+        val awsSecretKey = "E9DC72D2C24094CB2FE00763EF33330FB7948154"
+        val awsCredentials = BasicAWSCredentials(awsAccessKey, awsSecretKey)
+        val s3Client = AmazonS3Client(awsCredentials, Region.getRegion(Regions.AP_NORTHEAST_2))
+        s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
+        // Initialize TransferUtility with a valid context (this)
+        transferUtility = TransferUtility.builder()
+            .s3Client(s3Client)
+            .context(parent.context)
+            .defaultBucket("diary")
+            .build()
+        TransferNetworkLossHandler.getInstance(parent.context)
+
     }
 
     override fun onBindViewHolder(holder: DiaryViewHolder, position: Int) {
@@ -44,6 +67,8 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
         private val writerTextView: TextView = itemView.findViewById(R.id.diary_writer)
         private val createTextView: TextView = itemView.findViewById(R.id.diary_create)
         private val diaryLockImg : ImageView = itemView.findViewById(R.id.diary_lock)
+        private val diaryImg: ImageView = itemView.findViewById(R.id.diary_img)
+
 
         init {
             itemView.setOnClickListener {
@@ -58,6 +83,11 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
         fun bind(diary: DiaryDetailResponse) {
             titleTextView.text = diary.diaryDto.title
             placeTextView.text = diary.diaryDto.travelDest
+            if (diary.diaryDto.imageUri != null) {
+                diaryImg.setImageURI(diary.diaryDto.imageUri.toUri())
+            }
+
+
 
             if (searchDiary) { // 일기 검색 목록이라면
                 diaryInfoLayout.visibility = View.VISIBLE

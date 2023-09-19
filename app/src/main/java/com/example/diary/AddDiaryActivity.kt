@@ -16,8 +16,11 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.util.Log
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.registerForActivityResult
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -50,6 +53,9 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
     private lateinit var transferUtility: TransferUtility
     private val REQUEST_CODE = 123
 
+    //대표이미지 추가를 위한
+    private var uriList = ArrayList<Uri>()
+
     private var new: Int? = 1 // 새로 작성이면 1, 수정이면 0, 플랜 바탕 작성이면 -1
     private var diaryId: Int? = -1 // 일기 수정일 때의 해당 일기 아이디
     private var planId: Int? = -1 // 플랜 바탕 작성일 때의 해당 플랜 아이디
@@ -62,6 +68,24 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         lateinit var addPlaceActivityResult: ActivityResultLauncher<Intent>
         lateinit var addContentActivityResult: ActivityResultLauncher<Intent>
     }
+
+    private val singleImagePicker =
+        registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
+            if (uri != null) {
+                // 이미 선택된 사진을 지웁니다.
+                uriList.clear()
+
+                uriList.add(uri)
+                binding.diaryImgBtn.setImageURI(uri)
+
+                // URI에 대한 지속적인 권한을 부여합니다.
+                val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                applicationContext.contentResolver.takePersistableUriPermission(uri, flag)
+            } else {
+                Toast.makeText(applicationContext, "이미지를 선택하지 않았습니다.", Toast.LENGTH_LONG).show()
+            }
+        }
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -279,6 +303,12 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                 .setTextColor(ContextCompat.getColor(this, R.color.primary))
         }
 
+
+        binding.diaryImgBtn.setOnClickListener {
+            singleImagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        }
+
+
         // 여행지 추가 버튼 클릭 시
         binding.diaryAddPlaceBtn.setOnClickListener {
             // 기존의 입력을 ViewModel에 저장
@@ -322,6 +352,11 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 
                     binding.diaryAddStart.text = formattedStartDate
                     binding.diaryAddEnd.text = formattedEndDate
+                    if (diaryDetail.diaryDto.imageUri != null) {
+                        binding.diaryImgBtn.setImageURI(diaryDetail.diaryDto.imageUri.toUri())
+
+                    }
+
 
                     val diaryPlaceModels: List<DiaryPlaceModel> =
                         if (diaryDetail.diaryLocationDtoList != null && diaryDetail.diaryLocationDtoList.isNotEmpty()) {
@@ -479,6 +514,30 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         val fileList: MutableList<DiaryLocationImageDto> = mutableListOf()
         val fileListFile: MutableList<File> = mutableListOf()
 
+        val imageuri = uriList[0]
+        val imagedata = getRealPathFromURI(imageuri)
+        val imagefile = File(imagedata)
+
+        val uploadObserver = transferUtility.upload("diary", imagefile.toString(), imagefile)
+        uploadObserver.setTransferListener(object : TransferListener {
+            override fun onStateChanged(id: Int, state: TransferState) {
+                Log.d("onStateChanged: $id", "${state.toString()}")
+            }
+
+            override fun onProgressChanged(
+                id: Int,
+                bytesCurrent: Long,
+                bytesTotal: Long
+            ) {
+                val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
+                val percentDone = percentDonef.toInt()
+                Log.d("ID:" ,"$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%")
+            }
+
+            override fun onError(id: Int, ex: Exception) {
+            }
+        })
+
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
 
@@ -508,7 +567,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         }
 
         val diaryDto = DiaryDto(
-            content, travelDest, memo, travelStartDate, travelEndDate, tags, public
+            content, travelDest, memo, travelStartDate, travelEndDate, tags, public, imagedata.toString(), imageuri.toString()
         )
 
         val diaryLocations = mutableListOf<DiaryLocationDto>()

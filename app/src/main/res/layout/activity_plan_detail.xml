@@ -39,6 +39,7 @@
                 android:textColor="#191919"
                 android:textSize="25dp" />
 
+
             <ImageView
                 android:id="@+id/plan_detail_take_in_btn"
                 android:layout_width="22dp"
@@ -80,6 +81,12 @@
             android:layout_marginBottom="4dp"
             android:text="작성자의 코멘트"
             android:textSize="15dp" />
+        <TextView
+            android:id="@+id/plan_detail_create_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="8dp"
+            android:text="작성일" />
 
         <LinearLayout
             android:layout_width="match_parent"
