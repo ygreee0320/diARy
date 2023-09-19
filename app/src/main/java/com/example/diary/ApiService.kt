@@ -157,7 +157,37 @@ interface DestRecentDiarySearchService { // 여행지별 일기 검색 조회(�
     fun getDestDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
 }
 
-interface TagPlanSearchService { // 태그별 일정 검색 조회
-    @GET("search/{searchWord}/plan-tag")
+interface TagPlanSearchService { // 태그별 일정 검색 조회 (좋아요 순)
+    @GET("search/{searchWord}/plan-tag/like")
     fun getTagPlanSearchData(@Path("searchWord") searchWord: String): Call<List<MyPlanListResponse>>
+}
+
+interface TagRecentPlanSearchService { // 태그별 일정 검색 조회 (최신순)
+    @GET("search/{searchWord}/plan-tag/recent")
+    fun getTagPlanSearchData(@Path("searchWord") searchWord: String): Call<List<MyPlanListResponse>>
+}
+
+interface WriterPlanSearchService { // 작성자별 일정 검색 조회 (좋아요 순)
+    @GET("search/{searchWord}/plan-writer/like")
+    fun getWriterPlanSearchData(@Path("searchWord") searchWord: String): Call<List<MyPlanListResponse>>
+}
+
+interface WriterRecentPlanSearchService { // 작성자별 일정 검색 조회 (최신순)
+    @GET("search/{searchWord}/plan-writer/recent")
+    fun getWriterPlanSearchData(@Path("searchWord") searchWord: String): Call<List<MyPlanListResponse>>
+}
+
+interface DestPlanSearchService { // 여행지별 일정 검색 조회 (좋아요 순)
+    @GET("search/{searchWord}/plan-dest/like")
+    fun getDestPlanSearchData(@Path("searchWord") searchWord: String): Call<List<MyPlanListResponse>>
+}
+
+interface DestRecentPlanSearchService { // 여행지별 일정 검색 조회 (최신순)
+    @GET("search/{searchWord}/plan-dest/recent")
+    fun getDestPlanSearchData(@Path("searchWord") searchWord: String): Call<List<MyPlanListResponse>>
+}
+
+interface PlanTakeInService {
+    @POST("plan/{planId}/take-in")
+    fun sendPlanTakeIn(@Path("planId") planId: Int, @Header("Authorization") authToken: String): Call<Void>
 }

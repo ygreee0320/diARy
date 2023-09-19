@@ -140,20 +140,26 @@ class SearchActivity : AppCompatActivity() {
                     if (type == "여행지 검색↓") {
                         if (searchOrder == "최신순↓") {
                             searchDestRecentDiary(searchWord!!)
+                            searchDestRecentPlan(searchWord!!)
                         } else {
                             searchDestDiary(searchWord!!)
+                            searchDestPlan(searchWord!!)
                         }
                     } else if (type == "작성자 검색↓") {
                         if (searchOrder == "최신순↓") {
                             searchWriterRecentDiary(searchWord!!)
+                            searchWriterRecentPlan(searchWord!!)
                         } else {
                             searchWriterDiary(searchWord!!)
+                            searchWriterPlan(searchWord!!)
                         }
                     } else {
                         if (searchOrder == "최신순↓") {
                             searchTagRecentDiary(searchWord!!)
+                            searchTagRecentPlan(searchWord!!)
                         } else {
                             searchTagDiary(searchWord!!)
+                            searchTagPlan(searchWord!!)
                         }
                     }
                 }
@@ -254,6 +260,26 @@ class SearchActivity : AppCompatActivity() {
         )
     }
 
+    private fun searchTagRecentPlan(searchWord: String) {
+        SearchManager.getSearchTagRecentPlanData(
+            searchWord = searchWord,
+            onSuccess = { TagPlanList ->
+                val plan = TagPlanList.map { it }
+                Log.d("my log", "태그별 최신 일정"+ plan)
+
+                if(plan.isEmpty()) {
+                    planAdapter.updateData(emptyList(), true)
+                } else {
+                    planAdapter.updateData(plan, true)
+                }
+            },
+            onError = { throwable -> // 검색어에 맞는 검색 결과가 없으면 여기로 옴
+                Log.e("서버 테스트3", "오류: $throwable")
+                planAdapter.updateData(emptyList(), true)
+            }
+        )
+    }
+
     private fun searchDestDiary(searchWord: String) {
         SearchManager.getSearchDestDiaryData(
             searchWord = searchWord,
@@ -296,6 +322,46 @@ class SearchActivity : AppCompatActivity() {
         )
     }
 
+    private fun searchDestPlan(searchWord: String) {
+        SearchManager.getSearchDestPlanData(
+            searchWord = searchWord,
+            onSuccess = { DestPlanList ->
+                val plan = DestPlanList.map { it }
+                Log.d("my log", "여행지별 일정"+ plan)
+
+                if(plan.isEmpty()) {
+                    planAdapter.updateData(emptyList(), true)
+                } else {
+                    planAdapter.updateData(plan, true)
+                }
+            },
+            onError = { throwable -> // 검색어에 맞는 검색 결과가 없으면 여기로 옴
+                Log.e("서버 테스트3", "오류: $throwable")
+                planAdapter.updateData(emptyList(), true)
+            }
+        )
+    }
+
+    private fun searchDestRecentPlan(searchWord: String) {
+        SearchManager.getSearchDestRecentPlanData(
+            searchWord = searchWord,
+            onSuccess = { DestPlanList ->
+                val plan = DestPlanList.map { it }
+                Log.d("my log", "여행지별 최신 일정"+ plan)
+
+                if(plan.isEmpty()) {
+                    planAdapter.updateData(emptyList(), true)
+                } else {
+                    planAdapter.updateData(plan, true)
+                }
+            },
+            onError = { throwable -> // 검색어에 맞는 검색 결과가 없으면 여기로 옴
+                Log.e("서버 테스트3", "오류: $throwable")
+                planAdapter.updateData(emptyList(), true)
+            }
+        )
+    }
+
     private fun searchWriterDiary(searchWord: String) {
         SearchManager.getSearchWriterDiaryData(
             searchWord = searchWord,
@@ -334,6 +400,48 @@ class SearchActivity : AppCompatActivity() {
             onError = { throwable ->  // 검색어에 맞는 검색 결과가 없으면 여기로 옴
                 Log.e("서버 테스트3", "오류: $throwable")
                 diaryAdapter.updateData(emptyList(), true)
+            }
+        )
+    }
+
+    private fun searchWriterPlan(searchWord: String) {
+        SearchManager.getSearchWriterPlanData(
+            searchWord = searchWord,
+            onSuccess = { WriterPlanList ->
+                val plan = WriterPlanList.map { it }
+                Log.d("my log", "작성자별 일정"+ plan)
+
+                if (plan.isEmpty()) {
+                    // 검색 결과가 없을 때 어댑터에 빈 목록 설정
+                    planAdapter.updateData(emptyList(), true)
+                } else {
+                    planAdapter.updateData(plan, true)
+                }
+            },
+            onError = { throwable ->  // 검색어에 맞는 검색 결과가 없으면 여기로 옴
+                Log.e("서버 테스트3", "오류: $throwable")
+                planAdapter.updateData(emptyList(), true)
+            }
+        )
+    }
+
+    private fun searchWriterRecentPlan(searchWord: String) {
+        SearchManager.getSearchWriterRecentPlanData(
+            searchWord = searchWord,
+            onSuccess = { WriterPlanList ->
+                val plan = WriterPlanList.map { it }
+                Log.d("my log", "작성자별 일정"+ plan)
+
+                if (plan.isEmpty()) {
+                    // 검색 결과가 없을 때 어댑터에 빈 목록 설정
+                    planAdapter.updateData(emptyList(), true)
+                } else {
+                    planAdapter.updateData(plan, true)
+                }
+            },
+            onError = { throwable ->  // 검색어에 맞는 검색 결과가 없으면 여기로 옴
+                Log.e("서버 테스트3", "오류: $throwable")
+                planAdapter.updateData(emptyList(), true)
             }
         )
     }

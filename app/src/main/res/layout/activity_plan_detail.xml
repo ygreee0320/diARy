@@ -84,7 +84,6 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="right"
             android:orientation="horizontal" >
 
             <de.hdodenhof.circleimageview.CircleImageView
@@ -98,25 +97,37 @@
 
             <TextView
                 android:id="@+id/plan_detail_writer"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_marginRight="20dp"
+                android:textSize="10dp"
+                android:text="작성자명" />
+
+            <ImageView
+                android:id="@+id/origin_img"
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="5dp"
+                android:visibility="gone"
+                android:src="@drawable/share_icon" />
+
+            <TextView
+                android:id="@+id/plan_detail_origin_writer"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center_vertical"
+                android:visibility="gone"
                 android:textSize="10dp"
-                android:text="작성자명" />
-
-            <TextView
-                android:id="@+id/plan_wish_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textSize="13dp"
-                android:text="일정담기"
-                android:visibility="gone" />
+                android:text="원작자명" />
 
             <TextView
                 android:id="@+id/plan_map_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_gravity=""
                 android:textSize="13dp"
                 android:text=" 지도보기 " />
 

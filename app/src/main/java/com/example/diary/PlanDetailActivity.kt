@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContentProviderCompat.requireContext
@@ -156,9 +157,15 @@ class PlanDetailActivity : AppCompatActivity() {
             }
         }
 
-        binding.planDetailTakeInBtn.setOnClickListener {
+        binding.planDetailTakeInBtn.setOnClickListener { // 일정 담기 클릭 시
             if (authToken != null) {
-
+                PlanTakeInManager.sendPlanTakeInToServer(planId, authToken) { isSuccess ->
+                    if (isSuccess) {
+                        this@PlanDetailActivity.runOnUiThread {
+                            Toast.makeText(this@PlanDetailActivity, "일정을 저장하였습니다", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
         }
 

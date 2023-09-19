@@ -71,4 +71,6 @@ dependencies {
     implementation 'com.amazonaws:aws-android-sdk-mobile-client:2.13.5'
     implementation 'com.amazonaws:aws-android-sdk-cognito:2.13.5'
     implementation 'com.amazonaws:aws-android-sdk-s3:2.13.5'
+
+    implementation 'androidx.activity:activity-compose:1.7.1' // 이미지 새로 추가한 라이브러리
 }
