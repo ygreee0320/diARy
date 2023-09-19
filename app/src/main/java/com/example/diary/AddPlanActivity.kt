@@ -10,7 +10,6 @@ import android.os.Bundle
 import android.text.Editable
 import android.util.Log
 import android.view.MenuItem
-import android.view.View
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -22,26 +21,20 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.mobileconnectors.s3.transferutility.*
-import com.amazonaws.regions.Region
-import com.amazonaws.regions.Regions
-import com.amazonaws.services.s3.AmazonS3Client
-import com.aqoong.lib.hashtagedittextview.HashTagEditTextView
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.example.diary.PlanManager.sendModPlanToServer
 import com.example.diary.PlanManager.sendPlanToServer
 import com.example.diary.databinding.ActivityAddPlanBinding
-import com.example.diary.databinding.DiaryDetailPlaceRecyclerviewBinding
 import kotlinx.coroutines.*
-import okhttp3.Dispatcher
-import retrofit2.http.POST
 import java.io.File
 import java.io.FileOutputStream
 import java.sql.Date
 import java.sql.Time
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 
 class AddPlanActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddPlanBinding
@@ -51,13 +44,11 @@ class AddPlanActivity : AppCompatActivity() {
     private var authToken: String ?= "" // 로그인 토큰
     private var new: Int ?= 1 // 새로 작성이면 1, 수정이면 0
     private var planId: Int ?= -1 // 일정 수정일 때의 해당 플랜 아이디
+    private var uriList = ArrayList<Uri>()
 
     // 여행지 데이터를 저장할 리스트
     private val planPlaceList = mutableListOf<PlanDetailModel>()
     private val planDetailAdapter = PlanDetailAdapter(planPlaceList)
-
-    private lateinit var transferUtility: TransferUtility
-    private var img: Uri ?= null  // 대표 이미지
 
     companion object {
         lateinit var planInMapActivityResult: ActivityResultLauncher<Intent>
@@ -87,19 +78,6 @@ class AddPlanActivity : AppCompatActivity() {
         }
 
         viewModel = ViewModelProvider(this).get(AddPlanViewModel::class.java)
-
-        val awsAccessKey = "1807222EE827BB41A77C"
-        val awsSecretKey = "E9DC72D2C24094CB2FE00763EF33330FB7948154"
-        val awsCredentials = BasicAWSCredentials(awsAccessKey, awsSecretKey)
-        val s3Client = AmazonS3Client(awsCredentials, Region.getRegion(Regions.AP_NORTHEAST_2))
-        s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
-        // Initialize TransferUtility with a valid context (this)
-        transferUtility = TransferUtility.builder()
-            .s3Client(s3Client)
-            .context(this)
-            .defaultBucket("diary")
-            .build()
-        TransferNetworkLossHandler.getInstance(applicationContext)
 
         // AddPlaceInPlanActivity(지도)를 시작하기 위한 요청 코드 정의 (이미지 추가 필요)
         planInMapActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -160,19 +138,18 @@ class AddPlanActivity : AppCompatActivity() {
                     binding.planSubtitleEdit.text = editContext
                     binding.planHashEdit.text = editHash
 
-                    val imgData = planDetail.plan.imageData
-                    val imgUriString= planDetail.plan.imageUri
-                    if (imgUriString != null) {
-                        val imgUri = imgUriString.toUri()
-                        downloadAndInitialize(imgUri)
-                    }
-
                     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     val formattedStartDate = dateFormatter.format(planDetail.plan.travelStart)
                     val formattedEndDate = dateFormatter.format(planDetail.plan.travelEnd)
 
                     binding.planDateStart.text = formattedStartDate
                     binding.planDateEnd.text = formattedEndDate
+                    if (planDetail.plan.imageUri != null) {
+                        binding.planImgBtn.setImageURI(planDetail.plan.imageUri.toUri())
+                        uriList.add(planDetail.plan.imageUri.toUri())
+                    }
+
+
 
                     CoroutineScope(Dispatchers.IO).launch {
                         val planDetailModels: List<PlanDetailModel> = planDetail.locations.map { locationDetail ->
@@ -231,7 +208,7 @@ class AddPlanActivity : AppCompatActivity() {
         }
 
         binding.planImgBtn.setOnClickListener { // 이미지 버튼 클릭 시, 갤러리로 이동해서 이미지 부착
-            imagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+            singleImagePicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
         }
 
         // 저장하기 버튼 클릭 시
@@ -271,14 +248,16 @@ class AddPlanActivity : AppCompatActivity() {
         }
     }
 
-    private val imagePicker =
+    private val singleImagePicker =
         registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
             if (uri != null) {
-                img = uri
-                // 이미지 뷰에 선택한 이미지를 표시
+                // 이미 선택된 사진을 지웁니다.
+                uriList.clear()
+
+                uriList.add(uri)
                 binding.planImgBtn.setImageURI(uri)
 
-                // URI에 대한 지속적인 권한을 부여
+                // URI에 대한 지속적인 권한을 부여합니다.
                 val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 applicationContext.contentResolver.takePersistableUriPermission(uri, flag)
             } else {
@@ -294,39 +273,30 @@ class AddPlanActivity : AppCompatActivity() {
         val hashTagArray = binding.planHashEdit.getInsertTag() ?: emptyArray()
         val travelStart = binding.planDateStart.text.toString()
         val travelEnd = binding.planDateEnd.text.toString()
-        val mainImg = img
-        val mainfile :String?
+        val imageUri = uriList[0]
 
-        if (mainImg != null) {
-            Log.d("my log", "imageUri" + mainImg)
-            val filepath = getRealPathFromURI(mainImg)
-            Log.d("adddiary", "filepath" + filepath)
-            val file = File(filepath)
-            mainfile = file.toString()
-            Log.d("adddiary", "file 완성" + file)
+        val imageData = getRealPathFromURI(imageUri)
+        val file = File(imageData)
+        val transferUtility : TransferUtility? = null
+        val uploadObserver = transferUtility?.upload("diary", file.toString(), file)
+        uploadObserver!!.setTransferListener(object : TransferListener {
+            override fun onStateChanged(id: Int, state: TransferState) {
+                Log.d("onStateChanged: $id", "${state.toString()}")
+            }
 
-            val uploadObserver = transferUtility.upload("diary", file.toString(), file)
-            uploadObserver.setTransferListener(object : TransferListener {
-                override fun onStateChanged(id: Int, state: TransferState) {
-                    Log.d("onStateChanged: $id", "${state.toString()}")
-                }
+            override fun onProgressChanged(
+                id: Int,
+                bytesCurrent: Long,
+                bytesTotal: Long
+            ) {
+                val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
+                val percentDone = percentDonef.toInt()
+                Log.d("ID:" ,"$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%")
+            }
 
-                override fun onProgressChanged(
-                    id: Int,
-                    bytesCurrent: Long,
-                    bytesTotal: Long
-                ) {
-                    val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
-                    val percentDone = percentDonef.toInt()
-                    Log.d("ID:" ,"$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%")
-                }
-
-                override fun onError(id: Int, ex: Exception) {
-                }
-            })
-        } else {
-            mainfile = null
-        }
+            override fun onError(id: Int, ex: Exception) {
+            }
+        })
 
         val locations: List<Location> = planPlaceList.map { planDetail ->
             val timeStartUtil: java.util.Date = timeFormat.parse(planDetail.placeStart)
@@ -355,7 +325,7 @@ class AddPlanActivity : AppCompatActivity() {
             java.sql.Date(dateFormat.parse(travelEnd).time)
         } catch (e: Exception) { java.sql.Date(System.currentTimeMillis()) }
 
-        val plan = Plan(travelDest, content, travelStartDate, travelEndDate, mainfile!!, mainImg.toString(), public)
+        val plan = Plan(travelDest, content, travelStartDate, travelEndDate, imageData.toString(), imageUri.toString(), public)
         val planData = PlanData(plan, locations, tags)
 
         Log.d("서버 테스트", ""+planData)
@@ -377,25 +347,6 @@ class AddPlanActivity : AppCompatActivity() {
 //        }
     }
 
-    private fun getRealPathFromURI(uri: Uri): String? {
-        val inputStream = contentResolver.openInputStream(uri)
-        inputStream?.use { stream ->
-            val tempFile = createTempFile("temp_image", ".jpg")
-            val outputStream = FileOutputStream(tempFile)
-            outputStream.use { output ->
-                val buffer = ByteArray(4 * 1024) // 4K buffer
-                var bytesRead: Int
-                while (true) {
-                    bytesRead = stream.read(buffer)
-                    if (bytesRead == -1) break
-                    output.write(buffer, 0, bytesRead)
-                }
-                return tempFile.absolutePath
-            }
-        }
-        return null
-    }
-
     // 일정 수정
     private fun modPlanToServer() {
         val travelDest = binding.planTitleEdit.text.toString()
@@ -404,19 +355,17 @@ class AddPlanActivity : AppCompatActivity() {
         val hashTagArray = binding.planHashEdit.getInsertTag() ?: emptyArray()
         val travelStart = binding.planDateStart.text.toString()
         val travelEnd = binding.planDateEnd.text.toString()
-        val mainImg = img
-        val mainfile :String?
+        var imageUri: Uri? = null
+        var imageData: String? = null
+        val file: File?
+        val transferUtility : TransferUtility? = null
+        if (uriList[0] != null) {
+            imageUri = uriList[0]
 
-        if (mainImg != null) {
-            Log.d("my log", "imageUri" + mainImg)
-            val filepath = getRealPathFromURI(mainImg)
-            Log.d("adddiary", "filepath" + filepath)
-            val file = File(filepath)
-            mainfile = file.toString()
-            Log.d("adddiary", "file 완성" + file)
-
-            val uploadObserver = transferUtility.upload("diary", file.toString(), file)
-            uploadObserver.setTransferListener(object : TransferListener {
+            imageData = getRealPathFromURI(imageUri)
+            file = File(imageData)
+            val uploadObserver = transferUtility?.upload("diary", file.toString(), file)
+            uploadObserver!!.setTransferListener(object : TransferListener {
                 override fun onStateChanged(id: Int, state: TransferState) {
                     Log.d("onStateChanged: $id", "${state.toString()}")
                 }
@@ -434,10 +383,7 @@ class AddPlanActivity : AppCompatActivity() {
                 override fun onError(id: Int, ex: Exception) {
                 }
             })
-        } else {
-            mainfile = null
         }
-
 
 
         val locations: List<Location> = planPlaceList.map { planDetail ->
@@ -467,7 +413,8 @@ class AddPlanActivity : AppCompatActivity() {
             java.sql.Date(dateFormat.parse(travelEnd).time)
         } catch (e: Exception) { java.sql.Date(System.currentTimeMillis()) }
 
-        val plan = Plan(travelDest, content, travelStartDate, travelEndDate, mainfile!!, mainImg.toString(), public)
+        val plan = Plan(travelDest, content, travelStartDate, travelEndDate,
+            imageData, imageUri.toString(), public)
         val planData = PlanData(plan, locations, tags)
 
         Log.d("서버 테스트", ""+planData)
@@ -476,89 +423,6 @@ class AddPlanActivity : AppCompatActivity() {
             sendModPlanToServer(planId!!, planData, authToken!!)
         }
     }
-
-    private fun downloadAndInitialize(imgUri: Uri?) {
-        if (imgUri != null) {
-            // 이미지를 다운로드할 파일 경로 설정 (임시 디렉토리에 저장)
-            val fileName = imgUri.lastPathSegment ?: "downloaded_image.jpg"
-            val downloadFile = File(cacheDir, fileName)
-            val downloadUri = imgUri.toString()
-
-            // TransferUtility를 사용하여 이미지 다운로드
-            val transferObserver = transferUtility.download("diary", downloadUri, downloadFile)
-
-            transferObserver.setTransferListener(object : TransferListener {
-                override fun onStateChanged(id: Int, state: TransferState) {
-                    if (state == TransferState.COMPLETED) {
-                        // 이미지 다운로드가 완료되면 ImageView에 설정
-                        val loadFile = downloadFile.toUri()
-                        binding.planImgBtn.setImageURI(loadFile)
-                    } else if (state == TransferState.FAILED) {
-                        Log.e("ImageDownload", "이미지 다운로드 실패")
-                    }
-                }
-
-                override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
-                    // 이미지 다운로드 진행 상태 업데이트
-                }
-
-                override fun onError(id: Int, ex: Exception) {
-                    Log.e("ImageDownload", "이미지 다운로드 오류: $ex")
-                }
-            })
-        }
-    }
-
-//    private fun downloadAndInitialize(uri: Uri?) {
-//        if (uri != null) {
-//            // 다운로드할 파일 경로
-//            //val downloadFile = File(binding.root.context.cacheDir, "downloaded_image")
-//
-//            val transferObserverList = mutableListOf<TransferObserver>()
-//
-//            var loadFile :Uri ?= null// 이미지 다운로드를 위한 파일 리스트
-//
-//            val fileName = uri.lastPathSegment // 파일 이름을 가져옴
-//            val downloadFile = File(binding.root.context.cacheDir, fileName)
-//            loadFile = downloadFile.toUri() // 파일을 리스트에 추가
-//
-//            val transferObserver = transferUtility.download(
-//                "diary",
-//                uri.toString(),
-//                downloadFile
-//            )
-//
-//            transferObserverList.add(transferObserver)
-//
-//            // 모든 이미지 다운로드 완료를 기다림
-//            val completionCount = AtomicInteger(0)
-//
-//            transferObserverList.forEach { transferObserver ->
-//                transferObserver.setTransferListener(object : TransferListener {
-//                    override fun onStateChanged(id: Int, state: TransferState) {
-//                        if (state == TransferState.COMPLETED) {
-//                            completionCount.incrementAndGet()
-//
-//                            // 모든 이미지가 다운로드 완료되면 어댑터 초기화
-//                            if (completionCount.get() == 1) {
-//                                // 이미지 뷰에 선택한 이미지를 표시
-//                                binding.planImgBtn.setImageURI(loadFile)
-//                                Log.d("detailAdapter", "이미지 추가")
-//                            }
-//                        }
-//                    }
-//
-//                    override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
-//                        // 진행 상태 업데이트
-//                    }
-//
-//                    override fun onError(id: Int, ex: Exception) {
-//                        Log.e("DiaryDetailAdapter", "이미지 다운로드 오류: $ex")
-//                    }
-//                })
-//            }
-//        }
-//    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -589,5 +453,22 @@ class AddPlanActivity : AppCompatActivity() {
 
         binding.planLockBtn.isChecked = viewModel.enteredClosed
     }
-
+    private fun getRealPathFromURI(uri: Uri): String? {
+        val inputStream = contentResolver.openInputStream(uri)
+        inputStream?.use { stream ->
+            val tempFile = createTempFile("temp_image", ".jpg")
+            val outputStream = FileOutputStream(tempFile)
+            outputStream.use { output ->
+                val buffer = ByteArray(4 * 1024) // 4K buffer
+                var bytesRead: Int
+                while (true) {
+                    bytesRead = stream.read(buffer)
+                    if (bytesRead == -1) break
+                    output.write(buffer, 0, bytesRead)
+                }
+                return tempFile.absolutePath
+            }
+        }
+        return null
+    }
 }

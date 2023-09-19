@@ -345,6 +345,9 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     binding.diaryAddDest.text = editTravelDest
                     binding.diaryAddHash.text = editHash
                     binding.diaryAddLockBtn.isChecked = !diaryDetail.diaryDto.public
+                    binding.diaryImgBtn.setImageURI(diaryDetail.diaryDto.imageUri.toUri())
+                    uriList.add(diaryDetail.diaryDto.imageUri.toUri())
+
 
                     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     val formattedStartDate = dateFormatter.format(diaryDetail.diaryDto.travelStart)
