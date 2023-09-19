@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 배경 바 -->
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="4dp" />
+            <solid android:color="#E0E0E0" /> <!-- 배경 색상 -->
+        </shape>
+    </item>
+    <!-- 실제 진행 바 -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <corners android:radius="4dp" />
+                <solid android:color="#86AED8" /> <!-- 진행 바의 색상 -->
+            </shape>
+        </clip>
+    </item>
+</layer-list>

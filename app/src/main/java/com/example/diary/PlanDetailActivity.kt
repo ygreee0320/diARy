@@ -22,6 +22,7 @@ class PlanDetailActivity : AppCompatActivity() {
     private var planId = -1 //현재 플랜ID를 담는 변수
     private var planLikeCount: Int ?= 0 // 현재 플랜의 좋아요 수
     private var isLiked:Boolean = false // 초기에는 좋아요가 되지 않은 상태로 설정
+    private var isTakeIn:Boolean = false // 초기에는 담기가 되지 않은 상태로 설정
     val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
     // 여행지 데이터를 저장할 리스트
@@ -170,6 +171,12 @@ class PlanDetailActivity : AppCompatActivity() {
                         }
                     }
                 }
+            }
+        }
+
+        binding.planDetailTakeInBtn.setOnClickListener {
+            if (authToken != null) {
+
             }
         }
 

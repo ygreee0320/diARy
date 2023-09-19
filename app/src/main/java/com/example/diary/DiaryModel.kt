@@ -1,5 +1,6 @@
 package com.example.diary
 
+import android.net.Uri
 import org.w3c.dom.Comment
 import java.sql.Date
 import java.sql.Time
@@ -84,7 +85,8 @@ data class DiaryLocationDto(
 )
 
 data class DiaryLocationImageDto( //수정 필요
-    val imageData: String
+    val imageData: String,
+    val imageUri: String
 )
 
 data class DiaryLocationMapDto(
@@ -115,14 +117,7 @@ data class DiaryData(
     val diaryLocationDtoList: List<DiaryLocationDto>
 )
 
-// 유저별 일기 목록
-data class MyDiaryList(
-    val userDto: User,
-    val diaryDto: DiaryDtoMyList,
-    val diaryLocationDtoList: List<DiaryLocationDtoList>
-)
-
-// 일기 상세 불러오기
+// 일기 상세 불러오기, 일기 목록
 data class DiaryDetailResponse(
     val userDto: User,
     val diaryDto: DiaryDtoMyList,
@@ -142,4 +137,9 @@ data class CommentListResponse(
     val updatedAt: Date,
     val replyDtos: List<ReplyList>,
     val userDto: User
+)
+
+data class Topic(
+    val diaryResponseDtoList: List<DiaryDetailResponse>,
+    val tagname: String
 )

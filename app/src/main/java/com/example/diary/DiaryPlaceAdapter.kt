@@ -20,6 +20,11 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
         private const val ITEM_TYPE_MEMO = 1
     }
 
+    interface ItemClickListener {
+        fun itemClicked()
+    }
+    private var itemClickListener: ItemClickListener ?= null
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = DiaryDetailPlaceRecyclerviewBinding.inflate(
             LayoutInflater.from(parent.context),
@@ -53,6 +58,8 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
                 intent.putExtra("x", item.x)
                 intent.putExtra("y", item.y)
                 intent.putParcelableArrayListExtra("imageUris", item.imageUris)
+
+                itemClickListener?.itemClicked() // 기존 내용 뷰모델에 저장해라 호출
 
                 Log.d("mylog", "여행지 정보 in 지도" + adapterPosition + item.place + item.placeDate
                         + item.placeTimeS +item.placeTimeE + item.content + item.address + item.x + item.y)
@@ -114,4 +121,7 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>) :
         }
     }
 
+    fun setItemClickListener(listener: ItemClickListener) {
+        this.itemClickListener = listener
+    }
 }

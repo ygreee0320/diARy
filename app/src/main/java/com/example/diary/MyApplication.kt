@@ -11,7 +11,7 @@ import java.util.*
 
 class MyApplication {
     val retrofit = Retrofit.Builder()
-        .baseUrl("http://192.168.84.222:8080/") // 서버 임시 URL(로컬)
+        .baseUrl("http:/172.20.1.190:8080/") // 서버 임시 URL(로컬)
         .addConverterFactory(GsonConverterFactory.create(getGson()))
         .build()
 
@@ -60,6 +60,19 @@ class MyApplication {
     val loginService = retrofit.create(LogInService::class.java)
     val joinService = retrofit.create(JoinService::class.java)
     val myPageService = retrofit.create(MyPageService::class.java)
+
+    val hotTopicService = retrofit.create(HotTopicService::class.java)
+    val rankingService = retrofit.create(RankingService::class.java)
+
+    val searchTagDiaryService = retrofit.create(TagDiarySearchService::class.java)
+    val searchWriterDiaryService = retrofit.create(WriterDiarySearchService::class.java)
+    val searchDestDiaryService = retrofit.create(DestDiarySearchService::class.java)
+
+    val searchTagRecentDiaryService = retrofit.create(TagRecentDiarySearchService::class.java)
+    val searchWriterRecentDiaryService = retrofit.create(WriterRecentDiarySearchService::class.java)
+    val searchDestRecentDiaryService = retrofit.create(DestRecentDiarySearchService::class.java)
+
+    val searchTagPlanService = retrofit.create(TagPlanSearchService::class.java)
 }
 
 class TimeSerializer(private val timeFormat: SimpleDateFormat) : JsonSerializer<Time> {

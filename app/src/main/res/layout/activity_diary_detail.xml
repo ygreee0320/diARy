@@ -24,120 +24,167 @@
         android:layout_width="0dp"
         android:layout_height="0dp" >
 
-        <LinearLayout
+        <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:baselineAligned="false" >
-
-            <TextView
-                android:id="@+id/diary_detail_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="기록 이름"
-                android:textColor="#191919"
-                android:textSize="25dp" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/plan_detail_info"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="10dp"
-            android:visibility="visible" >
-
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/diary_detail_user_img"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:gravity="center"
-                android:scaleType="centerCrop"
-                android:layout_marginRight="8dp"
-                android:src="@drawable/user_basic" />
+            android:layout_height="0dp"
+            android:layout_weight="1" >
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/diary_detail_writer"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false" >
+
+                    <TextView
+                        android:id="@+id/diary_detail_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="기록 이름"
+                        android:textColor="#191919"
+                        android:textSize="25dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/plan_detail_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="10dp"
+                    android:visibility="visible" >
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/diary_detail_user_img"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:gravity="center"
+                        android:scaleType="centerCrop"
+                        android:layout_marginRight="8dp"
+                        android:src="@drawable/user_basic" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" >
+
+                        <TextView
+                            android:id="@+id/diary_detail_writer"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="10dp"
+                            android:text="작성자명" />
+
+                        <TextView
+                            android:id="@+id/diary_detail_create_date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:textSize="8dp"
+                            android:text="작성일" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/diary_detail_subtitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:gravity="right"
+                        android:text="여행지명"
+                        android:textSize="15dp" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.5dp"
+                    android:layout_marginTop="5dp"
+                    android:background="@android:color/darker_gray" />
+
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10dp"
-                    android:text="작성자명" />
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="5dp">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/calender_icon" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:text="여행기간: "
+                        android:textColor="#1E1E1E"
+                        android:textSize="15dp" />
+
+                    <TextView
+                        android:id="@+id/diary_detail_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text=""
+                        android:textSize="13dp" />
+
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/diary_detailRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="10dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="5dp"
+                        android:textSize="13dp"
+                        android:text="만족도" />
+
+                    <ProgressBar
+                        android:id="@+id/diary_progress"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="160dp"
+                        android:layout_height="wrap_content"
+                        android:max="100"
+                        android:progress="0"
+                        android:progressDrawable="@drawable/progress_bar" />
+
+                    <TextView
+                        android:id="@+id/diary_sat"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:textSize="13dp"
+                        android:text="%" />
+
+                </LinearLayout>
 
                 <TextView
-                    android:id="@+id/diary_detail_create_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:textSize="8dp"
-                    android:text="작성일" />
+                    android:id="@+id/diary_detail_hash"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="13dp"
+                    android:text="# " />
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/diary_detail_subtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="5dp"
-                android:gravity="right"
-                android:text="여행지명"
-                android:textSize="15dp" />
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginTop="5dp"
-            android:background="@android:color/darker_gray" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="5dp">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/calender_icon" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="5dp"
-                android:text="여행기간: "
-                android:textColor="#1E1E1E"
-                android:textSize="15dp" />
-
-            <TextView
-                android:id="@+id/diary_detail_date"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text=""
-                android:textSize="13dp" />
-
-        </LinearLayout>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/diary_detailRecyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginTop="10dp"/>
-
-        <TextView
-            android:id="@+id/diary_detail_hash"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="13dp"
-            android:text="# " />
+        </androidx.core.widget.NestedScrollView>
 
         <View
             android:layout_width="match_parent"

@@ -30,10 +30,6 @@ class DiaryFragment : Fragment() {
 
         //일기 작성 버튼 클릭 시, bottomSheet 출력
         binding.diaryAddBtn.setOnClickListener {
-            val intent = Intent(activity, AddDiaryActivity::class.java)
-            // 새로 작성하는 것임을 알림
-            intent.putExtra("new_diary", 1)
-            startActivity(intent)
             val bottomSheetFragment = BottomAddDiaryFragment()
             bottomSheetFragment.show(parentFragmentManager, bottomSheetFragment.tag)
         }
@@ -61,9 +57,9 @@ class DiaryFragment : Fragment() {
             MyDiaryListManager.getDiaryListData(
                 authToken,
                 onSuccess = { myDiaryList ->
-                    val diary = myDiaryList.map { it.diaryDto }
+                    val diary = myDiaryList.map { it }
                     Log.d("내 일기 목록 테스트", ""+diary)
-                    diaryAdapter.updateData(diary)
+                    diaryAdapter.updateData(diary, false)
 
                     // username 값을 추출하여 텍스트 뷰에 적용
                     val username = myDiaryList.firstOrNull()?.userDto?.username ?: "username"

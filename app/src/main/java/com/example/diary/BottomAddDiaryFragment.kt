@@ -13,10 +13,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class BottomAddDiaryFragment : BottomSheetDialogFragment() {
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -40,7 +36,10 @@ class BottomAddDiaryFragment : BottomSheetDialogFragment() {
         // 새로 작성하기 버튼 클릭 시
         val newDiaryButton = view.findViewById<LinearLayout>(R.id.diary_new_btn)
         newDiaryButton.setOnClickListener {
+            dismiss() // 다이얼로그 닫기
             val intent = Intent(activity, AddDiaryActivity::class.java)
+            // 새로 작성하는 것임을 알림
+            intent.putExtra("new_diary", 1)
             startActivity(intent)
         }
 

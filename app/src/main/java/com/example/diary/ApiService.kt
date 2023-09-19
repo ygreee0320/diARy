@@ -91,7 +91,7 @@ interface MapDiaryService {
 
 interface MyDiaryService {
     @GET("user/diary")
-    fun getDiaryData(@Header("Authorization") authToken: String): Call<List<MyDiaryList>>
+    fun getDiaryData(@Header("Authorization") authToken: String): Call<List<DiaryDetailResponse>>
 }
 
 interface DiaryDetailService {
@@ -123,7 +123,53 @@ interface CommentService {
         @Body commentData: CommentData
     ): Call<Void>
 }
+
 interface CommentListService { // 일기 댓글 조회
     @GET("diary/{diaryId}/comment")
     fun getCommentListData(@Path("diaryId") diaryId: Int): Call<List<CommentListResponse>>
+}
+
+interface HotTopicService { // 핫토픽 리스트 조회
+    @GET("home/topic")
+    fun getHotTopicData(): Call<List<Topic>>
+}
+
+interface RankingService { // 랭킹 플랜 조회 (좋아요 순)
+    @GET("rank/like")
+    fun getRankingData(): Call<List<MyPlanListResponse>>
+}
+
+interface TagDiarySearchService { // 태그별 일기 검색 조회(좋아요 순)
+    @GET("search/{searchWord}/diary-tag/like")
+    fun getTagDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
+}
+
+interface TagRecentDiarySearchService { // 태그별 일기 검색 조회(최신순)
+    @GET("search/{searchWord}/diary-tag/recent")
+    fun getTagDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
+}
+
+interface WriterDiarySearchService { // 작성자별 일기 검색 조회(좋아요 순)
+    @GET("search/{searchWord}/diary-writer/like")
+    fun getWriterDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
+}
+
+interface WriterRecentDiarySearchService { // 작성자별 일기 검색 조회(최신순)
+    @GET("search/{searchWord}/diary-writer/recent")
+    fun getWriterDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
+}
+
+interface DestDiarySearchService { // 여행지별 일기 검색 조회(좋아요 순)
+    @GET("search/{searchWord}/diary-dest/like")
+    fun getDestDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
+}
+
+interface DestRecentDiarySearchService { // 여행지별 일기 검색 조회(최신순)
+    @GET("search/{searchWord}/diary-dest/recent")
+    fun getDestDiarySearchData(@Path("searchWord") searchWord: String): Call<List<DiaryDetailResponse>>
+}
+
+interface TagPlanSearchService { // 태그별 일정 검색 조회
+    @GET("search/{searchWord}/plan-tag")
+    fun getTagPlanSearchData(@Path("searchWord") searchWord: String): Call<List<MyPlanListResponse>>
 }

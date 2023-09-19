@@ -68,4 +68,9 @@ dependencies {
     implementation 'com.auth0.android:jwtdecode:2.0.0' //JWT 토큰
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2' //코틀린 코루틴
+
+    implementation 'androidx.viewpager2:viewpager2:1.0.0' //좌우 슬라이드
+    implementation 'com.amazonaws:aws-android-sdk-mobile-client:2.13.5'
+    implementation 'com.amazonaws:aws-android-sdk-cognito:2.13.5'
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.13.5'
 }

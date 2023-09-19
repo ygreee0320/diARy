@@ -5,10 +5,13 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class PlanAdapter(private var plans: List<MyPlan>) : RecyclerView.Adapter<PlanAdapter.PlanViewHolder>() {
+class PlanAdapter(private var plans: List<MyPlanListResponse>) : RecyclerView.Adapter<PlanAdapter.PlanViewHolder>() {
+    private var searchPlan = false // 일정 검색이라면 true, 내 일정 목록이라면 false
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlanViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.plan_recyclerview, parent, false)
         return PlanViewHolder(view)
@@ -24,8 +27,9 @@ class PlanAdapter(private var plans: List<MyPlan>) : RecyclerView.Adapter<PlanAd
     }
 
     // 데이터 업데이트 메서드 추가
-    fun updateData(newPlans: List<MyPlan>) {
+    fun updateData(newPlans: List<MyPlanListResponse>, showPlanInfo: Boolean) {
         plans = newPlans
+        this.searchPlan = showPlanInfo
         notifyDataSetChanged()
     }
 
@@ -34,29 +38,42 @@ class PlanAdapter(private var plans: List<MyPlan>) : RecyclerView.Adapter<PlanAd
         private val periodTextView: TextView = itemView.findViewById(R.id.plan_period)
         private val planLikeView: TextView = itemView.findViewById(R.id.plan_like)
         private val planLikeImeView: TextView = itemView.findViewById(R.id.plan_like_img)
+        private val planInfoLayout: LinearLayout = itemView.findViewById(R.id.plan_info)
+        private val myPlanInfoLayout: LinearLayout = itemView.findViewById(R.id.my_plan_info)
+        private val hashTextView: TextView = itemView.findViewById(R.id.plan_hash)
+        private val writerTextView: TextView = itemView.findViewById(R.id.plan_writer)
 
         init {
             itemView.setOnClickListener {
                 val clickedPlan = plans[adapterPosition]
-                val planId = clickedPlan.planId // 클릭된 플랜의 planId를 가져옴
+                val planId = clickedPlan.plan.planId // 클릭된 플랜의 planId를 가져옴
                 val intent = Intent(itemView.context, PlanDetailActivity::class.java)
                 intent.putExtra("planId", planId)
                 itemView.context.startActivity(intent)
             }
         }
 
-        fun bind(plan: MyPlan) {
-            titleTextView.text = plan.travelDest
-            periodTextView.text = "${plan.travelStart} ~ ${plan.travelEnd}"
+        fun bind(planList: MyPlanListResponse) {
+            titleTextView.text = planList.plan.travelDest
+
+            if (searchPlan) { // 일정 검색 목록이라면
+                planInfoLayout.visibility = View.VISIBLE
+                myPlanInfoLayout.visibility = View.GONE
+
+                writerTextView.text = planList.user.username
+                // 해시태그 출력
+            } else {
+                periodTextView.text = "${planList.plan.travelStart} ~ ${planList.plan.travelEnd}"
+            }
 
             //일정 비공개라면
-            if (plan.public == false) {
+            if (planList.plan.public == false) {
                 planLikeImeView.visibility = View.GONE
                 planLikeView.text = "비공개"
             } else {
                 planLikeImeView.visibility = View.VISIBLE
 
-                PlanLikeListManager.getPlanLikeListData(plan.planId,
+                PlanLikeListManager.getPlanLikeListData(planList.plan.planId,
                     onSuccess = { planLike ->
                         planLikeView.text = "${planLike.size}"
                     },

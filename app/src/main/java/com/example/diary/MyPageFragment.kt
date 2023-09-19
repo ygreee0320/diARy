@@ -1,6 +1,7 @@
 package com.example.diary
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -16,11 +17,6 @@ class MyPageFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMyPageBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
 
         // sharedPreferences에서 토큰 가져오기
         val sharedPreferences = requireContext().getSharedPreferences("my_token", Context.MODE_PRIVATE)
@@ -43,6 +39,25 @@ class MyPageFragment : Fragment() {
                 }
             )
         }
+
+        binding.logOutBtn.setOnClickListener { // 로그아웃 버튼 클릭 시
+            val editor = sharedPreferences.edit()
+            editor.putString("auth_token", null)
+            editor.apply()
+
+            // MainActivity에 auth_token이 업데이트되었다고 알림
+            if (activity is MainActivity) {
+                (activity as MainActivity).onAuthTokenUpdated()
+            }
+
+            // HomeFragment로 이동
+            val homeFragment = HomeFragment()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, homeFragment)
+                .commit()
+        }
+
+        return binding.root
     }
 
 }

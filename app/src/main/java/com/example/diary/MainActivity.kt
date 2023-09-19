@@ -13,6 +13,7 @@ import android.util.Base64
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.content.ContextCompat
@@ -24,6 +25,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.navigation.NavigationView
 import java.security.MessageDigest
+import android.Manifest
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityMainBinding
@@ -40,28 +42,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //KeyHash
         getKeyHash()
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(Manifest.permission.MANAGE_MEDIA) != PackageManager.PERMISSION_GRANTED) {
+                Log.d("mainactivity", "권한 요청")
+                if (shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES)) {
+                    Toast.makeText(this, "외부 저장소 사용을 위해 읽기/쓰기 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
+                }
+
+                requestPermissions(
+                    arrayOf(Manifest.permission.MANAGE_EXTERNAL_STORAGE, Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.MANAGE_MEDIA),
+                    2
+                );
+            }
+        }
         // 저장된 토큰 읽어오기
         sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
         authToken = sharedPreferences.getString("auth_token", null)
 
+
         // "Bearer" 문자열 제거한 토큰 값 추출
-        val tokenOnly = authToken?.substringAfter("Bearer ")
+        if (authToken != null) {
+            val tokenOnly = authToken?.substringAfter("Bearer ")
+
+            if (tokenOnly != null) { // 토큰을 이용하여 유저 정보 저장
+                val jwt = JWT(tokenOnly)
+                val userId = jwt.getClaim("id")?.asInt() ?: -1
+                val userEmail = jwt.getClaim("email")?.asString() ?: ""
+
+                // userId를 SharedPreferences에 저장
+                val editor = sharedPreferences.edit()
+                editor.putInt("userId", userId)
+                editor.putString("userEmail", userEmail)
+                editor.apply()
+                Log.d("메인액티비티2", ""+ tokenOnly + userId + userEmail)
+            }
+        }
 
         Log.d("메인액티비티", ""+authToken)
-
-        // 토큰을 이용하여 유저 정보 저장
-        if (tokenOnly != null) {
-            val jwt = JWT(tokenOnly)
-            val userId = jwt.getClaim("id")?.asInt() ?: -1
-            val userEmail = jwt.getClaim("email")?.asString() ?: ""
-
-            // userId를 SharedPreferences에 저장
-            val editor = sharedPreferences.edit()
-            editor.putInt("userId", userId)
-            editor.putString("userEmail", userEmail)
-            editor.apply()
-            Log.d("메인액티비티2", ""+ tokenOnly + userId + userEmail)
-        }
 
         //toolbar
         setSupportActionBar(binding.toolbar)
@@ -152,6 +171,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         } catch(e: Exception) {
             Log.e("name not found", e.toString())
+        }
+    }
+
+    // MyPageFragment에서 auth_token이 업데이트되었을 때 호출되는 메서드
+    fun onAuthTokenUpdated() {
+        // SharedPreferences에서 auth_token 다시 읽어오기
+        authToken = sharedPreferences.getString("auth_token", null)
+
+        // "Bearer" 문자열 제거한 토큰 값 추출
+        if (authToken != null) {
+            val tokenOnly = authToken?.substringAfter("Bearer ")
+
+            if (tokenOnly != null) { // 토큰을 이용하여 유저 정보 저장
+                val jwt = JWT(tokenOnly)
+                val userId = jwt.getClaim("id")?.asInt() ?: -1
+                val userEmail = jwt.getClaim("email")?.asString() ?: ""
+
+                // userId를 SharedPreferences에 저장
+                val editor = sharedPreferences.edit()
+                editor.putInt("userId", userId)
+                editor.putString("userEmail", userEmail)
+                editor.apply()
+                Log.d("메인액티비티2", ""+ tokenOnly + userId + userEmail)
+            }
         }
     }
 }
