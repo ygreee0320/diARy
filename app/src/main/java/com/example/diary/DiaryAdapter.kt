@@ -34,7 +34,6 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
     private lateinit var transferUtility: TransferUtility
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DiaryViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.diary_recyclerview, parent, false)
-        return DiaryViewHolder(view)
         val awsAccessKey = "1807222EE827BB41A77C"
         val awsSecretKey = "E9DC72D2C24094CB2FE00763EF33330FB7948154"
         val awsCredentials = BasicAWSCredentials(awsAccessKey, awsSecretKey)
@@ -47,6 +46,8 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
             .defaultBucket("diary")
             .build()
         TransferNetworkLossHandler.getInstance(parent.context)
+        return DiaryViewHolder(view)
+
 
     }
 

@@ -90,7 +90,7 @@ class AddPlanActivity : AppCompatActivity() {
         transferUtility = TransferUtility.builder()
             .s3Client(s3Client)
             .context(this)
-            .defaultBucket("diary")
+            .defaultBucket("plan")
             .build()
         TransferNetworkLossHandler.getInstance(applicationContext)
 
@@ -294,7 +294,7 @@ class AddPlanActivity : AppCompatActivity() {
         val imageData = getRealPathFromURI(imageUri)
         val file = File(imageData)
 
-        val uploadObserver = transferUtility?.upload("diary", file.toString(), file)
+        val uploadObserver = transferUtility?.upload("plan", file.toString(), file)
         uploadObserver!!.setTransferListener(object : TransferListener {
             override fun onStateChanged(id: Int, state: TransferState) {
                 Log.d("onStateChanged: $id", "${state.toString()}")
@@ -379,7 +379,7 @@ class AddPlanActivity : AppCompatActivity() {
 
             imageData = getRealPathFromURI(imageUri)
             file = File(imageData)
-            val uploadObserver = transferUtility.upload("diary", file.toString(), file)
+            val uploadObserver = transferUtility.upload("plan", file.toString(), file)
             uploadObserver!!.setTransferListener(object : TransferListener {
                 override fun onStateChanged(id: Int, state: TransferState) {
                     Log.d("onStateChanged: $id", "${state.toString()}")
