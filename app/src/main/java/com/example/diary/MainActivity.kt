@@ -26,11 +26,13 @@ import com.google.android.material.internal.NavigationMenuItemView
 import com.google.android.material.navigation.NavigationView
 import java.security.MessageDigest
 import android.Manifest
+import androidx.core.app.ActivityCompat
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityMainBinding
     lateinit var sharedPreferences: SharedPreferences //토큰을 위한 sharedPreferences
     private var authToken: String? = null    //로그인 토큰 저장
+    private val REQUEST_CODE = 123
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,6 +59,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 );
             }
         }
+
+        // 권한 요청 코드 (예: onCreate 내부)
+        val permission = Manifest.permission.READ_EXTERNAL_STORAGE
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            // 권한이 부여되지 않은 경우 권한 요청
+            ActivityCompat.requestPermissions(this, arrayOf(permission), REQUEST_CODE)
+        } else {
+            // 이미 권한이 부여된 경우 이미지 불러오기 등의 작업 수행
+            // 이곳에서 이미지를 불러오는 코드를 실행하세요.
+        }
+
         // 저장된 토큰 읽어오기
         sharedPreferences = getSharedPreferences("my_token", Context.MODE_PRIVATE)
         authToken = sharedPreferences.getString("auth_token", null)

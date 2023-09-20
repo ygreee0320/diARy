@@ -140,7 +140,7 @@ class PlanFragment : Fragment(){
         super.onResume()
 
         //플랜 리스트 업데이트
-        loadPlanList()
+        //loadPlanList()
     }
 
     private fun changeFragment(fragment: Fragment) {

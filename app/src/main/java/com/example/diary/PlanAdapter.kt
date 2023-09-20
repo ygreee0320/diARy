@@ -33,12 +33,6 @@ class PlanAdapter(private var plans: List<MyPlanListResponse>) : RecyclerView.Ad
     private lateinit var transferUtility: TransferUtility
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlanViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.plan_recyclerview, parent, false)
-        transferUtility = TransferUtility.builder()
-            .s3Client(s3Client)
-            .context(parent.context)
-            .defaultBucket("diary")
-            .build()
-        TransferNetworkLossHandler.getInstance(parent.context)
         return PlanViewHolder(view)
 
     }
@@ -87,24 +81,27 @@ class PlanAdapter(private var plans: List<MyPlanListResponse>) : RecyclerView.Ad
                 // Initialize TransferUtility
                 TransferNetworkLossHandler.getInstance(planImg.context);
 
-                transferUtility = TransferUtility.builder()
+                val transferUtility = TransferUtility.builder()
                     .s3Client(s3Client)
                     .context(planImg.context)
                     .defaultBucket("plan") // S3 버킷 이름을 변경하세요
                     .build()
-                if (planList.plan.imageUri != null) {
-                    // 이미지를 여러 개 표시하기 위해 RecyclerView로 변경
-                    Log.d("PlanAdapter", ""+planList.plan.imageData)
 
-                    downloadAndInitializeAdapter(planList.plan.imageData.toUri(), planImg)
+                Log.d("PlanAdapter", ""+planList.plan.imageData)
+
+                downloadAndInitializeAdapter(planList.plan.imageData!!.toUri(), planImg, transferUtility)
+
+
 //            val imageAdapter = MultiImageAdapter(uriList as ArrayList<Uri>, holder.binding.root.context)
 //            holder.binding.recyclerView.adapter = imageAdapter
-//            holder.binding.recyclerView.layoutManager = layoutManager
-                    Log.d("detailAdapter", "이미지 추가")
-                } else {
-                    // 이미지가 없는 경우, RecyclerView를 숨깁니다.
-                    Log.d("detailAdapter", "이미지 없음")
-                }
+////            holder.binding.recyclerView.layoutManager = layoutManager
+//                    Log.d("detailAdapter", "이미지 추가")
+//                } else {
+//                    // 이미지가 없는 경우, RecyclerView를 숨깁니다.
+//                    Log.d("detailAdapter", "이미지 없음")
+//                }
+            } else {
+                Log.d("detailAdapter", "이미지 없음")
             }
             if (searchPlan) { // 일정 검색 목록이라면
                 planInfoLayout.visibility = View.VISIBLE
@@ -134,7 +131,7 @@ class PlanAdapter(private var plans: List<MyPlanListResponse>) : RecyclerView.Ad
             }
         }
     }
-    private fun downloadAndInitializeAdapter(imageUri: Uri, binding: ImageView) {
+    private fun downloadAndInitializeAdapter(imageUri: Uri, binding: ImageView, transferUtility: TransferUtility) {
         val fileName = imageUri.lastPathSegment // 파일 이름을 가져옴
         val downloadFile = File(binding.context.cacheDir, fileName)
 

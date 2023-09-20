@@ -76,7 +76,7 @@ class DiaryFragment : Fragment() {
         super.onResume()
 
         //다이어리 리스트 업데이트
-        loadDiaryList()
+        //loadDiaryList()
     }
 
 }
