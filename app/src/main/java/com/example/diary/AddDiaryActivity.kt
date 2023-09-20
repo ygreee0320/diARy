@@ -345,19 +345,19 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     binding.diaryAddDest.text = editTravelDest
                     binding.diaryAddHash.text = editHash
                     binding.diaryAddLockBtn.isChecked = !diaryDetail.diaryDto.public
-                    binding.diaryImgBtn.setImageURI(diaryDetail.diaryDto.imageUri.toUri())
-                    uriList.add(diaryDetail.diaryDto.imageUri.toUri())
 
 
+                    Log.d("adddiaryadpater", ""+ diaryDetail.diaryDto.imageUri)
                     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     val formattedStartDate = dateFormatter.format(diaryDetail.diaryDto.travelStart)
                     val formattedEndDate = dateFormatter.format(diaryDetail.diaryDto.travelEnd)
 
                     binding.diaryAddStart.text = formattedStartDate
                     binding.diaryAddEnd.text = formattedEndDate
+
                     if (diaryDetail.diaryDto.imageUri != null) {
                         binding.diaryImgBtn.setImageURI(diaryDetail.diaryDto.imageUri.toUri())
-
+                        uriList.add(diaryDetail.diaryDto.imageUri.toUri())
                     }
 
 
