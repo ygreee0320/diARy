@@ -93,7 +93,6 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
             titleTextView.text = diary.diaryDto.title
             placeTextView.text = diary.diaryDto.travelDest
             if (diary.diaryDto.imageUri != null) {
-                diaryImg.setImageURI(diary.diaryDto.imageUri.toUri())
                 s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
                 // Initialize TransferUtility
                 TransferNetworkLossHandler.getInstance(diaryImg.context);
@@ -105,7 +104,7 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
                     .build()
                 if (diary.diaryDto.imageUri != null) {
                     // 이미지를 여러 개 표시하기 위해 RecyclerView로 변경
-                    Log.d("diaryDetailAdapter", ""+diary.diaryDto.imageUri)
+                    Log.d("diaryDetailAdapter", ""+diary.diaryDto.imageData)
 
                     downloadAndInitializeAdapter(diary.diaryDto.imageData.toUri(), diaryImg)
 //            val imageAdapter = MultiImageAdapter(uriList as ArrayList<Uri>, holder.binding.root.context)
