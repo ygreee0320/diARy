@@ -30,7 +30,10 @@ class PlanDetailAdapter(private val itemList: MutableList<PlanDetailModel>): Rec
         holder.binding.run {
             placeTime.text = "${data.placeStart} ~ ${data.placeEnd}"
             placeName.text = data.place
-            imageLoader(data.imgURL!!, placeImageView)
+//            imageLoader(data.imgURL!!, placeImageView)
+            if (data.imgURL != null) {
+                imageLoader(data.imgURL!!, placeImageView)
+            } else {}
         }
     }
 

@@ -235,6 +235,7 @@ class AddPlanActivity : AppCompatActivity() {
                 modPlanToServer()  // 서버로 수정된 일정 전송
                 val resultIntent = Intent()
                 setResult(Activity.RESULT_OK, resultIntent)
+                Log.d("me", "수정본 요청")
                 finish() // 현재 액티비티 종료
             }
         }
@@ -373,7 +374,7 @@ class AddPlanActivity : AppCompatActivity() {
         var imageUri: Uri? = null
         var imageData: String? = null
         val file: File?
-        if (uriList[0] != null) {
+        if (uriList.isNotEmpty() && uriList[0] != null) {
             imageUri = uriList[0]
 
             imageData = getRealPathFromURI(imageUri)
