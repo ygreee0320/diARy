@@ -100,6 +100,17 @@ class MapFragment : Fragment() {
                             withContext(Dispatchers.Main) {
                                 val dialog = MapDialog(this@MapFragment.requireContext())
                                 dialog.myDialog(placeInfo, diary)
+
+                                dialog.setOnClickedListener(object: MapDialog.ButtonClickListener {
+                                    override fun onClicked(placeInfo: MutableMap<String, String?>) {
+                                        val intent = Intent(this@MapFragment.requireContext(), RoadMapActivity::class.java)
+                                        intent.putExtra("x", placeInfo.getValue("x"))
+                                        intent.putExtra("y", placeInfo.getValue("y"))
+                                        intent.putExtra("address", placeInfo.getValue("address"))
+                                        intent.putExtra("title", placeInfo.getValue("title"))
+                                        startActivity(intent)
+                                    }
+                                })
                             }
                         }
                     },

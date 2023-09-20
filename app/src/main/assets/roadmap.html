@@ -66,12 +66,55 @@
     var roadviewContainer = document.getElementById('roadview');
     var roadview = new kakao.maps.Roadview(roadviewContainer);
     var roadviewClient = new kakao.maps.RoadviewClient();
+    rvResetValue = {} //로드뷰의 초기화 값을 저장할 변수
 
     //특정 위치의 좌표와 가까운 로드뷰의 panoId를 추출하여 로드뷰를 띄운다.
     roadviewClient.getNearestPanoId(position, 50, function(panoId) {
       roadview.setPanoId(panoId, position);
-    })
+      rvResetValue.panoId = panoId;
+    });
 
+    //로드뷰 초기화 이벤트
+    kakao.maps.event.addListener(roadview, 'init', function() {
+      //마커 생성
+      var marker = new kakao.maps.Marker({
+        position: position,
+        map: roadview,
+        clickable: true // 마커를 클릭했을 때 지도의 클릭 이벤트가 발생하지 않도록 설정
+      });
+
+      // 로드뷰 마커가 중앙에 오도록 로드뷰의 viewpoint 조정 합니다.
+      var projection = roadview.getProjection(); // viewpoint(화면좌표)값을 추출할 수 있는 projection 객체를 가져옵니다.
+
+       // 마커의 position과 altitude값을 통해 viewpoint값(화면좌표)를 추출합니다.
+      var viewpoint = projection.viewpointFromCoords(marker.getPosition(), marker.getAltitude());
+      roadview.setViewpoint(viewpoint); //로드뷰에 뷰포인트를 설정합니다.
+
+      //각 뷰포인트 값을 초기화를 위해 저장해 놓습니다.
+      rvResetValue.pan = viewpoint.pan;
+      rvResetValue.tilt = viewpoint.tilt;
+      rvResetValue.zoom = viewpoint.zoom;
+
+      //마커 클릭 리스너
+      kakao.maps.event.addListener(marker, 'click', function() {
+        Android.showCustomOverlay();
+      });
+    });
+
+    //로드뷰 이동 이벤트 핸들러
+    function moveKakaoRoadview(self){
+        var panoId = roadview.getPanoId(); //현 로드뷰의 panoId값을 가져옵니다.
+        var viewpoint = roadview.getViewpoint(); //현 로드뷰의 viewpoint(pan,tilt,zoom)값을 가져옵니다.
+    }
+
+    //로드뷰 초기화 이벤트 핸들러
+    function resetRoadview(){
+      //초기화를 위해 저장해둔 변수를 통해 로드뷰를 초기상태로 돌립니다.
+      roadview.setViewpoint({
+          pan: rvResetValue.pan, tilt: rvResetValue.tilt, zoom: rvResetValue.zoom
+      });
+      roadview.setPanoId(rvResetValue.panoId);
+    }
     /////////////////////////////////////////////////////////////////
     ///                 근처 장소 검색(카테고리)                    ///
     /////////////////////////////////////////////////////////////////

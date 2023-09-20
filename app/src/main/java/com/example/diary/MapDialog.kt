@@ -20,6 +20,16 @@ import java.util.concurrent.Executors
 
 class MapDialog(context: Context) {
     val dialog = Dialog(context)
+    lateinit var onClickListener: ButtonClickListener
+
+    interface ButtonClickListener {
+        fun onClicked(placeInfo: MutableMap<String, String?>)
+    }
+
+    fun setOnClickedListener(listener: ButtonClickListener) {
+        onClickListener = listener
+    }
+
 
     fun myDialog(placeInfo: MutableMap<String, String?>, diary: List<DiaryDtoList>) {
         dialog.setContentView(R.layout.map_dialog)
@@ -53,7 +63,7 @@ class MapDialog(context: Context) {
         val progressBar = dialog.findViewById<ProgressBar>(R.id.diary_progress)
         val data = diary.map { it.satisfaction }
         val avg = if (data.size > 0) data.sum() / data.size else 0.0
-        progressBar.progress = avg as Int
+        progressBar.progress = avg.toInt()
 
         val satisfaction = dialog.findViewById<TextView>(R.id.diary_sat)
         satisfaction.text = avg.toString() + "%"
@@ -68,13 +78,7 @@ class MapDialog(context: Context) {
 
         //로드맵 이동
         roadmapBtn.setOnClickListener {
-            val intent = Intent(dialog.context, RoadMapActivity::class.java)
-
-            intent.putExtra("title", placeInfo.getValue("title"))
-            intent.putExtra("address", placeInfo.getValue("address"))
-            intent.putExtra("x", placeInfo.getValue("x"))
-            intent.putExtra("y", placeInfo.getValue("y"))
-
+            onClickListener.onClicked(placeInfo)
             dialog.dismiss()
         }
 

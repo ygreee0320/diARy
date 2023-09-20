@@ -11,6 +11,10 @@ import android.webkit.WebViewClient
 import androidx.core.content.ContentProviderCompat.requireContext
 import com.example.diary.databinding.ActivityMainBinding
 import com.example.diary.databinding.ActivityRoadMapBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class RoadMapActivity : AppCompatActivity() {
     lateinit var binding: ActivityRoadMapBinding
@@ -64,6 +68,41 @@ class RoadMapActivity : AppCompatActivity() {
         fun getPlaceInfo(): String {
             val info = title + "/" + address + "/" + x + "/" + y
             return info
+        }
+
+        @JavascriptInterface
+        fun showCustomOverlay() {
+            val imgURL = ApiSearchImg().searchImg(title!!)
+
+            val placeInfo = mutableMapOf(
+                "x" to x,
+                "y" to y,
+                "title" to title,
+                "address" to address,
+                "imgURL" to imgURL,
+                "panoId" to null, //임시
+            )
+
+            if (x != null && y != null) {
+                MapDiaryListManager.getDiaryListData(
+                    x!!,
+                    y!!,
+                    onSuccess = { mapDiaryList -> //백그라운드 스레드
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val diary = mapDiaryList.map { it }
+                            Log.d("mylog", "x: ${x}, y: ${y}")
+                            Log.d("mylog", "주소별 일기 조회 - ${diary}")
+                            withContext(Dispatchers.Main) {
+                                val dialog = MapDialog(this@RoadMapActivity)
+                                dialog.myDialog(placeInfo, diary)
+                            }
+                        }
+                    },
+                    onError = {throwable ->
+                        Log.e("mylog", "주소별 일기 조회 실패 - ${throwable}")
+                    }
+                )
+            }
         }
 
         fun setToolbar() {
