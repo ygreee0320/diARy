@@ -16,6 +16,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.*
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
+import com.bumptech.glide.Glide
 import com.bumptech.glide.Glide.init
 import com.example.diary.databinding.DiaryDetailPlaceRecyclerviewBinding
 import com.example.diary.databinding.DiaryRecyclerviewBinding
@@ -106,7 +107,7 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
                     // 이미지를 여러 개 표시하기 위해 RecyclerView로 변경
                     Log.d("diaryDetailAdapter", ""+diary.diaryDto.imageUri)
 
-                    downloadAndInitializeAdapter(diary.diaryDto.imageUri.toUri(), diaryImg)
+                    downloadAndInitializeAdapter(diary.diaryDto.imageData.toUri(), diaryImg)
 //            val imageAdapter = MultiImageAdapter(uriList as ArrayList<Uri>, holder.binding.root.context)
 //            holder.binding.recyclerView.adapter = imageAdapter
 //            holder.binding.recyclerView.layoutManager = layoutManager
@@ -145,39 +146,33 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
     }
 
     private fun downloadAndInitializeAdapter(imageUri: Uri, binding: ImageView) {
-        // 다운로드할 파일 경로
-        //val downloadFile = File(binding.root.context.cacheDir, "downloaded_image")
-
-        //val transferObserverList = mutableListOf<TransferObserver>()
-
-        //val downloadFiles = ArrayList<Uri>() // 이미지 다운로드를 위한 파일 리스트
-
         val fileName = imageUri.lastPathSegment // 파일 이름을 가져옴
         val downloadFile = File(binding.context.cacheDir, fileName)
-        //downloadFiles.add(downloadFile.toUri()) // 파일을 리스트에 추가
+
         val transferObserver = transferUtility.download(
             "diary",
             imageUri.toString(),
             downloadFile
         )
 
-        // 모든 이미지 다운로드 완료를 기다림
-        val completionCount = AtomicInteger(0)
-
         transferObserver.setTransferListener(object : TransferListener {
-                override fun onStateChanged(id: Int, state: TransferState) {
-                    if (state == TransferState.COMPLETED) {
-                        completionCount.incrementAndGet()
-                    }
+            override fun onStateChanged(id: Int, state: TransferState) {
+                if (state == TransferState.COMPLETED) {
+                    // 이미지 다운로드가 완료되었습니다. 이제 ImageView에 이미지를 표시하세요.
+                    val downloadedImageUri = Uri.fromFile(downloadFile)
+                    Glide.with(binding.context)
+                        .load(downloadedImageUri)
+                        .into(binding)
                 }
+            }
 
-                override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
-                    // 진행 상태 업데이트
-                }
+            override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
+                // 진행 상태 업데이트
+            }
 
-                override fun onError(id: Int, ex: Exception) {
-                    Log.e("DiaryDetailAdapter", "이미지 다운로드 오류: $ex")
-                }
-            })
-        }
+            override fun onError(id: Int, ex: Exception) {
+                Log.e("DiaryDetailAdapter", "이미지 다운로드 오류: $ex")
+            }
+        })
     }
+}
