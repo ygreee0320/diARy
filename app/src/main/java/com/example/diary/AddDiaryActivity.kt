@@ -516,30 +516,34 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         val travelEnd = binding.diaryAddEnd.text.toString()
         val fileList: MutableList<DiaryLocationImageDto> = mutableListOf()
         val fileListFile: MutableList<File> = mutableListOf()
+        var imageuri : Uri? = null
+        var imagedata : String? = null
+        if (uriList.size != 0) {
+            imageuri = uriList[0]
+            imagedata = getRealPathFromURI(imageuri)
+            val imagefile = File(imagedata)
 
-        val imageuri = uriList[0]
-        val imagedata = getRealPathFromURI(imageuri)
-        val imagefile = File(imagedata)
+            val uploadObserver = transferUtility.upload("diary", imagefile.toString(), imagefile)
+            uploadObserver.setTransferListener(object : TransferListener {
+                override fun onStateChanged(id: Int, state: TransferState) {
+                    Log.d("onStateChanged: $id", "${state.toString()}")
+                }
 
-        val uploadObserver = transferUtility.upload("diary", imagefile.toString(), imagefile)
-        uploadObserver.setTransferListener(object : TransferListener {
-            override fun onStateChanged(id: Int, state: TransferState) {
-                Log.d("onStateChanged: $id", "${state.toString()}")
-            }
+                override fun onProgressChanged(
+                    id: Int,
+                    bytesCurrent: Long,
+                    bytesTotal: Long
+                ) {
+                    val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
+                    val percentDone = percentDonef.toInt()
+                    Log.d("ID:" ,"$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%")
+                }
 
-            override fun onProgressChanged(
-                id: Int,
-                bytesCurrent: Long,
-                bytesTotal: Long
-            ) {
-                val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
-                val percentDone = percentDonef.toInt()
-                Log.d("ID:" ,"$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%")
-            }
+                override fun onError(id: Int, ex: Exception) {
+                }
+            })
+        }
 
-            override fun onError(id: Int, ex: Exception) {
-            }
-        })
 
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
