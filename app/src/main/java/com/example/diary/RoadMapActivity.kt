@@ -58,6 +58,7 @@ class RoadMapActivity : AppCompatActivity() {
         var address: String? = intent.getStringExtra("address")
         var x: String? = intent.getStringExtra("x")
         var y: String? = intent.getStringExtra("y")
+        var imgURL: String? = null
 
         @JavascriptInterface
         fun showToast(toast: String) {
@@ -103,6 +104,13 @@ class RoadMapActivity : AppCompatActivity() {
                     }
                 )
             }
+        }
+
+        @JavascriptInterface
+        fun getSearchImg(title: String): String {
+            Log.d("mylog", "$title")
+            imgURL = ApiSearchImg().searchImg(title)
+            return imgURL as String
         }
 
         fun setToolbar() {

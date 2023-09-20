@@ -191,9 +191,10 @@
           var col = document.createElement('div');
           col.className = 'col';
 
+          var imgURL = Android.getSearchImg(places[i][0]);
           var img = document.createElement('img');
           img.className = 'place_img';
-          img.src = 'image/sample.png';
+          img.src = imgURL;
 
           var p = document.createElement('p');
           p.className = 'place_name';
