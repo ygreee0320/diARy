@@ -2,6 +2,7 @@ package com.example.diary
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
@@ -10,11 +11,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.core.net.toUri
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
+import com.amazonaws.regions.Region
+import com.amazonaws.regions.Regions
+import com.amazonaws.services.s3.AmazonS3Client
+import com.bumptech.glide.Glide
 import com.example.diary.databinding.FragmentHotTopicBinding
+import java.io.File
 
 class HotTopicFragment : Fragment() {
     private lateinit var binding: FragmentHotTopicBinding
-
+    private val awsAccessKey = "1807222EE827BB41A77C"
+    private val awsSecretKey = "E9DC72D2C24094CB2FE00763EF33330FB7948154"
+    private val awsCredentials = BasicAWSCredentials(awsAccessKey, awsSecretKey)
+    val s3Client = AmazonS3Client(awsCredentials, Region.getRegion(Regions.AP_NORTHEAST_2))// YOUR_REGION을 원하는 지역으로 변경하세요
+    private lateinit var transferUtility: TransferUtility
     companion object {
         fun newInstance(topic: Topic): HotTopicFragment {
             val fragment = HotTopicFragment()
@@ -27,6 +44,9 @@ class HotTopicFragment : Fragment() {
 
             val diaryTitle = topic.diaryResponseDtoList.map { it.diaryDto.title }
             args.putStringArrayList("diaryTitle", ArrayList(diaryTitle))
+
+            val diaryImages = topic.diaryResponseDtoList.map {it.diaryDto.imageData}
+            args.putStringArrayList("diaryImg", ArrayList(diaryImages))
 
             fragment.arguments = args
             return fragment
@@ -49,11 +69,27 @@ class HotTopicFragment : Fragment() {
 
         val diaryTitles = arguments?.getStringArrayList("diaryTitle")
         val diaryIds = arguments?.getIntegerArrayList("diaryId")
+        val diaryImages = arguments?.getStringArrayList("diaryImg")
+
+        s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
 
         // diaryTitle을 각각의 TextView에 설정
         if (diaryIds != null) {
             if (diaryIds.size >= 1) {
                 binding.diaryTitle1.text = diaryTitles?.getOrNull(0) ?: ""
+                if (diaryImages!![0] != null) {
+                    TransferNetworkLossHandler.getInstance(binding.img1.context);
+
+                    val transferUtility = TransferUtility.builder()
+                        .s3Client(s3Client)
+                        .context(binding.img1.context)
+                        .defaultBucket("plan") // S3 버킷 이름을 변경하세요
+                        .build()
+
+                    Log.d("PlanAdapter", "" + diaryImages[0])
+
+                    downloadAndInitializeAdapter(diaryImages[0].toUri(), binding.img1, transferUtility)
+                }
             } else {
                 binding.diary1.visibility = GONE
             }
@@ -101,6 +137,41 @@ class HotTopicFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun downloadAndInitializeAdapter(
+        imageUri: Uri,
+        binding: ImageView,
+        transferUtility: TransferUtility
+    ) {
+        val fileName = imageUri.lastPathSegment // 파일 이름을 가져옴
+        val downloadFile = File(binding.context.cacheDir, fileName)
+
+        val transferObserver = transferUtility.download(
+            "plan",
+            imageUri.toString(),
+            downloadFile
+        )
+
+        transferObserver.setTransferListener(object : TransferListener {
+            override fun onStateChanged(id: Int, state: TransferState) {
+                if (state == TransferState.COMPLETED) {
+                    // 이미지 다운로드가 완료되었습니다. 이제 ImageView에 이미지를 표시하세요.
+                    val downloadedImageUri = Uri.fromFile(downloadFile)
+                    Glide.with(binding.context)
+                        .load(downloadedImageUri)
+                        .into(binding)
+                }
+            }
+
+            override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
+                // 진행 상태 업데이트
+            }
+
+            override fun onError(id: Int, ex: Exception) {
+                Log.e("PlanAdapter", "이미지 다운로드 오류: $ex")
+            }
+        })
     }
 
 }
