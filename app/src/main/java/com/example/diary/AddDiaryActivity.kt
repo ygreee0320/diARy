@@ -335,10 +335,8 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                 diaryId!!,
                 onSuccess = { diaryDetail ->
                     Log.d("adddiaryAc", "수정하러 들어옴" + diaryDetail)
-                    val editTitle =
-                        Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.title)
-                    val editTravelDest =
-                        Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.travelDest)
+                    val editTitle = Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.title)
+                    val editTravelDest = Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.travelDest)
                     val editHash = Editable.Factory.getInstance()
                         .newEditable(diaryDetail.diaryDto.tags.joinToString(" ") { "#${it.name}" })
                     binding.diaryAddTitle.text = editTitle
@@ -420,16 +418,17 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
             PlanDetailManager.getPlanDetailData(
                 planId!!,
                 onSuccess = { planDetail ->
-                    val editTitle =
-                        Editable.Factory.getInstance().newEditable(planDetail.plan.content)
-                    val editTravelDest =
-                        Editable.Factory.getInstance().newEditable(planDetail.plan.travelDest)
+                    Log.d("my log", ""+ planDetail.plan.content + planDetail.plan.travelDest)
+                    val editTitle = Editable.Factory.getInstance().newEditable(planDetail.plan.content)
+                    val editTravelDest = Editable.Factory.getInstance().newEditable(planDetail.plan.travelDest)
                     val editHash = Editable.Factory.getInstance()
                         .newEditable(planDetail.tags.joinToString(" ") { "#${it.name}" })
 
                     binding.diaryAddTitle.text = editTitle
                     binding.diaryAddDest.text = editTravelDest
                     binding.diaryAddHash.text = editHash
+
+                    Log.d("my log", ""+ editTitle + binding.diaryAddDest.text.toString() + editHash)
 
                     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     val formattedStartDate = dateFormatter.format(planDetail.plan.travelStart)

@@ -105,7 +105,7 @@ class PlanDetailActivity : AppCompatActivity() {
                         binding.planDetailTakeInBtn.visibility = View.GONE
                     }
 
-                    if (planDetail.origin.userId != userId) {
+                    if (planDetail.origin.userId != planDetail.user.userId){
                         binding.planDetailOriginWriter.text = planDetail.origin.username
                         binding.originImg.visibility = View.VISIBLE // 텍스트뷰를 보이도록 설정
                         binding.planDetailOriginWriter.visibility = View.VISIBLE

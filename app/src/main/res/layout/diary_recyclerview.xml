@@ -44,7 +44,8 @@
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     android:layout_marginRight="3dp"
-                    android:src="@drawable/location_icon" />
+                    android:layout_marginTop="2dp"
+                    android:src="@drawable/location_pin_icon" />
 
                 <TextView
                     android:id="@+id/diary_place"
@@ -93,7 +94,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="20dp"
                         android:text="작성일"
-                        android:textSize="13dp" />
+                        android:textSize="11dp" />
 
                 </LinearLayout>
 
@@ -124,7 +125,7 @@
                     android:id="@+id/diary_comment_icon"
                     android:layout_width="18dp"
                     android:layout_height="18dp"
-                    android:layout_marginLeft="4dp"
+                    android:layout_marginLeft="7dp"
                     android:layout_marginRight="2dp"
                     android:src="@drawable/comment_icon" />
 

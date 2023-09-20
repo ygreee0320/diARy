@@ -61,11 +61,12 @@
 
                     <de.hdodenhof.circleimageview.CircleImageView
                         android:id="@+id/diary_detail_user_img"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
                         android:gravity="center"
                         android:scaleType="centerCrop"
                         android:layout_marginRight="8dp"
+                        android:layout_marginTop="3dp"
                         android:src="@drawable/user_basic" />
 
                     <LinearLayout
@@ -77,21 +78,34 @@
                             android:id="@+id/diary_detail_writer"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="10dp"
+                            android:textSize="14dp"
                             android:text="작성자명" />
 
                         <TextView
                             android:id="@+id/diary_detail_create_date"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
-                            android:textSize="8dp"
+                            android:textSize="11dp"
                             android:text="작성일" />
 
                     </LinearLayout>
 
                     <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="" />
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginRight="2dp"
+                        android:src="@drawable/location_pin_icon" />
+
+                    <TextView
                         android:id="@+id/diary_detail_subtitle"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="5dp"
                         android:gravity="right"

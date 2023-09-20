@@ -53,11 +53,6 @@ class HotTopicFragment : Fragment() {
         }
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        // 여기에서 초기화 또는 다른 작업을 수행할 수 있습니다.
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
@@ -77,16 +72,17 @@ class HotTopicFragment : Fragment() {
         if (diaryIds != null) {
             if (diaryIds.size >= 1) {
                 binding.diaryTitle1.text = diaryTitles?.getOrNull(0) ?: ""
-                if (diaryImages!![0] != null) {
+                if (diaryImages?.getOrNull(0) != null) {
+//                if (diaryImages!![0] != null) {
                     TransferNetworkLossHandler.getInstance(binding.img1.context);
 
                     val transferUtility = TransferUtility.builder()
                         .s3Client(s3Client)
                         .context(binding.img1.context)
-                        .defaultBucket("plan") // S3 버킷 이름을 변경하세요
+                        .defaultBucket("diary") // S3 버킷 이름을 변경하세요
                         .build()
 
-                    Log.d("PlanAdapter", "" + diaryImages[0])
+                    Log.d("diaryAdapter", "" + diaryImages[0])
 
                     downloadAndInitializeAdapter(diaryImages[0].toUri(), binding.img1, transferUtility)
                 }
@@ -96,12 +92,38 @@ class HotTopicFragment : Fragment() {
 
             if (diaryIds.size >= 2) {
                 binding.diaryTitle2.text = diaryTitles?.getOrNull(1) ?: ""
+                if (diaryImages?.getOrNull(1) != null) {
+                    TransferNetworkLossHandler.getInstance(binding.img2.context);
+
+                    val transferUtility = TransferUtility.builder()
+                        .s3Client(s3Client)
+                        .context(binding.img2.context)
+                        .defaultBucket("diary") // S3 버킷 이름을 변경하세요
+                        .build()
+
+                    Log.d("diaryAdapter", "" + diaryImages[1])
+
+                    downloadAndInitializeAdapter(diaryImages[1].toUri(), binding.img2, transferUtility)
+                }
             } else {
                 binding.diary2.visibility = GONE
             }
 
             if (diaryIds.size >= 3) {
                 binding.diaryTitle3.text = diaryTitles?.getOrNull(2) ?: ""
+                if (diaryImages?.getOrNull(2) != null) {
+                    TransferNetworkLossHandler.getInstance(binding.img3.context);
+
+                    val transferUtility = TransferUtility.builder()
+                        .s3Client(s3Client)
+                        .context(binding.img3.context)
+                        .defaultBucket("diary") // S3 버킷 이름을 변경하세요
+                        .build()
+
+                    Log.d("diaryAdapter", "" + diaryImages[2])
+
+                    downloadAndInitializeAdapter(diaryImages[2].toUri(), binding.img3, transferUtility)
+                }
             } else {
                 binding.diary3.visibility = GONE
             }
@@ -148,7 +170,7 @@ class HotTopicFragment : Fragment() {
         val downloadFile = File(binding.context.cacheDir, fileName)
 
         val transferObserver = transferUtility.download(
-            "plan",
+            "diary",
             imageUri.toString(),
             downloadFile
         )
@@ -169,7 +191,7 @@ class HotTopicFragment : Fragment() {
             }
 
             override fun onError(id: Int, ex: Exception) {
-                Log.e("PlanAdapter", "이미지 다운로드 오류: $ex")
+                Log.e("diaryAdapter", "이미지 다운로드 오류: $ex")
             }
         })
     }

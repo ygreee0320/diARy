@@ -21,6 +21,9 @@ import com.bumptech.glide.Glide.init
 import com.example.diary.databinding.DiaryDetailPlaceRecyclerviewBinding
 import com.example.diary.databinding.DiaryRecyclerviewBinding
 import java.io.File
+import java.sql.Timestamp
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerView.Adapter<DiaryAdapter.DiaryViewHolder>()  {
@@ -39,16 +42,14 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
         val awsCredentials = BasicAWSCredentials(awsAccessKey, awsSecretKey)
         val s3Client = AmazonS3Client(awsCredentials, Region.getRegion(Regions.AP_NORTHEAST_2))
         s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
-        // Initialize TransferUtility with a valid context (this)
-        transferUtility = TransferUtility.builder()
-            .s3Client(s3Client)
-            .context(parent.context)
-            .defaultBucket("diary")
-            .build()
+//        // Initialize TransferUtility with a valid context (this)
+//        transferUtility = TransferUtility.builder()
+//            .s3Client(s3Client)
+//            .context(parent.context)
+//            .defaultBucket("diary")
+//            .build()
         TransferNetworkLossHandler.getInstance(parent.context)
         return DiaryViewHolder(view)
-
-
     }
 
     override fun onBindViewHolder(holder: DiaryViewHolder, position: Int) {
@@ -79,7 +80,6 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
         private val diaryLockImg : ImageView = itemView.findViewById(R.id.diary_lock)
         private val diaryImg: ImageView = itemView.findViewById(R.id.diary_img)
 
-
         init {
             itemView.setOnClickListener {
                 val clickedDiary = diaries[adapterPosition]
@@ -103,33 +103,54 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
                     .context(diaryImg.context)
                     .defaultBucket("diary") // S3 버킷 이름을 변경하세요
                     .build()
-                if (diary.diaryDto.imageUri != null) {
-                    // 이미지를 여러 개 표시하기 위해 RecyclerView로 변경
-                    Log.d("diaryDetailAdapter", ""+diary.diaryDto.imageData)
 
-                    downloadAndInitializeAdapter(diary.diaryDto.imageData.toUri(), diaryImg)
+                // 이미지를 여러 개 표시하기 위해 RecyclerView로 변경
+                Log.d("diaryDetailAdapter", ""+diary.diaryDto.imageData)
+
+                downloadAndInitializeAdapter(diary.diaryDto.imageData.toUri(), diaryImg)
 //            val imageAdapter = MultiImageAdapter(uriList as ArrayList<Uri>, holder.binding.root.context)
 //            holder.binding.recyclerView.adapter = imageAdapter
 //            holder.binding.recyclerView.layoutManager = layoutManager
-                    Log.d("detailAdapter", "이미지 추가")
-                } else {
-                    // 이미지가 없는 경우, RecyclerView를 숨깁니다.
-                    Log.d("detailAdapter", "이미지 없음")
-                }
+                Log.d("detailAdapter", "이미지 추가")
+            } else {
+                // 이미지가 없는 경우, RecyclerView를 숨깁니다.
+                Log.d("detailAdapter", "이미지 없음")
             }
 
-
-
-
-
-
-
-        if (searchDiary) { // 일기 검색 목록이라면
+            if (searchDiary) { // 일기 검색 목록이라면
                 diaryInfoLayout.visibility = View.VISIBLE
                 periodTextView.visibility = View.GONE
 
                 writerTextView.text = diary.userDto.username
-                createTextView.text = diary.diaryDto.createdAt.toString()
+
+                val parts = diary.diaryDto.createdAt.split("T")
+
+                if (parts.size == 2) {
+                    val datePart = parts[0]
+                    val timeWithMillisPart = parts[1]
+
+                    createTextView.text = datePart
+                    // 밀리초 부분을 제외한 시간 부분 추출
+                    val timePart = timeWithMillisPart.substring(0, 8)
+
+                    // 날짜와 시간을 조합하여 Timestamp로 변환
+                    val timestampString = "$datePart $timePart"
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    val parsedTimestamp = Timestamp(dateFormat.parse(timestampString).time)
+
+                    // SimpleDateFormat을 사용하여 원하는 형식으로 포맷
+                    val outputDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    outputDateFormat.timeZone = TimeZone.getTimeZone("Asia/Seoul") // 원하는 시간대 설정
+                    val formattedDate = outputDateFormat.format(parsedTimestamp)
+
+                    // formattedDate를 TextView에 설정
+                    //createTextView.text = formattedDate
+                    // 결과를 출력
+                    Log.d("Formatted Date", formattedDate)
+                } else {
+                    // 올바른 형식이 아닐 경우 오류 처리
+                    Log.e("Error", "Invalid timestamp format")
+                }
             } else {
                 periodTextView.text = "${diary.diaryDto.travelStart} ~ ${diary.diaryDto.travelEnd}"
             }

@@ -110,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="2dp"
-            android:text="추천 검색어   제주도  식도락  휴식"
+            android:text="추천 검색어   제주도  카페  휴식"
             android:textSize="13dp" />
 
     </LinearLayout>
