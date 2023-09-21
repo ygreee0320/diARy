@@ -66,7 +66,15 @@ class MapDialog(context: Context) {
         //만족도(임시)
         val progressBar = dialog.findViewById<ProgressBar>(R.id.diary_progress)
         val data = diary.map { it.satisfaction }
-        val avg = if (data.size > 0) data.sum() / data.size else 0.0
+        val avg = if (data.size > 0) {
+            var sum = 0
+            var cnt = 0
+            for ( i in data ) {
+                sum += i
+                cnt++
+            }
+            sum / cnt
+        } else 0.0
         progressBar.progress = avg.toInt()
 
         val satisfaction = dialog.findViewById<TextView>(R.id.diary_sat)
