@@ -61,7 +61,7 @@
   <button id="cal_btn" onclick="Android.setTripDate();"><i class="fi fi-br-calendar-check"></i></button>
 
   <div id="search_result">
-    <h6>검색결과(<span id="result_cnt">n</span>건)</h6>
+    <h6>검색결과(<span id="result_cnt"></span>건)</h6>
     <!-- carousel slider -->
     <div id="carouselExampleIndicators" class="carousel slide">
       <div class="carousel-inner">
@@ -117,6 +117,9 @@
     //키워드 검색 완료 시 호출되는 콜백 함수
     function placesSearchCB(data, status, pagination) {
       if (status === kakao.maps.services.Status.OK) {
+        var cnt = document.querySelector('#result_cnt');
+        cnt.innerText = data.length;
+
         displayMarker(data);
         displaySlider(data);
       }
