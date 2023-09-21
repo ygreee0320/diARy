@@ -72,7 +72,7 @@ class HotTopicFragment : Fragment() {
         if (diaryIds != null) {
             if (diaryIds.size >= 1) {
                 binding.diaryTitle1.text = diaryTitles?.getOrNull(0) ?: ""
-                if (diaryImages?.getOrNull(0) != null) {
+                if (diaryImages?.getOrNull(0) != "null") {
 //                if (diaryImages!![0] != null) {
                     TransferNetworkLossHandler.getInstance(binding.img1.context);
 
@@ -82,7 +82,7 @@ class HotTopicFragment : Fragment() {
                         .defaultBucket("diary") // S3 버킷 이름을 변경하세요
                         .build()
 
-                    Log.d("diaryAdapter", "" + diaryImages[0])
+                    Log.d("diaryAdapter", "" + diaryImages!![0])
 
                     downloadAndInitializeAdapter(diaryImages[0].toUri(), binding.img1, transferUtility)
                 }
