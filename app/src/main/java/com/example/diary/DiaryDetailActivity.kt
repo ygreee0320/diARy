@@ -80,7 +80,7 @@ class DiaryDetailActivity : AppCompatActivity() {
                     binding.diarySat.text = "${diaryDetail.diaryDto.satisfaction} %"
 
 // "T"를 기준으로 문자열을 나누기
-                    val parts = diaryDetail.diaryDto.createdAt.split("T")
+                    val parts = diaryDetail.diaryDto.updatedAt.split("T")
 
                     if (parts.size == 2) {
                         val datePart = parts[0]
@@ -230,7 +230,7 @@ class DiaryDetailActivity : AppCompatActivity() {
                         binding.diaryDetailSubtitle.text = diaryDetailResponse.diaryDto.travelDest
                         binding.diaryDetailWriter.text = diaryDetailResponse.userDto.username
                         val parts = diaryDetailResponse.diaryDto.updatedAt.split("T")
-
+                        Log.d("diarydetailAdapter", "고친 시간" + diaryDetailResponse.diaryDto.updatedAt)
                         if (parts.size == 2) {
                             val datePart = parts[0]
                             val timeWithMillisPart = parts[1]
@@ -335,7 +335,34 @@ class DiaryDetailActivity : AppCompatActivity() {
                         binding.diaryDetailTitle.text = diaryDetail.diaryDto.title
                         binding.diaryDetailSubtitle.text = diaryDetail.diaryDto.travelDest
                         binding.diaryDetailWriter.text = diaryDetail.userDto.username
-                        binding.diaryDetailCreateDate.text = "${diaryDetail.diaryDto.createdAt}"
+                        //binding.diaryDetailCreateDate.text = "${diaryDetail.diaryDto.createdAt}"
+                        val parts = diaryDetail.diaryDto.updatedAt.split("T")
+                        Log.d("diarydetailAdapter", "고친 시간" + diaryDetail.diaryDto.updatedAt)
+                        if (parts.size == 2) {
+                            val datePart = parts[0]
+                            val timeWithMillisPart = parts[1]
+
+                            // 밀리초 부분을 제외한 시간 부분 추출
+                            val timePart = timeWithMillisPart.substring(0, 8)
+
+                            // 날짜와 시간을 조합하여 Timestamp로 변환
+                            val timestampString = "$datePart $timePart"
+                            val dateFormat =
+                                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                            val parsedTimestamp = Timestamp(dateFormat.parse(timestampString).time)
+
+                            // SimpleDateFormat을 사용하여 원하는 형식으로 포맷
+                            val outputDateFormat =
+                                SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                            outputDateFormat.timeZone =
+                                TimeZone.getTimeZone("Asia/Seoul") // 원하는 시간대 설정
+                            val formattedDate = outputDateFormat.format(parsedTimestamp)
+
+                            // formattedDate를 TextView에 설정
+                            binding.diaryDetailCreateDate.text = formattedDate
+                            // 결과를 출력
+                            Log.d("Formatted Date", formattedDate)
+                        }
                         binding.diaryDetailComment.text = "댓글 ${diaryDetail.diaryDto.comments.size}개 >"
                         binding.diaryDetailLike.text = diaryDetail.diaryDto.likes.size.toString()
                         isLiked = diaryDetail.diaryDto.likes.any { it.userId == userId }
