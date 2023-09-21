@@ -72,8 +72,10 @@
                         android:layout_height="wrap_content"
                         android:text="일기1"
                         android:textColor="@android:color/white"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
                         android:layout_gravity="center_horizontal|bottom"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
                         android:paddingBottom="15dp"/>
                 </FrameLayout>
 
@@ -110,7 +112,9 @@
                         android:layout_height="wrap_content"
                         android:text="일기2"
                         android:textColor="@android:color/white"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
                         android:layout_gravity="center_horizontal|bottom"
                         android:paddingBottom="15dp" />
                 </FrameLayout>
@@ -148,7 +152,9 @@
                         android:layout_height="wrap_content"
                         android:text="일기3"
                         android:textColor="@android:color/white"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
                         android:layout_gravity="center_horizontal|bottom"
                         android:paddingBottom="15dp" />
                 </FrameLayout>
