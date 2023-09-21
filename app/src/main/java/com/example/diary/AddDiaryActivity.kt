@@ -50,6 +50,8 @@ import kotlin.collections.ArrayList
 class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListener {
     private lateinit var binding: ActivityAddDiaryBinding
     private lateinit var viewModel: AddDiaryViewModel
+    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
     private lateinit var transferUtility: TransferUtility
     private val REQUEST_CODE = 123
 
@@ -545,7 +547,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 
 
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
 
         val travelStartDate: Date = try {
             java.sql.Date(dateFormat.parse(travelStart).time)
@@ -657,8 +659,16 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
             } catch (e: Exception) {
                 java.sql.Time(System.currentTimeMillis())
             }
+
+
+
             Log.d("서버 테스트 content", "" + content)
             if (!place.isNullOrEmpty()) {
+                val timeStartUtil: java.util.Date = timeFormat.parse(item.placeTimeS)
+                val timeStartSql: Time = Time(timeStartUtil.time)
+
+                val timeEndUtil: java.util.Date = timeFormat.parse(item.placeTimeE)
+                val timeEndSql: Time = Time(timeEndUtil.time)
                 val diaryLocation = DiaryLocationDto(
                     content = content,
                     name = place,
@@ -666,8 +676,8 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     x = x,
                     y = y,
                     date = placeDate,
-                    timeStart = placeTimeStart,
-                    timeEnd = placeTimeEnd,
+                    timeStart = timeStartSql,
+                    timeEnd = timeEndSql,
                     diaryLocationImageDtoList = placeImageList // 이미지 리스트 추가 필요
                 )
                 diaryLocations.add(diaryLocation)
