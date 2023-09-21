@@ -59,6 +59,10 @@ class MapDialog(context: Context) {
         val place = dialog.findViewById<TextView>(R.id.place)
         place.text = placeInfo.getValue("title")
 
+        //만족도 데이터 개수
+        val cnt = dialog.findViewById<TextView>(R.id.cnt)
+        cnt.text = diary.size.toString()
+
         //만족도(임시)
         val progressBar = dialog.findViewById<ProgressBar>(R.id.diary_progress)
         val data = diary.map { it.satisfaction }
