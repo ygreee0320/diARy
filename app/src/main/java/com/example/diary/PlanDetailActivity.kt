@@ -72,7 +72,7 @@ class PlanDetailActivity : AppCompatActivity() {
                     binding.planDetailWriter.text = planDetail.user.username
 
                     // "T"를 기준으로 문자열을 나누기
-                    val parts = planDetail.plan.createdAt.split("T")
+                    val parts = planDetail.plan.updatedAt.split("T")
 
                     if (parts.size == 2) {
                         val datePart = parts[0]
