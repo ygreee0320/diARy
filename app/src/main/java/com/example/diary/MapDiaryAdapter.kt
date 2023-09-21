@@ -50,8 +50,8 @@ class MapDiaryAdapter(var datas: List<DiaryDtoList>?): RecyclerView.Adapter<MapD
         fun bind(diary: DiaryDtoList) {
             binding.userName.text = diary.userDto.username
             binding.mapDiaryText.text = diary.diaryLocationDto.content
-            binding.mapDiaryDate.text =
-                "여행기간: " + diary.travelStart.toString() + "~" + diary.travelEnd.toString()
+//            binding.mapDiaryDate.text =
+//                "여행기간: " + diary.travelStart.toString() + "~" + diary.travelEnd.toString()
         }
     }
 }
