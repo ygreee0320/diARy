@@ -355,7 +355,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     binding.diaryAddStart.text = formattedStartDate
                     binding.diaryAddEnd.text = formattedEndDate
 
-                    if (diaryDetail.diaryDto.imageUri != null) {
+                    if (uriList.size != 0) {
                         binding.diaryImgBtn.setImageURI(diaryDetail.diaryDto.imageUri.toUri())
                         uriList.add(diaryDetail.diaryDto.imageUri.toUri())
                     }
@@ -519,6 +519,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         val fileListFile: MutableList<File> = mutableListOf()
         var imageuri : Uri? = null
         var imagedata : String? = null
+        Log.d("adddiaryActi", "" + uriList.size)
         if (uriList.size != 0) {
             imageuri = uriList[0]
             imagedata = getRealPathFromURI(imageuri)
