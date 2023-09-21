@@ -93,7 +93,7 @@ class DiaryAdapter(private var diaries: List<DiaryDetailResponse>) : RecyclerVie
         fun bind(diary: DiaryDetailResponse) {
             titleTextView.text = diary.diaryDto.title
             placeTextView.text = diary.diaryDto.travelDest
-            if (diary.diaryDto.imageUri != null) {
+            if (diary.diaryDto.imageUri != "null") {
                 s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
                 // Initialize TransferUtility
                 TransferNetworkLossHandler.getInstance(diaryImg.context);
