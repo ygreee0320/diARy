@@ -110,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="2dp"
-            android:text="추천 검색어   제주도  식도락  휴식"
+            android:text="추천 검색어   제주도  카페  휴식"
             android:textSize="13dp" />
 
     </LinearLayout>
@@ -154,7 +154,7 @@
                     android:layout_marginHorizontal="7dp">
 
                     <ImageView
-                        android:src="@drawable/cloud"
+                        android:src="@drawable/home_seoul"
                         android:scaleType="centerCrop"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -183,7 +183,7 @@
                     android:layout_marginHorizontal="7dp">
 
                     <ImageView
-                        android:src="@drawable/cloud"
+                        android:src="@drawable/home_busan"
                         android:scaleType="centerCrop"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -212,7 +212,7 @@
                     android:layout_marginHorizontal="7dp">
 
                     <ImageView
-                        android:src="@drawable/cloud"
+                        android:src="@drawable/home_jejudo"
                         android:scaleType="centerCrop"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -250,7 +250,7 @@
                     android:layout_marginHorizontal="7dp">
 
                     <ImageView
-                        android:src="@drawable/cloud"
+                        android:src="@drawable/home_gangneung"
                         android:scaleType="centerCrop"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -279,7 +279,7 @@
                     android:layout_marginHorizontal="7dp">
 
                     <ImageView
-                        android:src="@drawable/cloud"
+                        android:src="@drawable/home_jeonju"
                         android:scaleType="centerCrop"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -290,7 +290,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="전주"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/white"
                         android:textSize="20sp"
                         android:layout_gravity="center" />
                 </FrameLayout>
@@ -308,7 +308,7 @@
                     android:layout_marginHorizontal="7dp">
 
                     <ImageView
-                        android:src="@drawable/cloud"
+                        android:src="@drawable/home_gyeongju"
                         android:scaleType="centerCrop"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
@@ -319,7 +319,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="경주"
-                        android:textColor="@android:color/black"
+                        android:textColor="@android:color/white"
                         android:textSize="20sp"
                         android:layout_gravity="center" />
                 </FrameLayout>

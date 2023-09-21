@@ -53,6 +53,7 @@
                     android:layout_marginHorizontal="7dp">
 
                     <ImageView
+                        android:id="@+id/img_1"
                         android:src="@drawable/cloud"
                         android:scaleType="centerCrop"
                         android:layout_width="match_parent"
@@ -90,6 +91,7 @@
                     android:layout_marginHorizontal="7dp">
 
                     <ImageView
+                        android:id="@+id/img_2"
                         android:src="@drawable/cloud"
                         android:scaleType="centerCrop"
                         android:layout_width="match_parent"
@@ -127,6 +129,7 @@
                     android:layout_marginHorizontal="7dp">
 
                     <ImageView
+                        android:id="@+id/img_3"
                         android:src="@drawable/cloud"
                         android:scaleType="centerCrop"
                         android:layout_width="match_parent"

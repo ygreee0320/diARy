@@ -65,7 +65,7 @@ class RankingFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //    searchView 클릭 시, 검색 활성화
+//            searchView 클릭 시, 검색 활성화
         val searchRanking = view.findViewById<SearchView>(R.id.search_ranking)
 
         searchRanking.setOnClickListener {

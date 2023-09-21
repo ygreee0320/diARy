@@ -335,29 +335,27 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                 diaryId!!,
                 onSuccess = { diaryDetail ->
                     Log.d("adddiaryAc", "수정하러 들어옴" + diaryDetail)
-                    val editTitle =
-                        Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.title)
-                    val editTravelDest =
-                        Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.travelDest)
+                    val editTitle = Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.title)
+                    val editTravelDest = Editable.Factory.getInstance().newEditable(diaryDetail.diaryDto.travelDest)
                     val editHash = Editable.Factory.getInstance()
                         .newEditable(diaryDetail.diaryDto.tags.joinToString(" ") { "#${it.name}" })
                     binding.diaryAddTitle.text = editTitle
                     binding.diaryAddDest.text = editTravelDest
                     binding.diaryAddHash.text = editHash
                     binding.diaryAddLockBtn.isChecked = !diaryDetail.diaryDto.public
-                    binding.diaryImgBtn.setImageURI(diaryDetail.diaryDto.imageUri.toUri())
-                    uriList.add(diaryDetail.diaryDto.imageUri.toUri())
 
 
+                    Log.d("adddiaryadpater", ""+ diaryDetail.diaryDto.imageUri)
                     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     val formattedStartDate = dateFormatter.format(diaryDetail.diaryDto.travelStart)
                     val formattedEndDate = dateFormatter.format(diaryDetail.diaryDto.travelEnd)
 
                     binding.diaryAddStart.text = formattedStartDate
                     binding.diaryAddEnd.text = formattedEndDate
+
                     if (diaryDetail.diaryDto.imageUri != null) {
                         binding.diaryImgBtn.setImageURI(diaryDetail.diaryDto.imageUri.toUri())
-
+                        uriList.add(diaryDetail.diaryDto.imageUri.toUri())
                     }
 
 
@@ -420,16 +418,17 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
             PlanDetailManager.getPlanDetailData(
                 planId!!,
                 onSuccess = { planDetail ->
-                    val editTitle =
-                        Editable.Factory.getInstance().newEditable(planDetail.plan.content)
-                    val editTravelDest =
-                        Editable.Factory.getInstance().newEditable(planDetail.plan.travelDest)
+                    Log.d("my log", ""+ planDetail.plan.content + planDetail.plan.travelDest)
+                    val editTitle = Editable.Factory.getInstance().newEditable(planDetail.plan.content)
+                    val editTravelDest = Editable.Factory.getInstance().newEditable(planDetail.plan.travelDest)
                     val editHash = Editable.Factory.getInstance()
                         .newEditable(planDetail.tags.joinToString(" ") { "#${it.name}" })
 
                     binding.diaryAddTitle.text = editTitle
                     binding.diaryAddDest.text = editTravelDest
                     binding.diaryAddHash.text = editHash
+
+                    Log.d("my log", ""+ editTitle + binding.diaryAddDest.text.toString() + editHash)
 
                     val dateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                     val formattedStartDate = dateFormatter.format(planDetail.plan.travelStart)
@@ -516,30 +515,34 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         val travelEnd = binding.diaryAddEnd.text.toString()
         val fileList: MutableList<DiaryLocationImageDto> = mutableListOf()
         val fileListFile: MutableList<File> = mutableListOf()
+        var imageuri : Uri? = null
+        var imagedata : String? = null
+        if (uriList.size != 0) {
+            imageuri = uriList[0]
+            imagedata = getRealPathFromURI(imageuri)
+            val imagefile = File(imagedata)
 
-        val imageuri = uriList[0]
-        val imagedata = getRealPathFromURI(imageuri)
-        val imagefile = File(imagedata)
+            val uploadObserver = transferUtility.upload("diary", imagefile.toString(), imagefile)
+            uploadObserver.setTransferListener(object : TransferListener {
+                override fun onStateChanged(id: Int, state: TransferState) {
+                    Log.d("onStateChanged: $id", "${state.toString()}")
+                }
 
-        val uploadObserver = transferUtility.upload("diary", imagefile.toString(), imagefile)
-        uploadObserver.setTransferListener(object : TransferListener {
-            override fun onStateChanged(id: Int, state: TransferState) {
-                Log.d("onStateChanged: $id", "${state.toString()}")
-            }
+                override fun onProgressChanged(
+                    id: Int,
+                    bytesCurrent: Long,
+                    bytesTotal: Long
+                ) {
+                    val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
+                    val percentDone = percentDonef.toInt()
+                    Log.d("ID:" ,"$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%")
+                }
 
-            override fun onProgressChanged(
-                id: Int,
-                bytesCurrent: Long,
-                bytesTotal: Long
-            ) {
-                val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
-                val percentDone = percentDonef.toInt()
-                Log.d("ID:" ,"$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%")
-            }
+                override fun onError(id: Int, ex: Exception) {
+                }
+            })
+        }
 
-            override fun onError(id: Int, ex: Exception) {
-            }
-        })
 
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val timeFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())

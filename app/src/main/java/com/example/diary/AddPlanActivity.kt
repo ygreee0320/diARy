@@ -90,7 +90,7 @@ class AddPlanActivity : AppCompatActivity() {
         transferUtility = TransferUtility.builder()
             .s3Client(s3Client)
             .context(this)
-            .defaultBucket("diary")
+            .defaultBucket("plan")
             .build()
         TransferNetworkLossHandler.getInstance(applicationContext)
 
@@ -235,6 +235,7 @@ class AddPlanActivity : AppCompatActivity() {
                 modPlanToServer()  // 서버로 수정된 일정 전송
                 val resultIntent = Intent()
                 setResult(Activity.RESULT_OK, resultIntent)
+                Log.d("me", "수정본 요청")
                 finish() // 현재 액티비티 종료
             }
         }
@@ -288,31 +289,36 @@ class AddPlanActivity : AppCompatActivity() {
         val hashTagArray = binding.planHashEdit.getInsertTag() ?: emptyArray()
         val travelStart = binding.planDateStart.text.toString()
         val travelEnd = binding.planDateEnd.text.toString()
-        val imageUri = uriList[0]
+        var imageuri : Uri? = null
+        var imagedata : String? = null
+        if (uriList.size != 0) {
+            imageuri = uriList[0]
+            imagedata = getRealPathFromURI(imageuri)
+            val imagefile = File(imagedata)
 
-        val imageData = getRealPathFromURI(imageUri)
-        val file = File(imageData)
+            val uploadObserver = transferUtility?.upload("plan", imagefile.toString(), imagefile)
+            uploadObserver!!.setTransferListener(object : TransferListener {
+                override fun onStateChanged(id: Int, state: TransferState) {
+                    Log.d("onStateChanged: $id", "${state.toString()}")
+                }
 
-        val uploadObserver = transferUtility?.upload("diary", file.toString(), file)
-        uploadObserver!!.setTransferListener(object : TransferListener {
-            override fun onStateChanged(id: Int, state: TransferState) {
-                Log.d("onStateChanged: $id", "${state.toString()}")
-            }
+                override fun onProgressChanged(
+                    id: Int,
+                    bytesCurrent: Long,
+                    bytesTotal: Long
+                ) {
+                    val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
+                    val percentDone = percentDonef.toInt()
+                    Log.d(
+                        "ID:",
+                        "$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%"
+                    )
+                }
 
-            override fun onProgressChanged(
-                id: Int,
-                bytesCurrent: Long,
-                bytesTotal: Long
-            ) {
-                val percentDonef = (bytesCurrent.toFloat() / bytesTotal.toFloat()) * 100
-                val percentDone = percentDonef.toInt()
-                Log.d("ID:" ,"$id bytesCurrent: $bytesCurrent bytesTotal: $bytesTotal $percentDone%")
-            }
-
-            override fun onError(id: Int, ex: Exception) {
-            }
-        })
-
+                override fun onError(id: Int, ex: Exception) {
+                }
+            })
+        }
         val locations: List<Location> = planPlaceList.map { planDetail ->
             val timeStartUtil: java.util.Date = timeFormat.parse(planDetail.placeStart)
             val timeStartSql: Time = Time(timeStartUtil.time)
@@ -340,7 +346,7 @@ class AddPlanActivity : AppCompatActivity() {
             java.sql.Date(dateFormat.parse(travelEnd).time)
         } catch (e: Exception) { java.sql.Date(System.currentTimeMillis()) }
 
-        val plan = Plan(travelDest, content, travelStartDate, travelEndDate, imageData.toString(), imageUri.toString(), public)
+        val plan = Plan(travelDest, content, travelStartDate, travelEndDate, imagedata.toString(), imageuri.toString(), public)
         val planData = PlanData(plan, locations, tags)
 
         Log.d("서버 테스트", ""+planData)
@@ -373,12 +379,12 @@ class AddPlanActivity : AppCompatActivity() {
         var imageUri: Uri? = null
         var imageData: String? = null
         val file: File?
-        if (uriList[0] != null) {
+        if (uriList.isNotEmpty() && uriList[0] != null) {
             imageUri = uriList[0]
 
             imageData = getRealPathFromURI(imageUri)
             file = File(imageData)
-            val uploadObserver = transferUtility.upload("diary", file.toString(), file)
+            val uploadObserver = transferUtility.upload("plan", file.toString(), file)
             uploadObserver!!.setTransferListener(object : TransferListener {
                 override fun onStateChanged(id: Int, state: TransferState) {
                     Log.d("onStateChanged: $id", "${state.toString()}")
