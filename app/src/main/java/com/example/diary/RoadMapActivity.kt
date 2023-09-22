@@ -109,6 +109,7 @@ class RoadMapActivity : AppCompatActivity() {
         @JavascriptInterface
         fun getSearchImg(title: String): String {
             Log.d("mylog", "$title")
+
             imgURL = ApiSearchImg().searchImg(title)
             return imgURL as String
         }

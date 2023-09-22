@@ -32,7 +32,7 @@
   <div id="roadview"></div>
 
   <div id="near_place">
-    <h6>근처 장소(<span id="place_cnt">n</span>)</h6>
+    <h6>근처 장소(<span id="place_cnt"></span>)</h6>
     <p class="filter">카테고리 | <span id="filter_option">관광명소</span></p>
     <!-- carousel slider -->
     <div id="carouselExampleIndicators" class="carousel slide">
@@ -133,6 +133,8 @@
     //키워드 검색 완료 시 호출되는 콜백 함수
     function placesSearchCB(result, status, pagination) {
       if (status === kakao.maps.services.Status.OK) {
+        var cnt = document.querySelector('#place_cnt');
+        cnt.innerText = result.length;
 
         console.log("Search successed");
         console.log("totalCount: " + pagination.totalCount);
