@@ -16,6 +16,7 @@ import android.provider.MediaStore
 import android.text.Editable
 import android.util.Log
 import android.widget.DatePicker
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
@@ -37,7 +38,9 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
 import com.amazonaws.services.s3.AmazonS3Client
+import com.bumptech.glide.Glide
 import com.example.diary.databinding.ActivityAddDiaryBinding
+import com.google.android.material.color.utilities.MaterialDynamicColors.onError
 import java.io.File
 import java.io.FileOutputStream
 import java.sql.Date
@@ -52,6 +55,12 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
     private lateinit var viewModel: AddDiaryViewModel
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private val timeFormat = SimpleDateFormat("HH:mm", Locale.getDefault())
+    // Amazon S3 관련 설정
+    private val awsAccessKey = "1807222EE827BB41A77C"
+    private val awsSecretKey = "E9DC72D2C24094CB2FE00763EF33330FB7948154"
+    private val awsCredentials = BasicAWSCredentials(awsAccessKey, awsSecretKey)
+    val s3Client = AmazonS3Client(awsCredentials, Region.getRegion(Regions.AP_NORTHEAST_2))// YOUR_REGION을 원하는 지역으로 변경하세요
+    private lateinit var layoutManager: LinearLayoutManager
     private lateinit var transferUtility: TransferUtility
     private val REQUEST_CODE = 123
 
@@ -64,7 +73,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 
     // 여행지 데이터를 저장할 리스트
     private val diaryPlaceList = mutableListOf<DiaryPlaceModel>()
-    private val diaryPlaceAdapter = DiaryPlaceAdapter(diaryPlaceList)
+    private val diaryPlaceAdapter = DiaryPlaceAdapter(diaryPlaceList, new!!)
 
     companion object {
         lateinit var addPlaceActivityResult: ActivityResultLauncher<Intent>
@@ -102,11 +111,6 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
             layoutManager = LinearLayoutManager(this@AddDiaryActivity)
             adapter = diaryPlaceAdapter
         }
-        val awsAccessKey = "1807222EE827BB41A77C"
-        val awsSecretKey = "E9DC72D2C24094CB2FE00763EF33330FB7948154"
-        val awsCredentials = BasicAWSCredentials(awsAccessKey, awsSecretKey)
-        val s3Client = AmazonS3Client(awsCredentials, Region.getRegion(Regions.AP_NORTHEAST_2))
-        s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
         // Initialize TransferUtility with a valid context (this)
         transferUtility = TransferUtility.builder()
             .s3Client(s3Client)
@@ -355,9 +359,11 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     binding.diaryAddStart.text = formattedStartDate
                     binding.diaryAddEnd.text = formattedEndDate
 
-                    if (uriList.size != 0) {
-                        binding.diaryImgBtn.setImageURI(diaryDetail.diaryDto.imageUri.toUri())
-                        uriList.add(diaryDetail.diaryDto.imageUri.toUri())
+                    if (diaryDetail.diaryDto.imageData != "null") {
+                        s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
+                        TransferNetworkLossHandler.getInstance(binding.diaryImgBtn.context);
+                        downloadAndInitializeAdapter(diaryDetail.diaryDto.imageData.toUri(), binding.diaryImgBtn)
+                        Log.d("detailAdapter", "이미지 추가")
                     }
 
 
@@ -377,7 +383,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                                 //uri list 만들기
                                 val diaryUris: ArrayList<Uri> = ArrayList()
                                 for (diaryImage in locationDetail.diaryLocationImageDtoList) {
-                                    val imageUri = diaryImage.imageUri
+                                    val imageUri = diaryImage.imageData
                                     if (imageUri != null) {
                                         diaryUris.add(imageUri.toUri())
                                     }
@@ -723,6 +729,39 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         }
         return null
     }
+    private fun downloadAndInitializeAdapter(imageUri: Uri, binding: ImageView) {
+        val fileName = imageUri.lastPathSegment // 파일 이름을 가져옴
+        val downloadFile = File(binding.context.cacheDir, fileName)
+
+        val transferObserver = transferUtility.download(
+            "diary",
+            imageUri.toString(),
+            downloadFile
+        )
+
+        transferObserver.setTransferListener(object : TransferListener {
+            override fun onStateChanged(id: Int, state: TransferState) {
+                if (state == TransferState.COMPLETED) {
+                    // 이미지 다운로드가 완료되었습니다. 이제 ImageView에 이미지를 표시하세요.
+                    val downloadedImageUri = Uri.fromFile(downloadFile)
+                    Glide.with(binding.context)
+                        .load(downloadedImageUri)
+                        .into(binding)
+                }
+            }
+
+            override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
+                // 진행 상태 업데이트
+            }
+
+            override fun onError(id: Int, ex: Exception) {
+                Log.e("DiaryDetailAdapter", "이미지 다운로드 오류: $ex")
+            }
+        })
+    }
+
+
+
 
 //    private fun getRealPathFromURI(contentUri: Uri): String? {
 //        val projection = arrayOf(MediaStore.Images.Media.DATA)
