@@ -50,7 +50,8 @@ data class DiaryLocationDtoList(
     val address: String,
     val x: String,
     val y: String,
-    val diaryLocationImageDtoList: List<DiaryLocationImageDto>
+    val diaryLocationImageDtoList: List<DiaryLocationImageDto>,
+    val locationSatisfaction: Int
 )
 
 data class TagName(

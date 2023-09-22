@@ -11,7 +11,7 @@ import java.util.*
 
 class MyApplication {
     val retrofit = Retrofit.Builder()
-        .baseUrl("http:/172.20.15.72:8080/") // 서버 임시 URL(로컬)
+        .baseUrl("http:/172.20.0.82:8080/") // 서버 임시 URL(로컬)
         .addConverterFactory(GsonConverterFactory.create(getGson()))
         .build()
 

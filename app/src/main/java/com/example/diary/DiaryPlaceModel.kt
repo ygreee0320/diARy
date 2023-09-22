@@ -13,5 +13,6 @@ data class DiaryPlaceModel(
     var placeTimeE: String? = "",
     var address: String? = "",
     var x: String? = "",
-    var y: String? = ""
+    var y: String? = "",
+    var addimageUris: ArrayList<Uri>? =null
 )

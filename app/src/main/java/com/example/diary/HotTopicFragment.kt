@@ -67,12 +67,12 @@ class HotTopicFragment : Fragment() {
         val diaryImages = arguments?.getStringArrayList("diaryImg")
 
         s3Client.setEndpoint("https://kr.object.ncloudstorage.com")
-
+        Log.d("hottopicfrg", "" + diaryImages)
         // diaryTitle을 각각의 TextView에 설정
         if (diaryIds != null) {
             if (diaryIds.size >= 1) {
                 binding.diaryTitle1.text = diaryTitles?.getOrNull(0) ?: ""
-                if (diaryImages?.getOrNull(0) != "null") {
+                if (diaryImages!![0] != "null") {
 //                if (diaryImages!![0] != null) {
                     TransferNetworkLossHandler.getInstance(binding.img1.context);
 
@@ -92,7 +92,7 @@ class HotTopicFragment : Fragment() {
 
             if (diaryIds.size >= 2) {
                 binding.diaryTitle2.text = diaryTitles?.getOrNull(1) ?: ""
-                if (diaryImages?.getOrNull(1) != null) {
+                if (diaryImages!![1] != "null") {
                     TransferNetworkLossHandler.getInstance(binding.img2.context);
 
                     val transferUtility = TransferUtility.builder()
@@ -111,7 +111,7 @@ class HotTopicFragment : Fragment() {
 
             if (diaryIds.size >= 3) {
                 binding.diaryTitle3.text = diaryTitles?.getOrNull(2) ?: ""
-                if (diaryImages?.getOrNull(2) != null) {
+                if (diaryImages!![2] != "null") {
                     TransferNetworkLossHandler.getInstance(binding.img3.context);
 
                     val transferUtility = TransferUtility.builder()
