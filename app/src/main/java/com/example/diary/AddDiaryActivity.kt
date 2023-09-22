@@ -66,6 +66,8 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 
     //대표이미지 추가를 위한
     private var uriList = ArrayList<Uri>()
+    
+    //추가된 이미지를 넣기 위함
 
     private var new: Int? = 1 // 새로 작성이면 1, 수정이면 0, 플랜 바탕 작성이면 -1
     private var diaryId: Int? = -1 // 일기 수정일 때의 해당 일기 아이디
@@ -147,9 +149,10 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                     val placeX = data?.getStringExtra("x")
                     val placeY = data?.getStringExtra("y")
                     val imageUris = data?.getParcelableArrayListExtra<Uri>("imageUris")
+                    val addImageUris = data?.getParcelableArrayListExtra<Uri>("addimageUris")
                     Log.d(
                         "리사이클러뷰", "" + position + enteredText + place +
-                                placeDate + placeTimeS + placeTimeE + placeAddress + placeX + placeY
+                                placeDate + placeTimeS + placeTimeE + placeAddress + placeX + placeY + addImageUris
                     )
 
                     if (position != null && position >= 0) {
@@ -163,6 +166,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                         item.address = placeAddress
                         item.x = placeX
                         item.y = placeY
+                        item.addimageUris = addImageUris
                         diaryPlaceAdapter.notifyItemChanged(position)
                     } else {
                         if (!enteredText.isNullOrEmpty() || imageUris != null) {
@@ -171,6 +175,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
                                 DiaryPlaceModel(
                                     content = enteredText,
                                     imageUris = imageUris,
+                                    addimageUris = addImageUris,
                                     place = place,
                                     placeDate = placeDate,
                                     placeTimeS = placeTimeS,
@@ -514,6 +519,7 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun saveDiaryToServer(isNew: Int) { // 일기 서버에 추가
+        Log.d("addDiaryActi", "saveDiaryToServer" + isNew)
         val travelDest = binding.diaryAddDest.text.toString()
         val content = binding.diaryAddTitle.text.toString()
         val public = !binding.diaryAddLockBtn.isChecked
@@ -590,10 +596,19 @@ class AddDiaryActivity : AppCompatActivity(), DiaryPlaceAdapter.ItemClickListene
         for (item in filteredDiaryPlaceList) {
             val place = item.place ?: "여행지"
             lateinit var content: String
-            val imageUris = item.imageUris
+            var imageUris = item.imageUris
 
             // 이미지 리스트를 따로 관리하기 위한 리스트
             val placeImageList: MutableList<DiaryLocationImageDto> = mutableListOf()
+
+
+            //여기를 모르겠음
+            if(isNew == 0) {
+                imageUris = item.addimageUris
+            }
+            else if(isNew == 1) {
+                imageUris = item.imageUris
+            }
 
             if (imageUris != null) {
                 Log.d("adddiary", "imageUris" + imageUris)

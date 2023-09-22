@@ -73,6 +73,7 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>, val
                 intent.putExtra("x", item.x)
                 intent.putExtra("y", item.y)
                 intent.putParcelableArrayListExtra("imageUris", item.imageUris)
+                intent.putExtra("new", num)
 
                 itemClickListener?.itemClicked() // 기존 내용 뷰모델에 저장해라 호출
 
@@ -113,6 +114,7 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>, val
                     MultiImageAdapter(item.imageUris ?: ArrayList(), binding.root.context)
                 imageRecyclerView.adapter = imageAdapter
             } else if (num == 1) {
+                Log.d("diaryplaceadapter", "수정 중")
                 //수정 중인 상태라면
                 // layoutManager를 설정하는 부분은 onBindViewHolder에서 이루어집니다.
                 binding.recyclerView.layoutManager = LinearLayoutManager(
@@ -129,16 +131,26 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>, val
                     .context(binding.root.context)
                     .defaultBucket("diary") // S3 버킷 이름을 변경하세요
                     .build()
+                Log.d("DiaryPlaceAdapter", "addimageUris" + item.addimageUris)
+                if (item.addimageUris != null) {
+                    item.imageUris?.let {
+                        downloadAndInitializeAdapter(
+                            it,
+                            binding,
+                            item.imageUris!!,
+                            item.addimageUris
+                        )
+                    }
+                } else {
+                    item.imageUris?.let {
+                        downloadAndInitializeAdapter(it, binding, item.imageUris!!, null)
+                    }
 
-                item.imageUris?.let { downloadAndInitializeAdapter(it, binding) }
 //            val imageAdapter = MultiImageAdapter(uriList as ArrayList<Uri>, holder.binding.root.context)
 //            holder.binding.recyclerView.adapter = imageAdapter
 //            holder.binding.recyclerView.layoutManager = layoutManager
-                Log.d("detailAdapter", "이미지 추가")
-            } else {
-                // 이미지가 없는 경우, RecyclerView를 숨깁니다.
-                binding.recyclerView.visibility = View.GONE
-                Log.d("detailAdapter", "이미지 없음")
+                    Log.d("detailAdapter", "이미지 추가")
+                }
             }
         }
     }
@@ -176,7 +188,9 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>, val
 
     private fun downloadAndInitializeAdapter(
         imageUri: List<Uri>,
-        binding: DiaryDetailPlaceRecyclerviewBinding
+        binding: DiaryDetailPlaceRecyclerviewBinding,
+        imageUris: ArrayList<Uri>,
+        addimageUris: ArrayList<Uri>?
 
     ) {
         // 다운로드할 파일 경로
@@ -210,6 +224,10 @@ class DiaryPlaceAdapter (private val itemList: MutableList<DiaryPlaceModel>, val
 
                         // 모든 이미지가 다운로드 완료되면 어댑터 초기화
                         if (completionCount.get() == imageUri.size) {
+                            if(addimageUris != null) {
+                                downloadFiles.addAll(addimageUris)
+                            }
+                            Log.d("DiaryPlaceAdapter", "downloadFiles" + downloadFiles)
                             val imageAdapter =
                                 MultiImageAdapter(downloadFiles, binding.root.context)
                             binding.recyclerView.adapter = imageAdapter
